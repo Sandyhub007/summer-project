@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gymcyclopedia | Home</title>
+  <!-- Bootstrap CSS (integrity removed to avoid mismatch issues) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts: Poppins (Premium Look) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Supabase JavaScript Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Ensure the page takes up full height */
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Poppins', 'Inter', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    /* Pure black background */
+    .bg-cover {
+      background-color: #000;
+      position: relative;
+      color: #fff;
+    }
+
+    /* Remove overlay gradient */
+    .bg-cover::before {
+      content: none;
+    }
+
+    /* Ensure hero content sits above overlay */
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+    }
+
+    /* Responsive typo sizes */
+    h1.display-4 {
+      font-weight: 700;
+    }
+
+    /* Button styling */
+    .btn-cta {
+      transition: all 0.3s ease;
+      border: 2px solid #fff;
+      color: #fff;
+      padding-inline: 2.5rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+    .btn-cta:hover {
+      background-color: #fff;
+      color: #000;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Ensure navbar links stay light */
+    .navbar-dark .navbar-nav .nav-link {
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .navbar-dark .navbar-nav .nav-link:hover,
+    .navbar-dark .navbar-nav .nav-link.active {
+      color: #fff;
+    }
+
+    /* Brand/title size reduced with premium styling */
+    .navbar-brand {
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Responsive heading sizing */
+    .hero-content h1 {
+      font-size: clamp(1.35rem, 3.5vw + 0.4rem, 2.7rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .hero-content p {
+      font-weight: 300;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Slide-in animation */
+    @keyframes slideUp {
+      0% {
+        transform: translateY(40px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .slide-in {
+      animation: slideUp 0.8s ease-out forwards;
+    }
+
+    /* Center menu absolute layout on desktop */
+    @media (min-width: 992px) {
+      /* No longer needed after navbar restructure */
+    }
+
+    /* Modal styling improvements */
+    .modal-content {
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    .modal-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+    }
+    .modal-body {
+      padding: 2rem;
+    }
+    .form-control {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+    .form-control:focus {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 300;
+    }
+    .form-label {
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .modal-title {
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* Progress bar styling */
+    .progress {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    .progress-bar {
+      background: linear-gradient(45deg, #007bff, #00d4ff);
+      border-radius: 10px;
+      transition: width 0.8s ease-in-out;
+    }
+
+    /* Stats cards */
+    .border-secondary {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-cover d-flex flex-column min-vh-100">
+    <!-- Transparent Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
+      <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand fw-bold" href="#">GYMCYCLOPEDIA</a>
+
+        <!-- Mobile Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Centered Nav Links -->
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+          <ul class="navbar-nav mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Workouts</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Support</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Auth buttons -->
+        <div class="d-none d-lg-flex">
+          <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+          <button class="btn btn-cta" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+          <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container flex-grow-1 d-flex align-items-center justify-content-center">
+      <div class="hero-content text-center px-3">
+        <h1 class="display-2 fw-bold mb-3 slide-in">Your Fitness Journey Starts Here</h1>
+        <p class="lead mb-4">Join Gymcyclopedia to access workouts, nutrition tips, and community support to reach your goals.</p>
+        <a href="#" class="btn btn-cta btn-outline-light btn-lg">Get Started</a>
+      </div>
+    </div>
+
+    <!-- User Dashboard (hidden until logged in) -->
+    <section id="user-dashboard" class="container my-5 d-none">
+      <div class="row justify-content-center">
+        <div class="col-md-10">
+          <!-- Welcome Header -->
+          <div class="text-center mb-4">
+            <h2 class="fw-bold text-white">Welcome back, <span id="user-name"></span>! 🎯</h2>
+            <p class="text-light">Here's your fitness journey progress</p>
+          </div>
+
+          <!-- Progress Tracking Section -->
+          <div class="card bg-dark text-white border-light mb-4">
+            <div class="card-body">
+              <h4 class="card-title mb-4 text-center">📊 Progress Tracking</h4>
+              
+              <!-- Weight Goal Progress -->
+              <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="mb-0">Weight Goal Progress</h6>
+                  <span id="progress-percentage" class="badge bg-primary fs-6">0%</span>
+                </div>
+                <div class="progress mb-2" style="height: 12px;">
+                  <div id="progress-bar" class="progress-bar bg-gradient" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">
+                  <span id="weight-lost">0 kg</span> lost • 
+                  <span id="weight-remaining">0 kg</span> to go
+                </small>
+              </div>
+
+              <!-- Days Remaining Counter -->
+              <div class="row text-center">
+                <div class="col-6">
+                  <div class="border border-secondary rounded p-3">
+                    <h5 class="text-warning mb-1">⏰</h5>
+                    <h4 id="days-remaining" class="fw-bold text-warning">0</h4>
+                    <small class="text-muted">Days Remaining</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="border border-secondary rounded p-3">
+                    <h5 class="text-success mb-1">🔥</h5>
+                    <h4 id="streak-counter" class="fw-bold text-success">0</h4>
+                    <small class="text-muted">Day Streak</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats Overview -->
+          <div class="card bg-dark text-white border-light">
+            <div class="card-body">
+              <h4 class="card-title mb-4 text-center">📈 Your Stats</h4>
+              <div class="row g-3 text-center">
+                <div class="col-6 col-md-4">
+                  <h6>Current Weight</h6>
+                  <p id="current-weight" class="fs-5 fw-semibold text-primary"></p>
+                </div>
+                <div class="col-6 col-md-4">
+                  <h6>Goal Weight</h6>
+                  <p id="goal-weight" class="fs-5 fw-semibold text-success"></p>
+                </div>
+                <div class="col-6 col-md-4">
+                  <h6>Timeline</h6>
+                  <p id="timeline" class="fs-5 fw-semibold text-warning"></p>
+                </div>
+                <div class="col-6 col-md-4">
+                  <h6>Height</h6>
+                  <p id="height" class="fs-5 fw-semibold"></p>
+                </div>
+                <div class="col-6 col-md-4">
+                  <h6>BMI</h6>
+                  <p id="bmi" class="fs-5 fw-semibold"></p>
+                </div>
+                <div class="col-6 col-md-4">
+                  <h6>Daily Calories</h6>
+                  <p id="calories" class="fs-5 fw-semibold text-info"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h4 class="modal-title fw-bold">Welcome Back</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm" class="vstack gap-4">
+            <div>
+              <label class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
+              <input type="email" class="form-control" placeholder="Enter your email" required id="loginEmail">
+            </div>
+            <div>
+              <label class="form-label small text-uppercase fw-semibold mb-2">Password</label>
+              <input type="password" class="form-control" placeholder="Enter your password" required id="loginPassword">
+            </div>
+            <button type="submit" class="btn btn-cta btn-lg mt-3">Sign In</button>
+            <p class="text-danger small mt-2 d-none text-center" id="loginError">Invalid email or password</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign Up Modal -->
+  <div class="modal fade" id="signupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h4 class="modal-title fw-bold">Join Gymcyclopedia</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="signupForm" class="vstack gap-4">
+            <div>
+              <label class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
+              <input type="email" class="form-control" placeholder="Enter your email" required id="signupEmail">
+            </div>
+            <div>
+              <label class="form-label small text-uppercase fw-semibold mb-2">Password</label>
+              <input type="password" class="form-control" placeholder="Create a password" required id="signupPassword">
+            </div>
+            <button type="submit" class="btn btn-cta btn-lg mt-3">Create Account</button>
+            <p class="text-danger small mt-2 d-none text-center" id="signupError">Account already exists with this email</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle (with Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Supabase Integration Script -->
+  <script>
+    // ===== SUPABASE CONFIGURATION =====
+    const SUPABASE_URL = 'https://stojhqobywrvkjaabcvq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0b2pocW9ieXdydmtqYWFiY3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyMDcwMDEsImV4cCI6MjA2NTc4MzAwMX0.JQeFsT3nUFMpQ1Tz9uYBnZ3IuE_gBK9P9Du0Igo7Hsg';
+    
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    /* ===== SUPABASE HELPER FUNCTIONS ===== */
+    
+    // Sign up new user
+    async function signUpUser(email, password) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+        });
+        
+        if (error) throw error;
+        return { success: true, user: data.user };
+      } catch (error) {
+        console.error('Sign up error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Sign in user
+    async function signInUser(email, password) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
+        
+        if (error) throw error;
+        return { success: true, user: data.user };
+      } catch (error) {
+        console.error('Sign in error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Sign out user
+    async function signOutUser() {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        return { success: true };
+      } catch (error) {
+        console.error('Sign out error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Get user profile
+    async function getUserProfile(userId) {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+        
+        if (error) throw error;
+        return { success: true, profile: data };
+      } catch (error) {
+        console.error('Get profile error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Update user profile
+    async function updateUserProfile(userId, profileData) {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .update(profileData)
+          .eq('id', userId)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return { success: true, profile: data };
+      } catch (error) {
+        console.error('Update profile error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    /* ===== UI UPDATE FUNCTIONS ===== */
+    function populateDashboard(profile) {
+      const dash = document.getElementById('user-dashboard');
+      dash.classList.remove('d-none');
+
+      // Basic user info
+      document.getElementById('user-name').textContent = profile.name || 'User';
+      document.getElementById('current-weight').textContent = `${profile.current_weight_kg} kg`;
+      document.getElementById('goal-weight').textContent = `${profile.goal_weight_kg} kg`;
+      document.getElementById('timeline').textContent = `${profile.months_to_goal} months`;
+      document.getElementById('height').textContent = `${profile.height_cm} cm`;
+
+      // Calculate BMI
+      const heightM = profile.height_cm / 100;
+      const bmi = (profile.current_weight_kg / (heightM * heightM)).toFixed(1);
+      document.getElementById('bmi').textContent = bmi;
+      document.getElementById('calories').textContent = `${profile.daily_calories} kcal`;
+
+      // Calculate and display progress tracking
+      updateProgressTracking(profile);
+    }
+
+    function updateProgressTracking(profile) {
+      // Calculate weight progress
+      const currentWeight = profile.current_weight_kg;
+      const goalWeight = profile.goal_weight_kg;
+      const startWeight = profile.start_weight_kg || currentWeight; // Use current as start if no start weight
+      
+      let progressPercentage = 0;
+      let weightLost = 0;
+      let weightRemaining = 0;
+
+      if (startWeight !== goalWeight) {
+        if (goalWeight < startWeight) {
+          // Weight loss goal
+          weightLost = Math.max(0, startWeight - currentWeight);
+          weightRemaining = Math.max(0, currentWeight - goalWeight);
+          const totalToLose = startWeight - goalWeight;
+          progressPercentage = Math.min(100, (weightLost / totalToLose) * 100);
+        } else {
+          // Weight gain goal
+          const weightGained = Math.max(0, currentWeight - startWeight);
+          weightRemaining = Math.max(0, goalWeight - currentWeight);
+          const totalToGain = goalWeight - startWeight;
+          progressPercentage = Math.min(100, (weightGained / totalToGain) * 100);
+          weightLost = weightGained; // Show as "gained" instead of "lost"
+        }
+      }
+
+      // Update progress bar
+      const progressBar = document.getElementById('progress-bar');
+      const progressBadge = document.getElementById('progress-percentage');
+      
+      progressBar.style.width = `${progressPercentage}%`;
+      progressBar.setAttribute('aria-valuenow', progressPercentage);
+      progressBadge.textContent = `${Math.round(progressPercentage)}%`;
+
+      // Update weight lost/remaining
+      document.getElementById('weight-lost').textContent = `${weightLost.toFixed(1)} kg ${goalWeight < startWeight ? 'lost' : 'gained'}`;
+      document.getElementById('weight-remaining').textContent = `${weightRemaining.toFixed(1)} kg to go`;
+
+      // Calculate days remaining
+      const createdDate = new Date(profile.created_at);
+      const goalDate = new Date(createdDate);
+      goalDate.setMonth(goalDate.getMonth() + profile.months_to_goal);
+      
+      const today = new Date();
+      const timeDiff = goalDate.getTime() - today.getTime();
+      const daysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 3600 * 24)));
+      
+      document.getElementById('days-remaining').textContent = daysRemaining;
+
+      // Streak counter (placeholder for now - will implement proper tracking later)
+      const streakCount = profile.streak_days || calculateStreakFromProfile(profile);
+      document.getElementById('streak-counter').textContent = streakCount;
+
+      console.log('📊 Progress tracking updated:', {
+        progressPercentage: Math.round(progressPercentage),
+        weightLost: weightLost.toFixed(1),
+        daysRemaining,
+        streak: streakCount
+      });
+    }
+
+    // Temporary streak calculation (we'll improve this with proper logging later)
+    function calculateStreakFromProfile(profile) {
+      // For now, calculate based on how many days since account creation
+      const createdDate = new Date(profile.created_at);
+      const today = new Date();
+      const daysSinceCreation = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+      
+      // Simple placeholder: assume 1 day streak for every 7 days since creation (just for demo)
+      return Math.min(daysSinceCreation, Math.floor(daysSinceCreation / 7) + 1);
+    }
+
+    function toggleAuthButtons(loggedIn) {
+      const loginBtn = document.querySelector('[data-bs-target="#loginModal"]');
+      const signupBtn = document.querySelector('[data-bs-target="#signupModal"]');
+      const logoutBtn = document.getElementById('logoutBtn');
+      
+      if (loggedIn) {
+        // User is logged in - hide login/signup, show logout
+        loginBtn.classList.add('d-none');
+        signupBtn.classList.add('d-none');
+        logoutBtn.classList.remove('d-none');
+      } else {
+        // User is logged out - show login/signup, hide logout
+        loginBtn.classList.remove('d-none');
+        signupBtn.classList.remove('d-none');
+        logoutBtn.classList.add('d-none');
+      }
+      
+      console.log(`🔄 Auth buttons toggled: loggedIn=${loggedIn}`);
+    }
+
+    function showError(elementId, message) {
+      const errorElement = document.getElementById(elementId);
+      errorElement.textContent = message;
+      errorElement.classList.remove('d-none');
+    }
+
+    function hideError(elementId) {
+      document.getElementById(elementId).classList.add('d-none');
+    }
+
+    /* ===== AUTHENTICATION EVENT HANDLERS ===== */
+    
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // User signed in, load their profile
+        const result = await getUserProfile(session.user.id);
+        if (result.success) {
+          populateDashboard(result.profile);
+          toggleAuthButtons(true);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // User signed out, hide dashboard and reset UI
+        document.getElementById('user-dashboard').classList.add('d-none');
+        toggleAuthButtons(false);
+        console.log('🔓 User signed out - UI reset to homepage');
+      }
+    });
+
+    /* ===== ON PAGE LOAD ===== */
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Check if user is already logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const result = await getUserProfile(session.user.id);
+        if (result.success) {
+          populateDashboard(result.profile);
+          toggleAuthButtons(true);
+        }
+      }
+    });
+
+    /* ===== SIGN UP FORM ===== */
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('signupError');
+      
+      const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+      const password = document.getElementById('signupPassword').value;
+
+      const result = await signUpUser(email, password);
+      
+      if (result.success) {
+        // Success - close modal and reset form
+        const modal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+        modal.hide();
+        document.getElementById('signupForm').reset();
+        
+        // Show success message
+        alert('Account created successfully! Please check your email to verify your account.');
+      } else {
+        // Show error
+        showError('signupError', result.error);
+      }
+    });
+
+    /* ===== LOGIN FORM ===== */
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('loginError');
+      
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+
+      const result = await signInUser(email, password);
+      
+      if (result.success) {
+        // Success - close modal and reset form
+        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        modal.hide();
+        document.getElementById('loginForm').reset();
+      } else {
+        // Show error
+        showError('loginError', result.error);
+      }
+    });
+
+    /* ===== LOGOUT BUTTON ===== */
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      const result = await signOutUser();
+      if (result.success) {
+        // Explicitly reset UI state
+        document.getElementById('user-dashboard').classList.add('d-none');
+        toggleAuthButtons(false);
+        console.log('✅ User logged out successfully');
+      }
+    });
+
+    console.log('🚀 Supabase connected successfully!');
+  </script>
+</body>
+</html> 
