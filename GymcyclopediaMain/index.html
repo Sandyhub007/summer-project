@@ -191,7 +191,7 @@
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
           <ul class="navbar-nav mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Workouts</a></li>
+            <li class="nav-item"><a class="nav-link" href="/workouts.html">Workouts</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Support</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
@@ -207,8 +207,8 @@
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="container flex-grow-1 d-flex align-items-center justify-content-center">
+    <!-- Hero Section (hidden when logged in) -->
+    <div id="hero-section" class="container flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="hero-content text-center px-3">
         <h1 class="display-2 fw-bold mb-3 slide-in">Your Fitness Journey Starts Here</h1>
         <p class="lead mb-4">Join Gymcyclopedia to access workouts, nutrition tips, and community support to reach your goals.</p>
@@ -324,6 +324,11 @@
             </div>
             <button type="submit" class="btn btn-cta btn-lg mt-3">Sign In</button>
             <p class="text-danger small mt-2 d-none text-center" id="loginError">Invalid email or password</p>
+            <div class="text-center mt-3">
+              <button type="button" class="btn btn-link text-light small" id="forgotPasswordBtn">
+                Forgot your password?
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -406,6 +411,30 @@
     </div>
   </div>
 
+  <!-- Password Reset Modal -->
+  <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h4 class="modal-title fw-bold">Reset Password</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="resetPasswordForm" class="vstack gap-4">
+            <div>
+              <label class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
+              <input type="email" class="form-control" placeholder="Enter your email" required id="resetEmail">
+              <small class="text-muted mt-1">We'll send a secure reset link to your email</small>
+            </div>
+            <button type="submit" class="btn btn-cta btn-lg mt-3">Send Reset Link</button>
+            <p class="text-danger small mt-2 d-none text-center" id="resetError">Please enter a valid email address</p>
+            <p class="text-success small mt-2 d-none text-center" id="resetSuccess">Reset link sent! Check your email.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap JS Bundle (with Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -472,6 +501,21 @@
         return { success: true };
       } catch (error) {
         console.error('Sign out error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Reset password (send secure reset link)
+    async function resetPassword(email) {
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password.html`
+        });
+        
+        if (error) throw error;
+        return { success: true };
+      } catch (error) {
+        console.error('Password reset error:', error);
         return { success: false, error: error.message };
       }
     }
@@ -610,20 +654,23 @@
       const loginBtn = document.querySelector('[data-bs-target="#loginModal"]');
       const signupBtn = document.querySelector('[data-bs-target="#signupModal"]');
       const logoutBtn = document.getElementById('logoutBtn');
+      const heroSection = document.getElementById('hero-section');
       
       if (loggedIn) {
-        // User is logged in - hide login/signup, show logout
+        // User is logged in - hide login/signup, show logout, hide hero
         loginBtn.classList.add('d-none');
         signupBtn.classList.add('d-none');
         logoutBtn.classList.remove('d-none');
+        heroSection.classList.add('d-none');
       } else {
-        // User is logged out - show login/signup, hide logout
+        // User is logged out - show login/signup, hide logout, show hero
         loginBtn.classList.remove('d-none');
         signupBtn.classList.remove('d-none');
         logoutBtn.classList.add('d-none');
+        heroSection.classList.remove('d-none');
       }
       
-      console.log(`🔄 Auth buttons toggled: loggedIn=${loggedIn}`);
+      console.log(`🔄 Auth state toggled: loggedIn=${loggedIn}, heroVisible=${!loggedIn}`);
     }
 
     function showError(elementId, message) {
@@ -737,6 +784,49 @@
         document.getElementById('user-dashboard').classList.add('d-none');
         toggleAuthButtons(false);
         console.log('✅ User logged out successfully');
+      }
+    });
+
+    /* ===== FORGOT PASSWORD ===== */
+    document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
+      // Close login modal and open reset password modal
+      const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+      if (loginModal) loginModal.hide();
+      
+      const resetModal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+      resetModal.show();
+    });
+
+    document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('resetError');
+      
+      const resetSuccess = document.getElementById('resetSuccess');
+      resetSuccess.classList.add('d-none');
+      
+      const email = document.getElementById('resetEmail').value.trim().toLowerCase();
+      
+      if (!email) {
+        showError('resetError', 'Please enter your email address');
+        return;
+      }
+
+      const result = await resetPassword(email);
+      
+      if (result.success) {
+        // Show success message
+        resetSuccess.classList.remove('d-none');
+        document.getElementById('resetPasswordForm').reset();
+        
+        // Close modal after 3 seconds
+        setTimeout(() => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal'));
+          if (modal) modal.hide();
+        }, 3000);
+        
+        console.log('🔐 Password reset link sent successfully');
+      } else {
+        showError('resetError', result.error);
       }
     });
 
