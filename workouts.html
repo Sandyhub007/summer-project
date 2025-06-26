@@ -425,20 +425,46 @@
     async function checkAuthStatus() {
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (!session) {
+      if (!session || !session.user) {
+        console.log('❌ No authentication session found, redirecting to home');
         window.location.href = '/';
         return;
       }
 
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+      console.log('✅ User authenticated:', session.user.email);
 
-      if (profile) {
-        currentUser = profile;
-        document.getElementById('user-name').textContent = profile.name || 'User';
+      try {
+        // Try to get user profile
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          currentUser = profile;
+          document.getElementById('user-name').textContent = profile.name || session.user.email.split('@')[0];
+          console.log('✅ User profile loaded:', profile.name);
+        } else {
+          // Profile doesn't exist or failed to load, but user is authenticated
+          currentUser = {
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.email.split('@')[0]
+          };
+          document.getElementById('user-name').textContent = currentUser.name;
+          console.log('⚠️ No user profile found, using session data');
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+        
+        // Use session data as fallback
+        currentUser = {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.email.split('@')[0]
+        };
+        document.getElementById('user-name').textContent = currentUser.name;
       }
     }
 
@@ -513,43 +539,70 @@
 
     // Load user's workouts from database
     async function loadUserWorkouts() {
-      if (!currentUser) return;
+      // Check authentication first
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) {
+        console.warn('No user session found when loading workouts');
+        userWorkouts = [];
+        populateMyWorkouts();
+        return;
+      }
+
+      const userId = session.user.id;
+      console.log('📚 Loading workouts for user:', userId);
       
       try {
-        const { data, error } = await supabase
+        // Try to load from workout_details view first (includes exercise data)
+        const { data: detailedWorkouts, error: detailsError } = await supabase
           .from('workout_details')
           .select('*')
-          .eq('user_id', currentUser.id)
+          .eq('user_id', userId)
           .eq('is_active', true)
           .order('created_at', { ascending: false });
         
-        if (error && error.message.includes('relation') && error.message.includes('does not exist')) {
-          // Database not set up, load from localStorage
-          console.warn('Database not set up, loading workouts from localStorage');
-          const localWorkouts = JSON.parse(localStorage.getItem('gymcyclopedia_workouts') || '[]');
-          userWorkouts = localWorkouts.map(workout => ({
-            ...workout,
-            exercise_count: workout.exercises ? workout.exercises.length : 0
-          }));
-          console.log('💪 Loaded local workouts:', userWorkouts.length, 'workouts');
-        } else if (error) {
-          throw error;
+        if (!detailsError && detailedWorkouts) {
+          userWorkouts = detailedWorkouts;
+          console.log('✅ Loaded workouts from workout_details view:', userWorkouts.length, 'workouts');
         } else {
-          userWorkouts = data || [];
-          console.log('💪 Loaded user workouts from database:', userWorkouts.length, 'workouts');
+          // Fallback: load basic workout data and exercise count separately
+          const { data: basicWorkouts, error: basicError } = await supabase
+            .from('workouts')
+            .select(`
+              *,
+              workout_exercises(count)
+            `)
+            .eq('user_id', userId)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+
+          if (basicError) throw basicError;
+
+          userWorkouts = basicWorkouts.map(workout => ({
+            ...workout,
+            exercise_count: workout.workout_exercises?.[0]?.count || 0,
+            exercises: [] // Will be loaded when needed
+          }));
+          
+          console.log('✅ Loaded basic workouts from workouts table:', userWorkouts.length, 'workouts');
         }
         
         populateMyWorkouts();
+        
       } catch (error) {
-        console.error('Error loading workouts:', error);
-        // Try to load from localStorage as fallback
-        const localWorkouts = JSON.parse(localStorage.getItem('gymcyclopedia_workouts') || '[]');
-        userWorkouts = localWorkouts.map(workout => ({
-          ...workout,
-          exercise_count: workout.exercises ? workout.exercises.length : 0
-        }));
+        console.error('Error loading workouts from database:', error);
+        
+        if (error.message.includes('relation') && error.message.includes('does not exist')) {
+          showToast('Database tables not found. Please apply the SQL schema first.', 'error');
+          userWorkouts = [];
+        } else if (error.message.includes('permission denied') || error.message.includes('RLS')) {
+          showToast('Permission denied loading workouts. Please log in again.', 'error');
+          userWorkouts = [];
+        } else {
+          showToast('Failed to load workouts from database.', 'error');
+          userWorkouts = [];
+        }
+        
         populateMyWorkouts();
-        showToast('Loaded workouts from local storage', 'info');
       }
     }
 
@@ -737,70 +790,82 @@
       const selectedCheckboxes = document.querySelectorAll('#exerciseSelection input:checked');
       const exerciseIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
       
+      // Validation
       if (!name || !category || exerciseIds.length === 0) {
         showToast('Please fill in all required fields and select at least one exercise.', 'error');
         return;
       }
 
+      // Check authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) {
+        showToast('Please log in to save workouts.', 'error');
+        window.location.href = '/';
+        return;
+      }
+
+      const userId = session.user.id;
+      console.log('💾 Saving workout for user:', userId, 'Workout:', name, 'Exercises:', exerciseIds);
+
       try {
-        // Check if database tables exist by testing a simple query first
-        const { error: testError } = await supabase
+        // First, create the workout
+        const { data: workout, error: workoutError } = await supabase
           .from('workouts')
-          .select('id')
-          .limit(1);
+          .insert({
+            user_id: userId,
+            name: name,
+            category: category,
+            description: description || null,
+            is_active: true
+          })
+          .select()
+          .single();
 
-        if (testError && testError.message.includes('relation') && testError.message.includes('does not exist')) {
-          // Database schema not set up yet - save locally for now
-          const workout = {
-            id: Date.now().toString(),
-            name,
-            category,
-            description,
-            exercises: exerciseIds.map(id => exerciseLibrary.find(ex => ex.id === id)),
-            created_at: new Date().toISOString()
-          };
+        if (workoutError) {
+          console.error('Error creating workout:', workoutError);
           
-          // Store in localStorage temporarily
-          const localWorkouts = JSON.parse(localStorage.getItem('gymcyclopedia_workouts') || '[]');
-          localWorkouts.push(workout);
-          localStorage.setItem('gymcyclopedia_workouts', JSON.stringify(localWorkouts));
+          // Check if it's a schema issue
+          if (workoutError.message.includes('relation') && workoutError.message.includes('does not exist')) {
+            showToast('Database not set up! Please run the SQL schema in Supabase first.', 'error');
+            return;
+          }
           
-          showToast(`Workout "${name}" saved locally! Run the SQL schema to save to database.`, 'warning');
-        } else {
-          // Database is set up, save normally
-          const { data: workout, error: workoutError } = await supabase
-            .from('workouts')
-            .insert({
-              user_id: currentUser.id,
-              name: name,
-              category: category,
-              description: description
-            })
-            .select()
-            .single();
-
-          if (workoutError) throw workoutError;
-
-          // Then, add the exercises to the workout
-          const workoutExercises = exerciseIds.map((exerciseId, index) => ({
-            workout_id: workout.id,
-            exercise_id: exerciseId,
-            exercise_order: index + 1,
-            sets: 3, // Default values
-            reps: '10',
-            rest_seconds: 60
-          }));
-
-          const { error: exercisesError } = await supabase
-            .from('workout_exercises')
-            .insert(workoutExercises);
-
-          if (exercisesError) throw exercisesError;
-
-          showToast(`Workout "${name}" created successfully!`, 'success');
-          // Reload user workouts
-          await loadUserWorkouts();
+          throw workoutError;
         }
+
+        console.log('✅ Workout created:', workout);
+
+        // Then, add the exercises to the workout
+        const workoutExercises = exerciseIds.map((exerciseId, index) => ({
+          workout_id: workout.id,
+          exercise_id: exerciseId,
+          exercise_order: index + 1,
+          sets: 3, // Default values - can be customized later
+          reps: '10', // Default reps
+          weight_kg: null, // Will be set during workout
+          rest_seconds: 60, // Default rest time
+          notes: null
+        }));
+
+        const { error: exercisesError } = await supabase
+          .from('workout_exercises')
+          .insert(workoutExercises);
+
+        if (exercisesError) {
+          console.error('Error adding exercises to workout:', exercisesError);
+          
+          // Cleanup: delete the workout if exercises failed to save
+          await supabase.from('workouts').delete().eq('id', workout.id);
+          
+          throw exercisesError;
+        }
+
+        console.log('✅ Workout exercises added:', workoutExercises.length, 'exercises');
+
+        showToast(`Workout "${name}" created successfully! 🎉`, 'success');
+        
+        // Reload user workouts to show the new one
+        await loadUserWorkouts();
 
         // Success! Close modal and reset form
         const modal = bootstrap.Modal.getInstance(document.getElementById('createWorkoutModal'));
@@ -810,7 +875,14 @@
         
       } catch (error) {
         console.error('Error saving workout:', error);
-        showToast('Error saving workout. Please try again.', 'error');
+        
+        if (error.message.includes('permission denied') || error.message.includes('RLS')) {
+          showToast('Permission denied. Please make sure you are logged in.', 'error');
+        } else if (error.message.includes('relation') && error.message.includes('does not exist')) {
+          showToast('Database tables not found. Please apply the SQL schema first.', 'error');
+        } else {
+          showToast(`Error saving workout: ${error.message}`, 'error');
+        }
       }
     }
 
