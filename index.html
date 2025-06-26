@@ -704,14 +704,31 @@
 
     /* ===== ON PAGE LOAD ===== */
     window.addEventListener('DOMContentLoaded', async () => {
+      console.log('🔄 Page loaded - checking authentication state...');
+      
       // Check if user is already logged in
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      
+      if (session && session.user) {
+        console.log('✅ User session found:', session.user.email);
+        
         const result = await getUserProfile(session.user.id);
         if (result.success) {
+          console.log('✅ User profile loaded, showing dashboard');
           populateDashboard(result.profile);
           toggleAuthButtons(true);
+        } else {
+          console.warn('⚠️ Failed to load user profile, but session exists');
+          // Still show logged in state even if profile fails
+          toggleAuthButtons(true);
+          document.getElementById('user-dashboard').classList.remove('d-none');
+          document.getElementById('hero-section').classList.add('d-none');
         }
+      } else {
+        console.log('❌ No user session found - showing hero page');
+        toggleAuthButtons(false);
+        document.getElementById('user-dashboard').classList.add('d-none');
+        document.getElementById('hero-section').classList.remove('d-none');
       }
     });
 
@@ -829,6 +846,137 @@
         showError('resetError', result.error);
       }
     });
+
+    /* ===== DASHBOARD FUNCTIONS ===== */
+    
+    // Populate dashboard with user data
+    function populateDashboard(profile) {
+      if (!profile) return;
+      
+      console.log('👤 Populating dashboard for user:', profile);
+      
+      // Show dashboard and hide hero
+      document.getElementById('user-dashboard').classList.remove('d-none');
+      document.getElementById('hero-section').classList.add('d-none');
+      
+      // Update user name
+      document.getElementById('user-name').textContent = profile.name || 'User';
+      
+      // Update stats
+      document.getElementById('current-weight').textContent = `${profile.current_weight_kg || 0} kg`;
+      document.getElementById('goal-weight').textContent = `${profile.goal_weight_kg || 0} kg`;
+      document.getElementById('timeline').textContent = `${profile.months_to_goal || 0} months`;
+      document.getElementById('height').textContent = `${profile.height_cm || 0} cm`;
+      document.getElementById('calories').textContent = `${profile.daily_calories || 0} kcal`;
+      
+      // Calculate BMI
+      if (profile.height_cm && profile.current_weight_kg) {
+        const heightInMeters = profile.height_cm / 100;
+        const bmi = (profile.current_weight_kg / (heightInMeters * heightInMeters)).toFixed(1);
+        document.getElementById('bmi').textContent = bmi;
+      }
+      
+      // Update progress tracking
+      updateProgressTracking(profile);
+    }
+
+    /* ===== AUTHENTICATION FUNCTIONS ===== */
+    
+    // Get user profile from database
+    async function getUserProfile(userId) {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+        
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          return { success: false, error: error.message };
+        }
+        
+        return { success: true, profile: data };
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        return { success: false, error: 'Failed to load user profile' };
+      }
+    }
+
+    // Sign up new user
+    async function signUpUser(email, password, profileData) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: profileData
+          }
+        });
+        
+        if (error) {
+          return { success: false, error: error.message };
+        }
+        
+        return { success: true, data: data };
+      } catch (error) {
+        console.error('Sign up error:', error);
+        return { success: false, error: 'Failed to create account' };
+      }
+    }
+
+    // Sign in existing user
+    async function signInUser(email, password) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+        
+        if (error) {
+          return { success: false, error: error.message };
+        }
+        
+        return { success: true, data: data };
+      } catch (error) {
+        console.error('Sign in error:', error);
+        return { success: false, error: 'Failed to sign in' };
+      }
+    }
+
+    // Sign out user
+    async function signOutUser() {
+      try {
+        const { error } = await supabase.auth.signOut();
+        
+        if (error) {
+          return { success: false, error: error.message };
+        }
+        
+        return { success: true };
+      } catch (error) {
+        console.error('Sign out error:', error);
+        return { success: false, error: 'Failed to sign out' };
+      }
+    }
+
+    // Reset password
+    async function resetPassword(email) {
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password.html`
+        });
+        
+        if (error) {
+          return { success: false, error: error.message };
+        }
+        
+        return { success: true };
+      } catch (error) {
+        console.error('Reset password error:', error);
+        return { success: false, error: 'Failed to send reset email' };
+      }
+    }
 
     console.log('🚀 Supabase connected successfully!');
   </script>
