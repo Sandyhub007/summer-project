@@ -414,6 +414,44 @@
       }
     }
 
+    // Fallback exercise library (in case database isn't set up yet)
+    const fallbackExercises = [
+      // Chest
+      { id: 1, name: "Push-ups", category: "chest", description: "Classic bodyweight chest exercise", equipment: "None", difficulty: "Beginner" },
+      { id: 2, name: "Bench Press", category: "chest", description: "Barbell chest press", equipment: "Barbell", difficulty: "Intermediate" },
+      { id: 3, name: "Dumbbell Flyes", category: "chest", description: "Chest isolation exercise", equipment: "Dumbbells", difficulty: "Intermediate" },
+      
+      // Back
+      { id: 4, name: "Pull-ups", category: "back", description: "Upper body pulling exercise", equipment: "Pull-up Bar", difficulty: "Intermediate" },
+      { id: 5, name: "Deadlifts", category: "back", description: "Compound pulling movement", equipment: "Barbell", difficulty: "Advanced" },
+      { id: 6, name: "Bent-over Rows", category: "back", description: "Horizontal pulling exercise", equipment: "Barbell", difficulty: "Intermediate" },
+      
+      // Shoulders
+      { id: 7, name: "Overhead Press", category: "shoulders", description: "Vertical pressing movement", equipment: "Barbell", difficulty: "Intermediate" },
+      { id: 8, name: "Lateral Raises", category: "shoulders", description: "Side deltoid isolation", equipment: "Dumbbells", difficulty: "Beginner" },
+      { id: 9, name: "Face Pulls", category: "shoulders", description: "Rear deltoid exercise", equipment: "Cable", difficulty: "Beginner" },
+      
+      // Arms
+      { id: 10, name: "Bicep Curls", category: "arms", description: "Bicep isolation exercise", equipment: "Dumbbells", difficulty: "Beginner" },
+      { id: 11, name: "Tricep Dips", category: "arms", description: "Tricep bodyweight exercise", equipment: "Bench", difficulty: "Intermediate" },
+      { id: 12, name: "Hammer Curls", category: "arms", description: "Neutral grip bicep curls", equipment: "Dumbbells", difficulty: "Beginner" },
+      
+      // Legs
+      { id: 13, name: "Squats", category: "legs", description: "Fundamental leg exercise", equipment: "Bodyweight/Barbell", difficulty: "Beginner" },
+      { id: 14, name: "Lunges", category: "legs", description: "Unilateral leg exercise", equipment: "Bodyweight/Dumbbells", difficulty: "Beginner" },
+      { id: 15, name: "Romanian Deadlifts", category: "legs", description: "Hip hinge movement", equipment: "Barbell", difficulty: "Intermediate" },
+      
+      // Core
+      { id: 16, name: "Plank", category: "core", description: "Isometric core exercise", equipment: "None", difficulty: "Beginner" },
+      { id: 17, name: "Russian Twists", category: "core", description: "Rotational core exercise", equipment: "Medicine Ball", difficulty: "Beginner" },
+      { id: 18, name: "Mountain Climbers", category: "core", description: "Dynamic core exercise", equipment: "None", difficulty: "Intermediate" },
+      
+      // Cardio
+      { id: 19, name: "Burpees", category: "cardio", description: "Full body cardio exercise", equipment: "None", difficulty: "Intermediate" },
+      { id: 20, name: "Jumping Jacks", category: "cardio", description: "Basic cardio movement", equipment: "None", difficulty: "Beginner" },
+      { id: 21, name: "High Knees", category: "cardio", description: "Running in place variation", equipment: "None", difficulty: "Beginner" }
+    ];
+
     // Load exercise library from database
     async function loadExerciseLibrary() {
       try {
@@ -422,13 +460,26 @@
           .select('*')
           .order('category, name');
         
-        if (error) throw error;
+        if (error) {
+          console.warn('Database not set up yet, using fallback exercises:', error.message);
+          exerciseLibrary = fallbackExercises;
+          showToast('Using offline exercise library. Run the SQL schema to enable full database features.', 'info');
+          return;
+        }
         
-        exerciseLibrary = data || [];
-        console.log('📚 Loaded exercise library:', exerciseLibrary.length, 'exercises');
+        if (data && data.length > 0) {
+          exerciseLibrary = data;
+          console.log('📚 Loaded exercise library from database:', exerciseLibrary.length, 'exercises');
+        } else {
+          console.warn('No exercises found in database, using fallback');
+          exerciseLibrary = fallbackExercises;
+          showToast('Exercise library empty. Using default exercises.', 'info');
+        }
+        
       } catch (error) {
-        console.error('Error loading exercises:', error);
-        showToast('Failed to load exercise library', 'error');
+        console.error('Error loading exercises, using fallback:', error);
+        exerciseLibrary = fallbackExercises;
+        showToast('Using offline exercise library. Check your database connection.', 'warning');
       }
     }
 
@@ -444,14 +495,33 @@
           .eq('is_active', true)
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
+        if (error && error.message.includes('relation') && error.message.includes('does not exist')) {
+          // Database not set up, load from localStorage
+          console.warn('Database not set up, loading workouts from localStorage');
+          const localWorkouts = JSON.parse(localStorage.getItem('gymcyclopedia_workouts') || '[]');
+          userWorkouts = localWorkouts.map(workout => ({
+            ...workout,
+            exercise_count: workout.exercises ? workout.exercises.length : 0
+          }));
+          console.log('💪 Loaded local workouts:', userWorkouts.length, 'workouts');
+        } else if (error) {
+          throw error;
+        } else {
+          userWorkouts = data || [];
+          console.log('💪 Loaded user workouts from database:', userWorkouts.length, 'workouts');
+        }
         
-        userWorkouts = data || [];
-        console.log('💪 Loaded user workouts:', userWorkouts.length, 'workouts');
         populateMyWorkouts();
       } catch (error) {
         console.error('Error loading workouts:', error);
-        showToast('Failed to load your workouts', 'error');
+        // Try to load from localStorage as fallback
+        const localWorkouts = JSON.parse(localStorage.getItem('gymcyclopedia_workouts') || '[]');
+        userWorkouts = localWorkouts.map(workout => ({
+          ...workout,
+          exercise_count: workout.exercises ? workout.exercises.length : 0
+        }));
+        populateMyWorkouts();
+        showToast('Loaded workouts from local storage', 'info');
       }
     }
 
@@ -645,46 +715,70 @@
       }
 
       try {
-        // First, create the workout
-        const { data: workout, error: workoutError } = await supabase
+        // Check if database tables exist by testing a simple query first
+        const { error: testError } = await supabase
           .from('workouts')
-          .insert({
-            user_id: currentUser.id,
-            name: name,
-            category: category,
-            description: description
-          })
-          .select()
-          .single();
+          .select('id')
+          .limit(1);
 
-        if (workoutError) throw workoutError;
+        if (testError && testError.message.includes('relation') && testError.message.includes('does not exist')) {
+          // Database schema not set up yet - save locally for now
+          const workout = {
+            id: Date.now().toString(),
+            name,
+            category,
+            description,
+            exercises: exerciseIds.map(id => exerciseLibrary.find(ex => ex.id === id)),
+            created_at: new Date().toISOString()
+          };
+          
+          // Store in localStorage temporarily
+          const localWorkouts = JSON.parse(localStorage.getItem('gymcyclopedia_workouts') || '[]');
+          localWorkouts.push(workout);
+          localStorage.setItem('gymcyclopedia_workouts', JSON.stringify(localWorkouts));
+          
+          showToast(`Workout "${name}" saved locally! Run the SQL schema to save to database.`, 'warning');
+        } else {
+          // Database is set up, save normally
+          const { data: workout, error: workoutError } = await supabase
+            .from('workouts')
+            .insert({
+              user_id: currentUser.id,
+              name: name,
+              category: category,
+              description: description
+            })
+            .select()
+            .single();
 
-        // Then, add the exercises to the workout
-        const workoutExercises = exerciseIds.map((exerciseId, index) => ({
-          workout_id: workout.id,
-          exercise_id: exerciseId,
-          exercise_order: index + 1,
-          sets: 3, // Default values
-          reps: '10',
-          rest_seconds: 60
-        }));
+          if (workoutError) throw workoutError;
 
-        const { error: exercisesError } = await supabase
-          .from('workout_exercises')
-          .insert(workoutExercises);
+          // Then, add the exercises to the workout
+          const workoutExercises = exerciseIds.map((exerciseId, index) => ({
+            workout_id: workout.id,
+            exercise_id: exerciseId,
+            exercise_order: index + 1,
+            sets: 3, // Default values
+            reps: '10',
+            rest_seconds: 60
+          }));
 
-        if (exercisesError) throw exercisesError;
+          const { error: exercisesError } = await supabase
+            .from('workout_exercises')
+            .insert(workoutExercises);
 
-        // Success! Close modal and refresh data
+          if (exercisesError) throw exercisesError;
+
+          showToast(`Workout "${name}" created successfully!`, 'success');
+          // Reload user workouts
+          await loadUserWorkouts();
+        }
+
+        // Success! Close modal and reset form
         const modal = bootstrap.Modal.getInstance(document.getElementById('createWorkoutModal'));
         modal.hide();
         document.getElementById('createWorkoutForm').reset();
         selectedCheckboxes.forEach(cb => cb.checked = false);
-        
-        showToast(`Workout "${name}" created successfully!`, 'success');
-        
-        // Reload user workouts
-        await loadUserWorkouts();
         
       } catch (error) {
         console.error('Error saving workout:', error);
