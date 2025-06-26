@@ -1,323 +1,235 @@
-# 🏋️‍♂️ Gymcyclopedia - Your Complete Fitness Journey Companion
+# 💪 Gymcyclopedia - Fitness Tracking Web App
 
-> A modern, full-stack fitness tracking web application built with **Supabase**, **HTML5**, **CSS3**, and **JavaScript**. Track your weight loss/gain goals, monitor daily progress, and stay motivated with visual progress tracking.
+A comprehensive fitness tracking application built with vanilla JavaScript and Supabase, featuring workout management, exercise library, progress tracking, and user authentication.
 
-[![Live Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](http://localhost:8001)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Sandyhub007/summer-project)
-[![Supabase](https://img.shields.io/badge/Database-Supabase-green)](https://supabase.com)
+## 🚀 Features
 
----
+### ✅ Currently Implemented
+- **User Authentication** - Sign up, login, logout, password reset
+- **Exercise Library** - 21+ pre-loaded exercises with categories
+- **Workout Creation** - Build custom workout routines
+- **Real-time Workout Sessions** - Timer, exercise tracking, progress monitoring
+- **Progress Dashboard** - Weight tracking, goal progress, streak counting
+- **Workout History** - Track completed sessions and performance
+- **Responsive Design** - Mobile-friendly interface with modern dark theme
 
-## 📋 Table of Contents
+### 🔄 In Progress
+- Database integration (fallback to localStorage when database not set up)
+- Enhanced workout session tracking with detailed performance data
 
-- [✨ Features](#-features)
-- [🛠️ Technology Stack](#️-technology-stack)
-- [🚀 Quick Start](#-quick-start)
-- [📊 Database Schema](#-database-schema)
-- [🎯 Progress Tracking Features](#-progress-tracking-features)
-- [🔐 Authentication System](#-authentication-system)
-- [📱 Responsive Design](#-responsive-design)
-- [🗂️ Project Structure](#️-project-structure)
-- [🔄 Development Workflow](#-development-workflow)
-- [📈 Future Roadmap](#-future-roadmap)
-- [🤝 Contributing](#-contributing)
+### 📅 Planned Features
+- Exercise form videos and detailed instructions
+- Nutrition tracking and meal planning
+- Social features and workout sharing
+- Advanced analytics and insights
+- Mobile app with PWA capabilities
 
----
+## 🛠️ Tech Stack
 
-## ✨ Features
+- **Frontend**: HTML5, CSS3, Bootstrap 5, Vanilla JavaScript
+- **Backend**: Supabase (PostgreSQL, Auth, RLS)
+- **Styling**: Custom CSS with glass morphism effects
+- **Fonts**: Google Fonts (Poppins)
 
-### 🏠 **Dashboard & User Management**
-- **Personalized Welcome Dashboard** - Custom greeting with user's fitness data
-- **Secure User Authentication** - Email/password signup and login
-- **Email Verification** - Secure account activation process
-- **User Profile Management** - Height, weight, goals, and timeline tracking
+## 📋 Project Structure
 
-### 📊 **Progress Tracking System**
-- **Visual Progress Bar** - Real-time progress toward weight goals
-- **Days Remaining Counter** - Countdown to goal deadline
-- **Streak Counter** - Track consistent daily logging habits
-- **Weight Loss/Gain Support** - Handles both weight loss and weight gain goals
-- **BMI Calculator** - Automatic BMI calculation and display
+```
+GymcyclopediaMain/
+├── GymcyclopediaMain/
+│   ├── index.html          # Main dashboard and authentication
+│   ├── workouts.html       # Workout management and sessions
+│   └── reset-password.html # Password reset page
+├── supabase-setup.sql      # Main database setup
+├── supabase-workouts-schema.sql # Workout tables and data
+├── supabase-update-schema.sql   # Schema updates
+└── README.md              # This file
+```
 
-### 🎨 **User Experience**
-- **Modern Dark Theme** - Sleek black interface with premium styling
-- **Responsive Design** - Works perfectly on desktop, tablet, and mobile
-- **Smooth Animations** - Progress bars with gradient animations
-- **Intuitive Navigation** - Clear login/logout state management
+## 🚀 Next Action Plan
 
-### 🔒 **Security & Data Protection**
-- **Row Level Security (RLS)** - Users can only access their own data
-- **Password Encryption** - Secure bcrypt password hashing
-- **Real-time Session Management** - Automatic login state detection
-- **Data Validation** - Client and server-side input validation
+### Phase 1: Database Setup (IMMEDIATE)
 
----
+1. **Apply Database Schema**
+   ```sql
+   -- Go to Supabase Dashboard > SQL Editor
+   -- Run supabase-workouts-schema.sql
+   ```
+   This will create:
+   - Exercise library (21 exercises)
+   - Workout management tables
+   - Session tracking tables
+   - Row Level Security policies
+   - Views and functions for statistics
 
-## 🛠️ Technology Stack
+2. **Test Database Connection**
+   - Open workouts.html
+   - Check browser console for database connection messages
+   - Verify exercises load from database instead of fallback
 
-### **Frontend**
-- **HTML5** - Semantic markup structure
-- **CSS3** - Custom styling with CSS Grid and Flexbox
-- **JavaScript (ES6+)** - Modern async/await patterns
-- **Bootstrap 5.3.2** - Responsive UI components
-- **Google Fonts (Poppins)** - Premium typography
+### Phase 2: Enhanced Functionality (NEXT WEEK)
 
-### **Backend & Database**
-- **Supabase** - Backend-as-a-Service platform
-- **PostgreSQL** - Robust relational database
-- **Supabase Auth** - Built-in authentication system
-- **Supabase Realtime** - Real-time data synchronization
+1. **Improve Workout Sessions**
+   - Add set-by-set tracking
+   - Rest timer between sets
+   - Exercise notes and form cues
+   - Photo/video exercise demonstrations
 
-### **Development Tools**
-- **Python HTTP Server** - Local development server
-- **Git** - Version control
-- **GitHub** - Code repository and collaboration
+2. **Analytics Dashboard**
+   - Weekly/monthly progress charts
+   - Personal records tracking
+   - Exercise frequency analysis
+   - Goal achievement tracking
 
----
+3. **Social Features**
+   - Share workouts with friends
+   - Community challenges
+   - Workout templates library
 
-## 🚀 Quick Start
+### Phase 3: Mobile & Advanced Features (NEXT MONTH)
 
-### **Prerequisites**
-- Python 3.x installed
-- Git installed
+1. **Progressive Web App (PWA)**
+   - Offline functionality
+   - Push notifications for workout reminders
+   - Home screen installation
+
+2. **Nutrition Module**
+   - Calorie tracking
+   - Macro nutrient analysis
+   - Meal planning
+
+3. **AI-Powered Features**
+   - Workout recommendations
+   - Form analysis (future)
+   - Personalized coaching tips
+
+## 🔧 Setup Instructions
+
+### Prerequisites
+- Modern web browser
 - Supabase account (free tier available)
+- Basic knowledge of SQL for database setup
 
-### **1. Clone the Repository**
-```bash
-git clone https://github.com/Sandyhub007/summer-project.git
-cd summer-project
-```
+### Local Development
 
-### **2. Set Up Supabase Database**
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** in your Supabase dashboard
-3. Run the setup script:
-   ```sql
-   -- Copy and paste content from supabase-setup-safe.sql
-   ```
-4. Run the progress tracking enhancement:
-   ```sql
-   -- Copy and paste content from supabase-update-schema.sql
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd GymcyclopediaMain
    ```
 
-### **3. Configure Supabase Credentials**
-Edit `GymcyclopediaMain/index.html` and update:
-```javascript
-const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
-```
+2. **Set up Supabase**
+   - Create account at [supabase.com](https://supabase.com)
+   - Create new project
+   - Note your project URL and anon key
+   - Update Supabase credentials in HTML files
 
-### **4. Run the Application**
-```bash
-cd GymcyclopediaMain
-python3 -m http.server 8001
-```
+3. **Apply Database Schema**
+   - Open Supabase Dashboard
+   - Go to SQL Editor
+   - Copy and run `supabase-workouts-schema.sql`
+   - Verify tables are created
 
-### **5. Access the App**
-Open your browser and navigate to: `http://localhost:8001`
+4. **Serve the files**
+   ```bash
+   # Using Python 3
+   python -m http.server 8000
+   
+   # Using Node.js
+   npx serve .
+   
+   # Or use any local web server
+   ```
 
----
+5. **Access the application**
+   - Open `http://localhost:8000`
+   - Sign up for a new account
+   - Start creating workouts!
 
 ## 📊 Database Schema
 
-### **`user_profiles` Table**
-```sql
-- id (UUID) - Primary key, linked to auth.users
-- email (TEXT) - User's email address
-- name (TEXT) - Display name
-- current_weight_kg (DECIMAL) - Current weight in kilograms
-- goal_weight_kg (DECIMAL) - Target weight in kilograms
-- start_weight_kg (DECIMAL) - Starting weight for progress calculation
-- height_cm (INTEGER) - Height in centimeters
-- months_to_goal (INTEGER) - Timeline to reach goal
-- daily_calories (INTEGER) - Daily calorie target
-- streak_days (INTEGER) - Current logging streak
-- last_log_date (DATE) - Last activity log date
-- created_at (TIMESTAMP) - Account creation date
-- updated_at (TIMESTAMP) - Last profile update
+### Core Tables
+- `exercises` - Exercise library with categories and instructions
+- `workouts` - User-created workout routines
+- `workout_exercises` - Exercises within each workout
+- `workout_sessions` - Completed workout instances
+- `workout_session_exercises` - Performance data for each exercise
+
+### Views
+- `workout_details` - Complete workout information with exercises
+- `workout_history` - Session history with completion stats
+
+### Functions
+- `get_user_workout_stats()` - Comprehensive user statistics
+
+## 🔒 Security
+
+- Row Level Security (RLS) enabled on all tables
+- Users can only access their own data
+- Email verification required for account activation
+- Secure password reset flow
+
+## 🚀 Deployment
+
+### Recommended Hosting Options
+1. **Vercel** (Recommended)
+   - Automatic deployments from Git
+   - Built-in CDN and SSL
+   - Free tier available
+
+2. **Netlify**
+   - Drag and drop deployment
+   - Form handling capabilities
+   - Free tier with custom domains
+
+3. **GitHub Pages**
+   - Free hosting for static sites
+   - Automatic deployment from repository
+
+### Environment Variables
+Update the following in your HTML files:
+```javascript
+const SUPABASE_URL = 'your-project-url'
+const SUPABASE_ANON_KEY = 'your-anon-key'
 ```
-
-### **`weight_logs` Table** *(Coming Soon)*
-```sql
-- id (UUID) - Primary key
-- user_id (UUID) - Foreign key to auth.users
-- weight_kg (DECIMAL) - Recorded weight
-- log_date (DATE) - Date of weight entry
-- notes (TEXT) - Optional notes
-- created_at (TIMESTAMP) - Entry creation time
-```
-
----
-
-## 🎯 Progress Tracking Features
-
-### **📈 Visual Progress Bar**
-- **Real-time Calculation** - Automatically calculates progress percentage
-- **Weight Loss/Gain Support** - Adapts to different goal types
-- **Gradient Animation** - Smooth CSS transitions for visual appeal
-- **Progress Indicators** - Shows weight lost/gained and remaining
-
-### **⏰ Days Remaining Counter**
-- **Smart Calculation** - Based on user's timeline and creation date
-- **Visual Countdown** - Clear display of time left to reach goal
-- **Motivation Factor** - Encourages consistent progress
-
-### **🔥 Streak Counter**
-- **Daily Logging Rewards** - Tracks consecutive days of activity
-- **Automatic Updates** - Updates based on weight logging frequency
-- **Gamification Element** - Encourages habit formation
-
----
-
-## 🔐 Authentication System
-
-### **User Registration**
-- Email and password validation
-- Automatic profile creation via database triggers
-- Email verification requirement
-- Default fitness values assigned
-
-### **User Login**
-- Secure password verification
-- Session persistence across browser refreshes
-- Automatic UI state management
-- Real-time authentication status updates
-
-### **Session Management**
-- Automatic login state detection on page load
-- Secure logout with session cleanup
-- Protected routes and data access
-- Real-time auth state changes
-
----
-
-## 📱 Responsive Design
-
-### **Mobile-First Approach**
-- Responsive grid system using Bootstrap
-- Touch-friendly interface elements
-- Optimized typography scaling
-- Mobile navigation patterns
-
-### **Cross-Device Compatibility**
-- **Desktop** - Full dashboard with all features
-- **Tablet** - Adapted layout with touch controls
-- **Mobile** - Condensed UI with essential features
-- **PWA Ready** - Progressive Web App capabilities
-
----
-
-## 🗂️ Project Structure
-
-```
-summer-project/
-├── GymcyclopediaMain/
-│   └── index.html                 # Main application file
-├── supabase-setup-safe.sql        # Initial database setup (safe)
-├── supabase-setup.sql             # Original database setup
-├── supabase-update-schema.sql     # Progress tracking enhancements
-└── README.md                      # Project documentation
-```
-
----
-
-## 🔄 Development Workflow
-
-### **Feature Development Process**
-1. **Create Feature Branch** - `git checkout -b feature/feature-name`
-2. **Implement Changes** - Code new functionality
-3. **Update Database** - Add necessary schema changes
-4. **Test Locally** - Verify functionality works
-5. **Update Documentation** - Update README with new features
-6. **Commit Changes** - `git commit -m "feat: descriptive message"`
-7. **Push to GitHub** - `git push origin feature/feature-name`
-
-### **Version Control Standards**
-- **Commit Messages** - Follow conventional commit format
-- **Branch Naming** - Use feature/, bugfix/, hotfix/ prefixes
-- **Documentation** - Update README with every major feature
-- **Database Changes** - Include SQL migration scripts
-
----
-
-## 📈 Future Roadmap
-
-### **🎯 Phase 1: Enhanced Progress Tracking** *(In Progress)*
-- [x] Visual progress bars
-- [x] Days remaining counter
-- [x] Basic streak tracking
-- [ ] Weight trend charts
-- [ ] Progress photos upload
-- [ ] Achievement badges system
-
-### **💪 Phase 2: Workout Management**
-- [ ] Workout library and templates
-- [ ] Exercise tracking and logging
-- [ ] Custom workout creation
-- [ ] Performance analytics
-
-### **🍎 Phase 3: Nutrition Tracking**
-- [ ] Calorie counting and food database
-- [ ] Meal planning and recipes
-- [ ] Nutritional goal tracking
-- [ ] Barcode scanning for foods
-
-### **👥 Phase 4: Social Features**
-- [ ] Friend connections and challenges
-- [ ] Progress sharing capabilities
-- [ ] Community leaderboards
-- [ ] Motivational messaging system
-
-### **📊 Phase 5: Advanced Analytics**
-- [ ] Comprehensive progress reports
-- [ ] Goal prediction algorithms
-- [ ] Health metric correlations
-- [ ] Export data functionality
-
----
 
 ## 🤝 Contributing
 
-We welcome contributions to Gymcyclopedia! Here's how you can help:
-
-### **Ways to Contribute**
-- 🐛 **Bug Reports** - Found an issue? Let us know!
-- 💡 **Feature Requests** - Have ideas for improvements?
-- 🔧 **Code Contributions** - Submit pull requests
-- 📚 **Documentation** - Help improve our docs
-
-### **Development Setup**
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
 
+## 📝 Changelog
+
+### Version 2.0 (Current)
+- Added comprehensive workout session management
+- Enhanced UI with real-time timers
+- Improved database integration with fallbacks
+- Added detailed exercise tracking
+
+### Version 1.0
+- Basic workout creation and management
+- User authentication system
+- Exercise library integration
+- Progress tracking dashboard
+
+## 📞 Support
+
+For issues and questions:
+1. Check the browser console for error messages
+2. Verify Supabase connection and database setup
+3. Ensure all SQL scripts have been applied
+4. Check network connectivity
+
+## 🎯 Current Priority Tasks
+
+1. **Apply database schema** - Run `supabase-workouts-schema.sql`
+2. **Test workout session flow** - Create and start a workout
+3. **Verify data persistence** - Check if workouts save to database
+4. **Mobile responsiveness** - Test on different screen sizes
+5. **Performance optimization** - Monitor load times and API calls
+
 ---
 
-## 📞 Support & Contact
-
-- **GitHub Issues** - [Report bugs or request features](https://github.com/Sandyhub007/summer-project/issues)
-- **Email** - sandilyachimalamarri@example.com
-- **Documentation** - Check this README for setup help
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Supabase Team** - For the amazing backend platform
-- **Bootstrap Team** - For the responsive UI framework
-- **Google Fonts** - For the beautiful Poppins typography
-- **Open Source Community** - For inspiration and best practices
-
----
-
-*Last Updated: January 2025*
-
-**🎯 Ready to start your fitness journey? [Get started now!](http://localhost:8001)** 
+**Ready to transform your fitness journey? Let's build something amazing! 💪** 
