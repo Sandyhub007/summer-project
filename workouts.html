@@ -591,10 +591,12 @@
       } catch (error) {
         console.error('Error loading workouts from database:', error);
         
-        if (error.message.includes('relation') && error.message.includes('does not exist')) {
+        if (error.message && error.message.includes && 
+            error.message.includes('relation') && error.message.includes('does not exist')) {
           showToast('Database tables not found. Please apply the SQL schema first.', 'error');
           userWorkouts = [];
-        } else if (error.message.includes('permission denied') || error.message.includes('RLS')) {
+        } else if (error.message && error.message.includes && 
+                   (error.message.includes('permission denied') || error.message.includes('RLS'))) {
           showToast('Permission denied loading workouts. Please log in again.', 'error');
           userWorkouts = [];
         } else {
@@ -825,7 +827,8 @@
           console.error('Error creating workout:', workoutError);
           
           // Check if it's a schema issue
-          if (workoutError.message.includes('relation') && workoutError.message.includes('does not exist')) {
+          if (workoutError.message && workoutError.message.includes && 
+              workoutError.message.includes('relation') && workoutError.message.includes('does not exist')) {
             showToast('Database not set up! Please run the SQL schema in Supabase first.', 'error');
             return;
           }
@@ -876,12 +879,14 @@
       } catch (error) {
         console.error('Error saving workout:', error);
         
-        if (error.message.includes('permission denied') || error.message.includes('RLS')) {
+        if (error.message && error.message.includes && 
+            (error.message.includes('permission denied') || error.message.includes('RLS'))) {
           showToast('Permission denied. Please make sure you are logged in.', 'error');
-        } else if (error.message.includes('relation') && error.message.includes('does not exist')) {
+        } else if (error.message && error.message.includes && 
+                   error.message.includes('relation') && error.message.includes('does not exist')) {
           showToast('Database tables not found. Please apply the SQL schema first.', 'error');
         } else {
-          showToast(`Error saving workout: ${error.message}`, 'error');
+          showToast(`Error saving workout: ${error.message || error}`, 'error');
         }
       }
     }
