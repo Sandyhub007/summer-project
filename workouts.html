@@ -743,6 +743,21 @@
     // Populate exercise selection for workout creation
     function populateExerciseSelection() {
       const container = document.getElementById('exerciseSelection');
+      
+      console.log('🏋️ Populating exercise selection...');
+      console.log('📚 Exercise library length:', exerciseLibrary.length);
+      console.log('📚 Exercise library:', exerciseLibrary);
+      
+      if (!exerciseLibrary || exerciseLibrary.length === 0) {
+        console.warn('⚠️ Exercise library is empty, using fallback');
+        exerciseLibrary = fallbackExercises;
+      }
+      
+      if (!container) {
+        console.error('❌ Exercise selection container not found!');
+        return;
+      }
+      
       container.innerHTML = exerciseLibrary.map(exercise => `
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" value="${exercise.id}" id="exercise-${exercise.id}">
@@ -752,6 +767,8 @@
           </label>
         </div>
       `).join('');
+      
+      console.log('✅ Exercise selection populated with', exerciseLibrary.length, 'exercises');
     }
 
     // Setup event listeners
@@ -773,6 +790,15 @@
         await supabase.auth.signOut();
         window.location.href = '/';
       });
+
+      // Re-populate exercises when modal is opened
+      const createWorkoutModal = document.getElementById('createWorkoutModal');
+      if (createWorkoutModal) {
+        createWorkoutModal.addEventListener('show.bs.modal', () => {
+          console.log('🔄 Modal opening, re-populating exercises...');
+          populateExerciseSelection();
+        });
+      }
     }
 
     // Show exercise details
