@@ -198,10 +198,10 @@
           </ul>
         </div>
 
-        <!-- Auth buttons -->
-        <div class="d-none d-lg-flex">
-          <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-          <button class="btn btn-cta" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+        <!-- Auth buttons for all screen sizes -->
+        <div class="d-flex">
+          <button class="btn btn-outline-light me-2 auth-login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+          <button class="btn btn-cta auth-signup-btn" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
           <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
         </div>
       </div>
@@ -651,26 +651,70 @@
     }
 
     function toggleAuthButtons(loggedIn) {
-      const loginBtn = document.querySelector('[data-bs-target="#loginModal"]');
-      const signupBtn = document.querySelector('[data-bs-target="#signupModal"]');
+      const loginBtns = document.querySelectorAll('.auth-login-btn');
+      const signupBtns = document.querySelectorAll('.auth-signup-btn');
       const logoutBtn = document.getElementById('logoutBtn');
       const heroSection = document.getElementById('hero-section');
+      const dashboard = document.getElementById('user-dashboard');
+      
+      console.log(`🔄 Toggling auth state: loggedIn=${loggedIn}`);
+      console.log(`🔍 Found ${loginBtns.length} login buttons, ${signupBtns.length} signup buttons`);
       
       if (loggedIn) {
-        // User is logged in - hide login/signup, show logout, hide hero
-        loginBtn.classList.add('d-none');
-        signupBtn.classList.add('d-none');
-        logoutBtn.classList.remove('d-none');
-        heroSection.classList.add('d-none');
+        // User is logged in - hide login/signup, show logout, hide hero, show dashboard
+        loginBtns.forEach((btn, index) => {
+          console.log(`🔒 Hiding login button ${index + 1}`);
+          btn.classList.add('d-none');
+        });
+        signupBtns.forEach((btn, index) => {
+          console.log(`🔒 Hiding signup button ${index + 1}`);
+          btn.classList.add('d-none');
+        });
+        if (logoutBtn) {
+          console.log('🔓 Showing logout button');
+          logoutBtn.classList.remove('d-none');
+        }
+        if (heroSection) {
+          console.log('👋 Hiding hero section');
+          heroSection.classList.add('d-none');
+        }
+        if (dashboard) {
+          console.log('📊 Showing dashboard');
+          dashboard.classList.remove('d-none');
+        }
+        console.log('✅ AUTH STATE: LOGGED IN - Login/Signup hidden, Logout shown, Dashboard shown');
       } else {
-        // User is logged out - show login/signup, hide logout, show hero
-        loginBtn.classList.remove('d-none');
-        signupBtn.classList.remove('d-none');
-        logoutBtn.classList.add('d-none');
-        heroSection.classList.remove('d-none');
+        // User is logged out - show login/signup, hide logout, show hero, hide dashboard
+        loginBtns.forEach((btn, index) => {
+          console.log(`🔓 Showing login button ${index + 1}`);
+          btn.classList.remove('d-none');
+        });
+        signupBtns.forEach((btn, index) => {
+          console.log(`🔓 Showing signup button ${index + 1}`);
+          btn.classList.remove('d-none');
+        });
+        if (logoutBtn) {
+          console.log('🔒 Hiding logout button');
+          logoutBtn.classList.add('d-none');
+        }
+        if (heroSection) {
+          console.log('👋 Showing hero section');
+          heroSection.classList.remove('d-none');
+        }
+        if (dashboard) {
+          console.log('📊 Hiding dashboard');
+          dashboard.classList.add('d-none');
+        }
+        console.log('✅ AUTH STATE: LOGGED OUT - Login/Signup shown, Logout hidden, Hero shown');
       }
       
-      console.log(`🔄 Auth state toggled: loggedIn=${loggedIn}, heroVisible=${!loggedIn}`);
+      // Double-check button states after 100ms
+      setTimeout(() => {
+        const currentLoginVisible = Array.from(loginBtns).some(btn => !btn.classList.contains('d-none'));
+        const currentSignupVisible = Array.from(signupBtns).some(btn => !btn.classList.contains('d-none'));
+        const currentLogoutVisible = logoutBtn && !logoutBtn.classList.contains('d-none');
+        console.log(`🔍 Button state check - Login visible: ${currentLoginVisible}, Signup visible: ${currentSignupVisible}, Logout visible: ${currentLogoutVisible}`);
+      }, 100);
     }
 
     function showError(elementId, message) {
@@ -687,18 +731,28 @@
     
     // Listen for auth state changes
     supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state change:', event, session ? 'session exists' : 'no session');
+      
       if (event === 'SIGNED_IN' && session) {
-        // User signed in, load their profile
+        console.log('✅ User signed in:', session.user.email);
+        
+        // Try to load user profile, but don't fail if it doesn't exist
         const result = await getUserProfile(session.user.id);
-        if (result.success) {
+        if (result.success && result.profile) {
+          console.log('📋 Profile found, showing full dashboard');
           populateDashboard(result.profile);
-          toggleAuthButtons(true);
+        } else {
+          // Show basic dashboard even without profile data
+          console.log('⚠️ No user profile found, showing basic dashboard');
+          showBasicDashboard(session.user);
         }
+        toggleAuthButtons(true);
       } else if (event === 'SIGNED_OUT') {
-        // User signed out, hide dashboard and reset UI
-        document.getElementById('user-dashboard').classList.add('d-none');
+        // User signed out, reset UI (toggleAuthButtons will handle all visibility)
+        console.log('🔓 User signed out - resetting UI');
         toggleAuthButtons(false);
-        console.log('🔓 User signed out - UI reset to homepage');
+      } else {
+        console.log('ℹ️ Auth event:', event);
       }
     });
 
@@ -710,26 +764,25 @@
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session && session.user) {
-        console.log('✅ User session found:', session.user.email);
+        console.log('✅ User session found on page load:', session.user.email);
         
         const result = await getUserProfile(session.user.id);
-        if (result.success) {
-          console.log('✅ User profile loaded, showing dashboard');
+        if (result.success && result.profile) {
+          console.log('📋 User profile loaded, populating dashboard');
           populateDashboard(result.profile);
-          toggleAuthButtons(true);
         } else {
-          console.warn('⚠️ Failed to load user profile, but session exists');
-          // Still show logged in state even if profile fails
-          toggleAuthButtons(true);
-          document.getElementById('user-dashboard').classList.remove('d-none');
-          document.getElementById('hero-section').classList.add('d-none');
+          console.warn('⚠️ No user profile found, showing basic dashboard');
+          showBasicDashboard(session.user);
         }
+        console.log('🔄 Calling toggleAuthButtons(true) from page load');
+        toggleAuthButtons(true);
       } else {
-        console.log('❌ No user session found - showing hero page');
+        console.log('❌ No user session found on page load - showing hero page');
+        console.log('🔄 Calling toggleAuthButtons(false) from page load');
         toggleAuthButtons(false);
-        document.getElementById('user-dashboard').classList.add('d-none');
-        document.getElementById('hero-section').classList.remove('d-none');
       }
+      
+      console.log('✅ Page load authentication check complete');
     });
 
     /* ===== SIGN UP FORM ===== */
@@ -795,12 +848,18 @@
 
     /* ===== LOGOUT BUTTON ===== */
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-      const result = await signOutUser();
-      if (result.success) {
-        // Explicitly reset UI state
-        document.getElementById('user-dashboard').classList.add('d-none');
-        toggleAuthButtons(false);
-        console.log('✅ User logged out successfully');
+      console.log('🔓 Logout button clicked');
+      try {
+        const result = await signOutUser();
+        if (result.success) {
+          // Reset UI state (toggleAuthButtons will handle all visibility)
+          toggleAuthButtons(false);
+          console.log('✅ User logged out successfully');
+        } else {
+          console.error('❌ Logout failed:', result.error);
+        }
+      } catch (error) {
+        console.error('❌ Logout error:', error);
       }
     });
 
@@ -849,17 +908,39 @@
 
     /* ===== DASHBOARD FUNCTIONS ===== */
     
+    // Show basic dashboard for users without profile data
+    function showBasicDashboard(user) {
+      console.log('👤 Populating basic dashboard for user:', user.email);
+      
+      // Set basic user info (toggleAuthButtons will handle dashboard/hero visibility)
+      const email = user.email || '';
+      const userName = user.user_metadata?.name || email.split('@')[0] || 'User';
+      document.getElementById('user-name').textContent = userName;
+      
+      // Set default values for stats
+      document.getElementById('current-weight').textContent = '-- kg';
+      document.getElementById('goal-weight').textContent = '-- kg';
+      document.getElementById('timeline').textContent = '-- months';
+      document.getElementById('height').textContent = '-- cm';
+      document.getElementById('calories').textContent = '-- kcal';
+      document.getElementById('bmi').textContent = '--';
+      
+      // Set progress tracking defaults
+      document.getElementById('progress-percentage').textContent = '0%';
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('weight-lost').textContent = '0 kg';
+      document.getElementById('weight-remaining').textContent = '-- kg';
+      document.getElementById('days-remaining').textContent = '--';
+      document.getElementById('streak-counter').textContent = '1';
+    }
+    
     // Populate dashboard with user data
     function populateDashboard(profile) {
       if (!profile) return;
       
-      console.log('👤 Populating dashboard for user:', profile);
+      console.log('👤 Populating full dashboard with profile data:', profile);
       
-      // Show dashboard and hide hero
-      document.getElementById('user-dashboard').classList.remove('d-none');
-      document.getElementById('hero-section').classList.add('d-none');
-      
-      // Update user name
+      // Update user name (toggleAuthButtons will handle dashboard/hero visibility)
       document.getElementById('user-name').textContent = profile.name || 'User';
       
       // Update stats
@@ -892,6 +973,11 @@
           .single();
         
         if (error) {
+          // If table doesn't exist or no profile found, return success with null profile
+          if (error.code === '42P01' || error.code === 'PGRST116') {
+            console.log('📋 No user_profiles table found or no profile exists - using basic dashboard');
+            return { success: true, profile: null };
+          }
           console.error('Error fetching user profile:', error);
           return { success: false, error: error.message };
         }
@@ -899,7 +985,8 @@
         return { success: true, profile: data };
       } catch (error) {
         console.error('Unexpected error:', error);
-        return { success: false, error: 'Failed to load user profile' };
+        // Return success with null profile to allow basic dashboard
+        return { success: true, profile: null };
       }
     }
 
@@ -978,7 +1065,30 @@
       }
     }
 
+    // Debug function to check button states manually
+    window.debugAuthButtons = function() {
+      const loginBtns = document.querySelectorAll('.auth-login-btn');
+      const signupBtns = document.querySelectorAll('.auth-signup-btn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const heroSection = document.getElementById('hero-section');
+      const dashboard = document.getElementById('user-dashboard');
+      
+      console.log('🔍 CURRENT BUTTON STATES:');
+      console.log(`  📍 Login buttons found: ${loginBtns.length}`);
+      loginBtns.forEach((btn, i) => {
+        console.log(`    Login button ${i+1}: ${btn.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE'}`);
+      });
+      console.log(`  📍 Signup buttons found: ${signupBtns.length}`);
+      signupBtns.forEach((btn, i) => {
+        console.log(`    Signup button ${i+1}: ${btn.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE'}`);
+      });
+      console.log(`  📍 Logout button: ${logoutBtn ? (logoutBtn.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
+      console.log(`  📍 Hero section: ${heroSection ? (heroSection.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
+      console.log(`  📍 Dashboard: ${dashboard ? (dashboard.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
+    };
+    
     console.log('🚀 Supabase connected successfully!');
+    console.log('🔧 Debug function available: call debugAuthButtons() in console to check button states');
   </script>
 </body>
 </html> 
