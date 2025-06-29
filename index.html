@@ -760,9 +760,15 @@
         }
         toggleAuthButtons(true);
       } else if (event === 'SIGNED_OUT') {
-        // User signed out, reset UI (toggleAuthButtons will handle all visibility)
-        console.log('🔓 User signed out - resetting UI');
+        // User signed out, reset UI and ensure we're on the correct page
+        console.log('🔓 User signed out - resetting UI and redirecting to homepage');
         toggleAuthButtons(false);
+        
+        // If we're not already on the homepage, redirect there
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+          console.log('🏠 Redirecting to homepage after logout');
+          window.location.href = '/index.html';
+        }
       } else {
         console.log('ℹ️ Auth event:', event);
       }
@@ -1125,12 +1131,19 @@
       try {
         const result = await signOutUser();
         if (result.success) {
-          console.log('✅ Manual logout successful');
-          toggleAuthButtons(false);
+          console.log('✅ Manual logout successful - redirecting to homepage');
+          
           // Clear any session data
           localStorage.clear();
           sessionStorage.clear();
-          window.location.reload();
+          
+          // Immediately set logout state
+          toggleAuthButtons(false);
+          
+          // Force redirect to homepage (index.html) to ensure clean state
+          console.log('🏠 Redirecting to homepage with login buttons');
+          window.location.href = '/index.html';
+          
         } else {
           console.error('❌ Manual logout failed:', result.error);
         }
@@ -1153,6 +1166,11 @@
           e.preventDefault();
           e.stopPropagation();
           console.log('🔓 Logout button clicked via event listener');
+          
+          // Show loading state
+          newLogoutBtn.textContent = 'Logging out...';
+          newLogoutBtn.disabled = true;
+          
           await manualLogout();
         });
         
