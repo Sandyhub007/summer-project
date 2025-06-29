@@ -673,6 +673,8 @@
         if (logoutBtn) {
           console.log('🔓 Showing logout button');
           logoutBtn.classList.remove('d-none');
+          // Setup logout button event listeners when it becomes visible
+          setTimeout(() => setupLogoutButton(), 100);
         }
         if (heroSection) {
           console.log('👋 Hiding hero section');
@@ -783,6 +785,9 @@
       }
       
       console.log('✅ Page load authentication check complete');
+      
+      // Setup logout button after initial auth check
+      setTimeout(() => setupLogoutButton(), 200);
     });
     
     // Additional failsafe: check auth state when page becomes visible
@@ -869,21 +874,8 @@
     });
 
     /* ===== LOGOUT BUTTON ===== */
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      console.log('🔓 Logout button clicked');
-      try {
-        const result = await signOutUser();
-        if (result.success) {
-          // Reset UI state (toggleAuthButtons will handle all visibility)
-          toggleAuthButtons(false);
-          console.log('✅ User logged out successfully');
-        } else {
-          console.error('❌ Logout failed:', result.error);
-        }
-      } catch (error) {
-        console.error('❌ Logout error:', error);
-      }
-    });
+    // Logout functionality is now handled by setupLogoutButton() function
+    // This old event listener is commented out to prevent conflicts
 
     /* ===== FORGOT PASSWORD ===== */
     document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
@@ -1115,6 +1107,55 @@
       toggleAuthButtons(loggedIn);
     };
     
+    // Manual logout function
+    window.manualLogout = async function() {
+      console.log('🔴 MANUAL LOGOUT TRIGGERED');
+      try {
+        const result = await signOutUser();
+        if (result.success) {
+          console.log('✅ Manual logout successful');
+          toggleAuthButtons(false);
+          // Clear any session data
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.reload();
+        } else {
+          console.error('❌ Manual logout failed:', result.error);
+        }
+      } catch (error) {
+        console.error('❌ Manual logout error:', error);
+      }
+    };
+    
+    // Add click listener to logout button with multiple methods
+    function setupLogoutButton() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        console.log('🔧 Setting up logout button event listeners');
+        
+        // Remove existing listeners and add new ones
+        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+        const newLogoutBtn = document.getElementById('logoutBtn');
+        
+        newLogoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔓 Logout button clicked via event listener');
+          await manualLogout();
+        });
+        
+        // Also add onclick attribute as backup
+        newLogoutBtn.onclick = async () => {
+          console.log('🔓 Logout button clicked via onclick');
+          await manualLogout();
+        };
+        
+        console.log('✅ Logout button event listeners set up');
+      } else {
+        console.error('❌ Logout button not found!');
+      }
+    }
+    
     // Check auth state every 2 seconds and fix if needed
     window.authStateChecker = setInterval(async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -1137,6 +1178,7 @@
     console.log('🔧 Debug functions available:');
     console.log('  - debugAuthButtons() - Check current button states');
     console.log('  - forceAuthState(true/false) - Force auth state');
+    console.log('  - manualLogout() - Force logout manually');
     console.log('  - Auth state auto-checker running every 2 seconds');
   </script>
 </body>
