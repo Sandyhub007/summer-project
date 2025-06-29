@@ -190,7 +190,7 @@
         <!-- Centered Nav Links -->
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
           <ul class="navbar-nav mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+            <li class="nav-item home-nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="/workouts.html">Workouts</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Support</a></li>
@@ -656,6 +656,7 @@
       const logoutBtn = document.getElementById('logoutBtn');
       const heroSection = document.getElementById('hero-section');
       const dashboard = document.getElementById('user-dashboard');
+      const homeNavItem = document.querySelector('.home-nav-item');
       
       console.log(`🔄 Toggling auth state: loggedIn=${loggedIn}`);
       console.log(`🔍 Found ${loginBtns.length} login buttons, ${signupBtns.length} signup buttons`);
@@ -684,7 +685,11 @@
           console.log('📊 Showing dashboard');
           dashboard.classList.remove('d-none');
         }
-        console.log('✅ AUTH STATE: LOGGED IN - Login/Signup hidden, Logout shown, Dashboard shown');
+        if (homeNavItem) {
+          console.log('🏠 Hiding Home navigation link');
+          homeNavItem.classList.add('d-none');
+        }
+        console.log('✅ AUTH STATE: LOGGED IN - Login/Signup hidden, Logout shown, Dashboard shown, Home nav hidden');
       } else {
         // User is logged out - show login/signup, hide logout, show hero, hide dashboard
         loginBtns.forEach((btn, index) => {
@@ -707,7 +712,11 @@
           console.log('📊 Hiding dashboard');
           dashboard.classList.add('d-none');
         }
-        console.log('✅ AUTH STATE: LOGGED OUT - Login/Signup shown, Logout hidden, Hero shown');
+        if (homeNavItem) {
+          console.log('🏠 Showing Home navigation link');
+          homeNavItem.classList.remove('d-none');
+        }
+        console.log('✅ AUTH STATE: LOGGED OUT - Login/Signup shown, Logout hidden, Hero shown, Home nav shown');
       }
       
       // Double-check button states after 100ms
@@ -715,7 +724,8 @@
         const currentLoginVisible = Array.from(loginBtns).some(btn => !btn.classList.contains('d-none'));
         const currentSignupVisible = Array.from(signupBtns).some(btn => !btn.classList.contains('d-none'));
         const currentLogoutVisible = logoutBtn && !logoutBtn.classList.contains('d-none');
-        console.log(`🔍 Button state check - Login visible: ${currentLoginVisible}, Signup visible: ${currentSignupVisible}, Logout visible: ${currentLogoutVisible}`);
+        const currentHomeNavVisible = homeNavItem && !homeNavItem.classList.contains('d-none');
+        console.log(`🔍 Button state check - Login visible: ${currentLoginVisible}, Signup visible: ${currentSignupVisible}, Logout visible: ${currentLogoutVisible}, Home nav visible: ${currentHomeNavVisible}`);
       }, 100);
     }
 
@@ -1086,6 +1096,7 @@
       const logoutBtn = document.getElementById('logoutBtn');
       const heroSection = document.getElementById('hero-section');
       const dashboard = document.getElementById('user-dashboard');
+      const homeNavItem = document.querySelector('.home-nav-item');
       
       console.log('🔍 CURRENT BUTTON STATES:');
       console.log(`  📍 Login buttons found: ${loginBtns.length}`);
@@ -1099,6 +1110,7 @@
       console.log(`  📍 Logout button: ${logoutBtn ? (logoutBtn.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
       console.log(`  📍 Hero section: ${heroSection ? (heroSection.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
       console.log(`  📍 Dashboard: ${dashboard ? (dashboard.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
+      console.log(`  📍 Home nav link: ${homeNavItem ? (homeNavItem.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
     };
     
     // Manual function to force correct auth state
