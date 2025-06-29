@@ -784,6 +784,21 @@
       
       console.log('✅ Page load authentication check complete');
     });
+    
+    // Additional failsafe: check auth state when page becomes visible
+    document.addEventListener('visibilitychange', async () => {
+      if (!document.hidden) {
+        console.log('🔄 Page became visible, checking auth state...');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          console.log('🔧 User is logged in, ensuring correct UI state');
+          toggleAuthButtons(true);
+        } else {
+          console.log('🔧 User is logged out, ensuring correct UI state');
+          toggleAuthButtons(false);
+        }
+      }
+    });
 
     /* ===== SIGN UP FORM ===== */
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
@@ -837,9 +852,16 @@
       
       if (result.success) {
         // Success - close modal and reset form
+        console.log('✅ Login successful, closing modal and forcing auth state');
         const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
         modal.hide();
         document.getElementById('loginForm').reset();
+        
+        // Force immediate UI update
+        setTimeout(() => {
+          console.log('🔧 Forcing logged-in state after login success');
+          toggleAuthButtons(true);
+        }, 500);
       } else {
         // Show error
         showError('loginError', result.error);
@@ -1087,8 +1109,35 @@
       console.log(`  📍 Dashboard: ${dashboard ? (dashboard.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
     };
     
+    // Manual function to force correct auth state
+    window.forceAuthState = function(loggedIn) {
+      console.log(`🔧 FORCING auth state to: ${loggedIn ? 'LOGGED IN' : 'LOGGED OUT'}`);
+      toggleAuthButtons(loggedIn);
+    };
+    
+    // Check auth state every 2 seconds and fix if needed
+    window.authStateChecker = setInterval(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const isLoggedIn = !!(session && session.user);
+      
+      const loginVisible = document.querySelector('.auth-login-btn') && !document.querySelector('.auth-login-btn').classList.contains('d-none');
+      const logoutVisible = document.getElementById('logoutBtn') && !document.getElementById('logoutBtn').classList.contains('d-none');
+      
+      // Check if UI state doesn't match auth state
+      if (isLoggedIn && loginVisible) {
+        console.log('🔴 FIXING: User is logged in but login buttons are showing');
+        toggleAuthButtons(true);
+      } else if (!isLoggedIn && logoutVisible) {
+        console.log('🔴 FIXING: User is logged out but logout button is showing');
+        toggleAuthButtons(false);
+      }
+    }, 2000);
+    
     console.log('🚀 Supabase connected successfully!');
-    console.log('🔧 Debug function available: call debugAuthButtons() in console to check button states');
+    console.log('🔧 Debug functions available:');
+    console.log('  - debugAuthButtons() - Check current button states');
+    console.log('  - forceAuthState(true/false) - Force auth state');
+    console.log('  - Auth state auto-checker running every 2 seconds');
   </script>
 </body>
 </html> 
