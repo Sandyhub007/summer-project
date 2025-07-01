@@ -200,7 +200,7 @@
         </ul>
       </div>
 
-      <div class="d-none d-lg-flex auth-buttons">
+      <div class="d-none auth-buttons">
         <button class="btn btn-outline-light me-2 auth-login-btn">Login</button>
         <button class="btn btn-primary auth-signup-btn">Sign Up</button>
       </div>
@@ -448,9 +448,10 @@
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session && session.user) {
-        // User is logged in
+        // User is logged in - Hide login/signup, show logout
         document.querySelector('.auth-buttons').classList.add('d-none');
         document.querySelector('.auth-user-info').classList.remove('d-none');
+        document.querySelector('.auth-user-info').classList.add('d-flex');
         document.getElementById('user-name').textContent = session.user.email.split('@')[0];
         
         // Hide Home navigation link
@@ -458,16 +459,22 @@
         if (homeNavItem) {
           homeNavItem.style.display = 'none';
         }
+        
+        console.log('✅ USER LOGGED IN - Auth buttons hidden, logout shown');
       } else {
-        // User is not logged in
+        // User is not logged in - Show login/signup, hide logout
         document.querySelector('.auth-buttons').classList.remove('d-none');
+        document.querySelector('.auth-buttons').classList.add('d-flex');
         document.querySelector('.auth-user-info').classList.add('d-none');
+        document.querySelector('.auth-user-info').classList.remove('d-flex');
         
         // Show Home navigation link
         const homeNavItem = document.querySelector('.home-nav-item');
         if (homeNavItem) {
           homeNavItem.style.display = 'block';
         }
+        
+        console.log('❌ USER LOGGED OUT - Auth buttons shown, logout hidden');
       }
     }
 
