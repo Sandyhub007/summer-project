@@ -217,11 +217,11 @@
 
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item home-nav-item"><a class="nav-link" href="/">Home</a></li>
           <li class="nav-item"><a class="nav-link active" href="/workouts.html">Workouts</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Support</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="/blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="/support.html">Support</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
         </ul>
       </div>
 
@@ -465,6 +465,18 @@
           name: session.user.email.split('@')[0]
         };
         document.getElementById('user-name').textContent = currentUser.name;
+      }
+
+      // Hide the Home navigation link since user is logged in and on workouts page
+      hideHomeNavigation();
+    }
+
+    // Hide Home navigation link when user is logged in
+    function hideHomeNavigation() {
+      const homeNavItem = document.querySelector('.home-nav-item');
+      if (homeNavItem) {
+        homeNavItem.style.display = 'none';
+        console.log('✅ Home navigation hidden for logged-in user');
       }
     }
 
