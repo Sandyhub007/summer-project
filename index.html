@@ -172,6 +172,76 @@
     .border-secondary {
       border-color: rgba(255, 255, 255, 0.2) !important;
     }
+
+    /* Enhanced Typography & Colors */
+    .text-light-enhanced {
+      color: rgba(255, 255, 255, 0.95) !important;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .text-soft-white {
+      color: rgba(255, 255, 255, 0.98) !important;
+      font-weight: 500;
+    }
+
+    .text-premium-gray {
+      color: rgba(255, 255, 255, 0.92) !important;
+      font-weight: 500;
+    }
+
+    .text-elegant {
+      color: rgba(255, 255, 255, 0.98) !important;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Enhanced text readability */
+    .text-light, .text-muted {
+      color: #e0e0e0 !important;
+    }
+    
+    small, .small {
+      color: #d0d0d0 !important;
+    }
+
+    /* Premium Button Styling */
+    .btn-primary {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #004085 100%);
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      padding: 0.85rem 2rem;
+      border-radius: 12px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0056b3 0%, #004085 50%, #002752 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+    }
+
+    .btn-outline-light {
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1.8rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-outline-light:hover {
+      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -190,11 +260,11 @@
         <!-- Centered Nav Links -->
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
           <ul class="navbar-nav mb-2 mb-lg-0">
-            <li class="nav-item home-nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="/workouts.html">Workouts</a></li>
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/workouts.html">Workouts</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ai-coaching.html">AI Coaching</a></li>
+            <li class="nav-item"><a class="nav-link" href="/nutrition-recovery.html">Nutrition & Recovery</a></li>
             <li class="nav-item"><a class="nav-link" href="/blog.html">Blog</a></li>
-            <li class="nav-item"><a class="nav-link" href="/support.html">Support</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
+            <li class="nav-item"><a class="nav-link" href="/support.html">Support & Contact</a></li>
           </ul>
         </div>
 
@@ -656,7 +726,6 @@
       const logoutBtn = document.getElementById('logoutBtn');
       const heroSection = document.getElementById('hero-section');
       const dashboard = document.getElementById('user-dashboard');
-      const homeNavItem = document.querySelector('.home-nav-item');
       
       console.log(`🔄 Toggling auth state: loggedIn=${loggedIn}`);
       console.log(`🔍 Found ${loginBtns.length} login buttons, ${signupBtns.length} signup buttons`);
@@ -673,23 +742,20 @@
         });
         if (logoutBtn) {
           console.log('🔓 Showing logout button');
-          logoutBtn.classList.remove('d-none');
+        logoutBtn.classList.remove('d-none');
           // Setup logout button event listeners when it becomes visible
           setTimeout(() => setupLogoutButton(), 100);
         }
         if (heroSection) {
           console.log('👋 Hiding hero section');
-          heroSection.classList.add('d-none');
+        heroSection.classList.add('d-none');
         }
         if (dashboard) {
           console.log('📊 Showing dashboard');
           dashboard.classList.remove('d-none');
         }
-        if (homeNavItem) {
-          console.log('🏠 Hiding Home navigation link');
-          homeNavItem.classList.add('d-none');
-        }
-        console.log('✅ AUTH STATE: LOGGED IN - Login/Signup hidden, Logout shown, Dashboard shown, Home nav hidden');
+        
+        console.log('✅ AUTH STATE: LOGGED IN - Login/Signup hidden, Logout shown, Dashboard shown');
       } else {
         // User is logged out - show login/signup, hide logout, show hero, hide dashboard
         loginBtns.forEach((btn, index) => {
@@ -702,21 +768,18 @@
         });
         if (logoutBtn) {
           console.log('🔒 Hiding logout button');
-          logoutBtn.classList.add('d-none');
+        logoutBtn.classList.add('d-none');
         }
         if (heroSection) {
           console.log('👋 Showing hero section');
-          heroSection.classList.remove('d-none');
-        }
+        heroSection.classList.remove('d-none');
+      }
         if (dashboard) {
           console.log('📊 Hiding dashboard');
           dashboard.classList.add('d-none');
         }
-        if (homeNavItem) {
-          console.log('🏠 Showing Home navigation link');
-          homeNavItem.classList.remove('d-none');
-        }
-        console.log('✅ AUTH STATE: LOGGED OUT - Login/Signup shown, Logout hidden, Hero shown, Home nav shown');
+        
+        console.log('✅ AUTH STATE: LOGGED OUT - Login/Signup shown, Logout hidden, Hero shown');
       }
       
       // Double-check button states after 100ms
@@ -724,8 +787,7 @@
         const currentLoginVisible = Array.from(loginBtns).some(btn => !btn.classList.contains('d-none'));
         const currentSignupVisible = Array.from(signupBtns).some(btn => !btn.classList.contains('d-none'));
         const currentLogoutVisible = logoutBtn && !logoutBtn.classList.contains('d-none');
-        const currentHomeNavVisible = homeNavItem && !homeNavItem.classList.contains('d-none');
-        console.log(`🔍 Button state check - Login visible: ${currentLoginVisible}, Signup visible: ${currentSignupVisible}, Logout visible: ${currentLogoutVisible}, Home nav visible: ${currentHomeNavVisible}`);
+        console.log(`🔍 Button state check - Login visible: ${currentLoginVisible}, Signup visible: ${currentSignupVisible}, Logout visible: ${currentLogoutVisible}`);
       }, 100);
     }
 
@@ -793,7 +855,7 @@
           showBasicDashboard(session.user);
         }
         console.log('🔄 Calling toggleAuthButtons(true) from page load');
-        toggleAuthButtons(true);
+          toggleAuthButtons(true);
       } else {
         console.log('❌ No user session found on page load - showing hero page');
         console.log('🔄 Calling toggleAuthButtons(false) from page load');
@@ -814,9 +876,9 @@
         if (session && session.user) {
           console.log('🔧 User is logged in, ensuring correct UI state');
           toggleAuthButtons(true);
-        } else {
+      } else {
           console.log('🔧 User is logged out, ensuring correct UI state');
-          toggleAuthButtons(false);
+        toggleAuthButtons(false);
         }
       }
     });
@@ -1102,7 +1164,6 @@
       const logoutBtn = document.getElementById('logoutBtn');
       const heroSection = document.getElementById('hero-section');
       const dashboard = document.getElementById('user-dashboard');
-      const homeNavItem = document.querySelector('.home-nav-item');
       
       console.log('🔍 CURRENT BUTTON STATES:');
       console.log(`  📍 Login buttons found: ${loginBtns.length}`);
@@ -1116,7 +1177,6 @@
       console.log(`  📍 Logout button: ${logoutBtn ? (logoutBtn.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
       console.log(`  📍 Hero section: ${heroSection ? (heroSection.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
       console.log(`  📍 Dashboard: ${dashboard ? (dashboard.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
-      console.log(`  📍 Home nav link: ${homeNavItem ? (homeNavItem.classList.contains('d-none') ? 'HIDDEN' : 'VISIBLE') : 'NOT FOUND'}`);
     };
     
     // Manual function to force correct auth state
@@ -1203,7 +1263,7 @@
         toggleAuthButtons(false);
       }
     }, 2000);
-    
+
     console.log('🚀 Supabase connected successfully!');
     console.log('🔧 Debug functions available:');
     console.log('  - debugAuthButtons() - Check current button states');

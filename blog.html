@@ -131,7 +131,7 @@
 
     .blog-meta {
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.95);
     }
 
     .read-time {
@@ -139,6 +139,19 @@
       padding: 0.25rem 0.75rem;
       border-radius: 15px;
       font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.95) !important;
+      font-weight: 500;
+    }
+
+    /* Ensure small text elements are bright */
+    .card small {
+      color: rgba(255, 255, 255, 0.95) !important;
+      font-weight: 500;
+    }
+
+    /* Override any Bootstrap small text styling */
+    small {
+      color: rgba(255, 255, 255, 0.95) !important;
     }
 
     .search-box {
@@ -160,7 +173,43 @@
     }
 
     .search-box::placeholder {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Override Bootstrap's muted text to be more readable */
+    .text-muted {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    /* Make card titles bright and bold */
+    .card-title {
+      color: rgba(255, 255, 255, 0.98) !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Make card text content very readable */
+    .card-text {
+      color: rgba(255, 255, 255, 0.92) !important;
+      font-weight: 450 !important;
+      line-height: 1.6;
+    }
+
+    /* Make card body text bright */
+    .card-body {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* Ensure all text in cards is bright */
+    .card * {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* Specifically target any remaining dim text */
+    .card h1, .card h2, .card h3, .card h4, .card h5, .card h6 {
+      color: rgba(255, 255, 255, 0.98) !important;
+      font-weight: 600 !important;
     }
 
     /* Animations */
@@ -178,6 +227,92 @@
     .fade-in-up {
       animation: fadeInUp 0.6s ease-out;
     }
+
+    /* Enhanced Typography & Colors */
+    .text-light-enhanced {
+      color: rgba(255, 255, 255, 0.95) !important;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .text-soft-white {
+      color: rgba(255, 255, 255, 0.98) !important;
+      font-weight: 500;
+    }
+
+    .text-premium-gray {
+      color: rgba(255, 255, 255, 0.95) !important;
+      font-weight: 500;
+    }
+
+    .text-elegant {
+      color: rgba(255, 255, 255, 0.98) !important;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Enhanced text readability */
+    .card-text, .text-muted {
+      color: #e0e0e0 !important;
+    }
+    
+    small, .small {
+      color: #d0d0d0 !important;
+    }
+
+    /* Enhanced Card Styling Updates */
+    .card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(15px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(255, 255, 255, 0.15);
+      border-color: rgba(0, 123, 255, 0.3);
+    }
+
+    /* Premium Button Styling Updates */
+    .btn-primary {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #004085 100%);
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      padding: 0.85rem 2rem;
+      border-radius: 12px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0056b3 0%, #004085 50%, #002752 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+    }
+
+    .btn-outline-light {
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1.8rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-outline-light:hover {
+      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -192,11 +327,11 @@
 
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item home-nav-item"><a class="nav-link" href="/">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="/workouts.html">Workouts</a></li>
+                      <li class="nav-item"><a class="nav-link" href="/workouts.html">Workouts</a></li>
+          <li class="nav-item"><a class="nav-link" href="/ai-coaching.html">AI Coaching</a></li>
+          <li class="nav-item"><a class="nav-link" href="/nutrition-recovery.html">Nutrition & Recovery</a></li>
           <li class="nav-item"><a class="nav-link active" href="/blog.html">Blog</a></li>
-          <li class="nav-item"><a class="nav-link" href="/support.html">Support</a></li>
-          <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="/support.html">Support & Contact</a></li>
         </ul>
       </div>
 
@@ -454,11 +589,7 @@
         document.querySelector('.auth-user-info').classList.add('d-flex');
         document.getElementById('user-name').textContent = session.user.email.split('@')[0];
         
-        // Hide Home navigation link
-        const homeNavItem = document.querySelector('.home-nav-item');
-        if (homeNavItem) {
-          homeNavItem.style.display = 'none';
-        }
+        
         
         console.log('✅ USER LOGGED IN - Auth buttons hidden, logout shown');
       } else {
@@ -468,11 +599,7 @@
         document.querySelector('.auth-user-info').classList.add('d-none');
         document.querySelector('.auth-user-info').classList.remove('d-flex');
         
-        // Show Home navigation link
-        const homeNavItem = document.querySelector('.home-nav-item');
-        if (homeNavItem) {
-          homeNavItem.style.display = 'block';
-        }
+        
         
         console.log('❌ USER LOGGED OUT - Auth buttons shown, logout hidden');
       }
