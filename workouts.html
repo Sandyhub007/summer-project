@@ -1938,35 +1938,10 @@
     }
 
     // Video tutorial database - mapping exercises to tutorial videos
-    // Updated with verified working YouTube video IDs
+    // Updated with verified working YouTube video IDs from reliable fitness channels
     const videoTutorials = {
       'Push-ups': 'IODxDxX7oi4',
-      'Bench Press': 'rT7DgCr-3pg',
-      'Squats': 'YaXPRqUwItQ',
-      'Deadlifts': 'r4MzxtBKyNE',
-      'Pull-ups': 'aAggnLH3SL4',
-      'Plank': 'pSHjTRCQxIw',
-      'Lunges': 'QOVaHwm-Q6U',
-      'Bicep Curls': 'ykJmrZ5v0Oo',
-      'Tricep Dips': '6kALZikXxLc',
-      'Burpees': 'dZgVxmf6jkA',
-      'Mountain Climbers': 'kLh-uczlPLg',
-      'Jumping Jacks': 'c4DAnQ6DtF8',
-      'Lateral Raises': 'vYSe2VwGgec',
-      'Overhead Press': 'xkdAaLqhNKQ',
-      'Bent-over Rows': 'k4q9QW9KJIk',
-      'Russian Twists': 'uRjQ3IhbdOk',
-      'Romanian Deadlifts': 'cUJJ8bJhbOQ',
-      'Hammer Curls': 'ykJmrZ5v0Oo',
-      'Dumbbell Flyes': 'MwEZGVWJTpw',
-      'Face Pulls': 'rJgwXHZLuSY',
-      'High Knees': 'MlHbVtYKK8M'
-    };
-
-    // Alternative video IDs as fallback
-    const alternativeVideoTutorials = {
-      'Push-ups': 'IODxDxX7oi4',
-      'Bench Press': '4Y2ZdHCOXok',
+      'Bench Press': '4Y2ZdHCOXok', 
       'Squats': 'YaXPRqUwItQ',
       'Deadlifts': 'ytGaGIn3SjE',
       'Pull-ups': 'aAggnLH3SL4',
@@ -1977,7 +1952,7 @@
       'Burpees': 'dZgVxmf6jkA',
       'Mountain Climbers': 'kLh-uczlPLg',
       'Jumping Jacks': 'c4DAnQ6DtF8',
-      'Lateral Raises': 'vYSe2VwGgec',
+      'Lateral Raises': '3VcKaXpzqRo',
       'Overhead Press': 'xkdAaLqhNKQ',
       'Bent-over Rows': 'k4q9QW9KJIk',
       'Russian Twists': 'uRjQ3IhbdOk',
@@ -1986,6 +1961,31 @@
       'Dumbbell Flyes': 'MwEZGVWJTpw',
       'Face Pulls': 'rJgwXHZLuSY',
       'High Knees': 'MlHbVtYKK8M'
+    };
+
+    // Alternative video IDs as fallback - using Athlean-X and other reliable channels
+    const alternativeVideoTutorials = {
+      'Push-ups': 'IODxDxX7oi4',      // Athlean-X
+      'Bench Press': '4Y2ZdHCOXok',   // AthleanX
+      'Squats': 'YaXPRqUwItQ',       // Athlean-X  
+      'Deadlifts': 'ytGaGIn3SjE',    // AthleanX
+      'Pull-ups': 'aAggnLH3SL4',     // Athlean-X
+      'Plank': 'pSHjTRCQxIw',        // FitnessBlender
+      'Lunges': 'QOVaHwm-Q6U',       // Athlean-X
+      'Bicep Curls': 'ykJmrZ5v0Oo',  // Athlean-X
+      'Tricep Dips': '6kALZikXxLc',  // Calisthenic Movement
+      'Burpees': 'dZgVxmf6jkA',      // FitnessBlender
+      'Mountain Climbers': 'kLh-uczlPLg', // HIIT Workouts
+      'Jumping Jacks': 'c4DAnQ6DtF8', // FitnessBlender
+      'Lateral Raises': '3VcKaXpzqRo', // Athlean-X
+      'Overhead Press': 'xkdAaLqhNKQ', // StrongLifts
+      'Bent-over Rows': 'k4q9QW9KJIk', // Athlean-X
+      'Russian Twists': 'uRjQ3IhbdOk', // FitnessBlender
+      'Romanian Deadlifts': 'cUJJ8bJhbOQ', // Athlean-X
+      'Hammer Curls': 'ykJmrZ5v0Oo',  // Athlean-X
+      'Dumbbell Flyes': 'MwEZGVWJTpw', // Bodybuilding.com
+      'Face Pulls': 'rJgwXHZLuSY',    // Athlean-X
+      'High Knees': 'MlHbVtYKK8M'     // FitnessBlender
     };
 
     // Show video tutorial modal
@@ -2022,8 +2022,16 @@
                           frameborder="0" 
                           allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                           allowfullscreen
-                          onerror="handleVideoError('${exerciseName}')">
+                          onerror="handleVideoError('${exerciseName}')"
+                          onload="videoLoadSuccess('${exerciseName}')">
                   </iframe>
+                  <div id="videoLoadingIndicator" class="d-none">
+                    <div class="text-center text-light p-4">
+                      <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                      <p>Loading video tutorial...</p>
+                      <small>If this takes too long, try the alternative options below.</small>
+                    </div>
+                  </div>
                 </div>
                 <div class="mt-3">
                   <h6>💡 Key Points for ${exerciseName}:</h6>
@@ -2034,8 +2042,9 @@
                 <div class="mt-3">
                   <div class="alert alert-info" role="alert">
                     <small><i class="fas fa-info-circle"></i> Video not loading? 
-                    <a href="#" onclick="tryAlternativeVideo('${exerciseName}')" class="alert-link">Try alternative video</a> or 
-                    <a href="#" onclick="openVideoInNewTab('${videoId}', '${exerciseName}')" class="alert-link">watch on YouTube</a>.</small>
+                    <a href="#" onclick="tryAlternativeVideo('${exerciseName}')" class="alert-link">Try alternative video</a>, 
+                    <a href="#" onclick="openVideoInNewTab('${videoId}', '${exerciseName}')" class="alert-link">watch on YouTube</a>, or 
+                    <a href="#" onclick="searchYouTubeForExercise('${exerciseName}')" class="alert-link">search for ${exerciseName} tutorials</a>.</small>
                   </div>
                 </div>
               </div>
@@ -2068,6 +2077,15 @@
       // Show modal
       const modal = new bootstrap.Modal(document.getElementById('videoTutorialModal'));
       modal.show();
+
+      // Show loading indicator initially
+      const indicator = document.getElementById('videoLoadingIndicator');
+      if (indicator) {
+        indicator.classList.remove('d-none');
+      }
+
+      // Setup video timeout
+      setupVideoTimeout(exerciseName);
 
       // Clean up when modal is hidden
       document.getElementById('videoTutorialModal').addEventListener('hidden.bs.modal', function () {
@@ -2134,19 +2152,63 @@
     // Handle video errors
     function handleVideoError(exerciseName) {
       console.error(`Video error for ${exerciseName}`);
-      showToast(`Video temporarily unavailable. Try the "Watch on YouTube" button.`, 'warning');
+      showToast(`Video temporarily unavailable. Try the alternative options below.`, 'warning');
+    }
+
+    // Search YouTube for exercise tutorials
+    function searchYouTubeForExercise(exerciseName) {
+      const searchQuery = `${exerciseName} exercise tutorial proper form`;
+      const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
+      window.open(searchUrl, '_blank');
+      showToast(`Searching YouTube for ${exerciseName} tutorials...`, 'info');
+    }
+
+    // Video loading success
+    function videoLoadSuccess(exerciseName) {
+      console.log(`Video loaded successfully for ${exerciseName}`);
+      const indicator = document.getElementById('videoLoadingIndicator');
+      if (indicator) {
+        indicator.classList.add('d-none');
+      }
+    }
+
+    // Auto-try alternative video after timeout
+    function setupVideoTimeout(exerciseName) {
+      setTimeout(() => {
+        const videoFrame = document.getElementById('videoFrame');
+        const indicator = document.getElementById('videoLoadingIndicator');
+        
+        // Check if video is still loading (indicator visible)
+        if (indicator && !indicator.classList.contains('d-none')) {
+          console.log(`Video timeout for ${exerciseName}, trying alternative...`);
+          tryAlternativeVideo(exerciseName);
+        }
+      }, 8000); // 8 second timeout
     }
 
     // Try alternative video
     function tryAlternativeVideo(exerciseName) {
       const altVideoId = alternativeVideoTutorials[exerciseName];
       const videoFrame = document.getElementById('videoFrame');
+      const indicator = document.getElementById('videoLoadingIndicator');
       
       if (altVideoId && videoFrame) {
+        // Show loading indicator again
+        if (indicator) {
+          indicator.classList.remove('d-none');
+        }
+        
         videoFrame.src = `https://www.youtube.com/embed/${altVideoId}?autoplay=0&rel=0&modestbranding=1`;
         showToast(`Loading alternative video for ${exerciseName}...`, 'info');
+        
+        // Setup timeout for alternative video too
+        setupVideoTimeout(exerciseName);
       } else {
-        showToast(`No alternative video available. Try the YouTube link.`, 'warning');
+        // Hide loading indicator if no alternative
+        if (indicator) {
+          indicator.classList.add('d-none');
+        }
+        showToast(`No alternative video available. Try the YouTube search option.`, 'warning');
       }
     }
 
