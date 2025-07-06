@@ -7,10 +7,12 @@ CREATE TABLE IF NOT EXISTS progress_photos (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
-  storage_path TEXT NOT NULL,
+  storage_path TEXT, -- Made optional for base64 storage
   date DATE NOT NULL,
   category TEXT NOT NULL CHECK (category IN ('front', 'side', 'back', 'pose')),
   notes TEXT,
+  file_name TEXT, -- Added for better file tracking
+  file_size INTEGER, -- Added for file size tracking
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

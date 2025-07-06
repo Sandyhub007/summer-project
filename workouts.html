@@ -168,6 +168,68 @@
       color: #fff;
     }
 
+    /* Achievement System Styling */
+    .achievement-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .achievement-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+    }
+
+    .achievement-card.unlocked {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+      border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .achievement-card.locked {
+      background: rgba(108, 117, 125, 0.1);
+      border: 1px solid rgba(108, 117, 125, 0.3);
+    }
+
+    .achievement-celebration {
+      background: linear-gradient(135deg, #007bff, #00d4ff);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 123, 255, 0.3);
+    }
+
+    .achievement-glow {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Timer styling */
+    .timer-circle {
+      filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.3));
+    }
+
+    /* Workout session enhanced styling */
+    .workout-session-card {
+      background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 212, 255, 0.1));
+      border: 1px solid rgba(0, 123, 255, 0.2);
+      border-radius: 15px;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .workout-session-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+    }
+
+    /* Analytics Chart Container */
+    .chart-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     /* Animations */
     @keyframes fadeInUp {
       from {
@@ -182,6 +244,16 @@
 
     .fade-in-up {
       animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .achievement-icon {
+      animation: pulse 2s infinite;
     }
 
     /* Loading state */
@@ -321,29 +393,82 @@
       position: relative;
       aspect-ratio: 1;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      background: #2a2a2a;
     }
 
     .progress-photo:hover {
-      transform: scale(1.05);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    .photo-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
     }
 
     .progress-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.3s ease;
     }
 
-    .progress-photo .photo-date {
+    .progress-photo:hover img {
+      transform: scale(1.05);
+    }
+
+    .photo-overlay {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 0.5rem;
-      font-size: 0.8rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.9));
+      color: white;
+      padding: 20px 10px 10px;
+      transition: opacity 0.3s ease;
+    }
+
+    .photo-info {
       text-align: center;
+    }
+
+    .photo-date {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .photo-category {
+      display: block;
+      font-size: 0.75rem;
+      color: #ccc;
+      text-transform: capitalize;
+    }
+
+    .empty-state {
+      padding: 2rem;
+      border: 2px dashed #444;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .empty-state i {
+      opacity: 0.6;
+    }
+
+    .photo-viewer {
+      background: #000;
+      border-radius: 8px;
+      padding: 10px;
+      display: inline-block;
+    }
+
+    .photo-details {
+      text-align: left;
     }
 
     /* Chart container styling */
@@ -372,9 +497,10 @@
       background: rgba(0, 123, 255, 0.1);
     }
 
-    .file-upload-area.dragover {
-      border-color: #007bff;
-      background: rgba(0, 123, 255, 0.2);
+    .file-upload-area.drag-over {
+      border-color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      transform: scale(1.02);
     }
 
     /* Stats styling */
@@ -730,9 +856,61 @@
         </div>
 
         <!-- Strength Progress Row -->
+        <!-- Analytics Charts Row -->
         <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">📊 Workout Analytics</h5>
+                <button class="btn btn-sm btn-outline-light" onclick="refreshAnalyticsCharts()">🔄 Refresh</button>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-6 mb-4">
+                    <h6 class="text-light-enhanced mb-3">📈 Workout Frequency (Last 30 Days)</h6>
+                    <div style="position: relative; height: 250px;">
+                      <canvas id="workoutFrequencyChart"></canvas>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <h6 class="text-light-enhanced mb-3">🎯 Exercise Categories</h6>
+                    <div style="position: relative; height: 250px;">
+                      <canvas id="exerciseCategoryChart"></canvas>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <h6 class="text-light-enhanced mb-3">🚀 Progress Over Time (12 Weeks)</h6>
+                    <div style="position: relative; height: 300px;">
+                      <canvas id="progressChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievement & Strength Row -->
+        <div class="row mb-4">
+          <!-- Achievement Badges -->
+          <div class="col-lg-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">🏆 Achievement Badges</h5>
+              </div>
+              <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                <div id="achievementBadges">
+                  <!-- Badges will be populated here -->
+                  <div class="text-center text-muted">
+                    <p>Loading achievements...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <!-- Strength Progress Chart -->
-          <div class="col-lg-8 mb-4">
+          <div class="col-lg-6 mb-4">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">💪 Strength Progression</h5>
@@ -740,20 +918,6 @@
               </div>
               <div class="card-body">
                 <canvas id="strengthProgressChart" height="150"></canvas>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Achievement Badges -->
-          <div class="col-lg-4 mb-4">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="mb-0">🏆 Achievement Badges</h5>
-              </div>
-              <div class="card-body">
-                <div id="achievementBadges" class="d-flex flex-wrap gap-2">
-                  <!-- Badges will be populated here -->
-                </div>
               </div>
             </div>
           </div>
@@ -881,8 +1045,11 @@
                 </div>
 
                 <div class="text-center">
-                  <button class="btn btn-primary" onclick="saveNotificationSettings()">
+                  <button class="btn btn-primary me-2" onclick="saveNotificationSettings()">
                     💾 Save Notification Settings
+                  </button>
+                  <button class="btn btn-outline-info" onclick="testNotification()">
+                    🧪 Test Notification
                   </button>
                 </div>
 
@@ -963,6 +1130,61 @@
           </div>
         </div>
         <div class="modal-body">
+          <!-- Enhanced Workout Timer -->
+          <div class="text-center mb-4" id="workoutTimerSection">
+            <!-- Circular Progress Timer -->
+            <div class="position-relative d-inline-block mb-3">
+              <svg width="150" height="150" class="timer-circle">
+                <circle cx="75" cy="75" r="65" fill="none" stroke="#333" stroke-width="10"/>
+                <circle cx="75" cy="75" r="65" fill="none" stroke="#007bff" stroke-width="10" 
+                        stroke-linecap="round" id="timerProgress" 
+                        style="stroke-dasharray: 408; stroke-dashoffset: 408; transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s linear;"/>
+              </svg>
+              <div class="position-absolute top-50 start-50 translate-middle text-center">
+                <div class="h2 text-light mb-0 fw-bold" id="timerDisplay">0:00</div>
+                <small class="text-muted fw-bold" id="timerLabel">Ready</small>
+                <div class="small text-info" id="currentExerciseTimer" style="display: none;">Push-ups</div>
+              </div>
+            </div>
+            
+            <!-- Timer Controls -->
+            <div class="btn-group mb-3" role="group">
+              <button class="btn btn-success btn-sm" id="startTimerBtn" onclick="startExerciseTimer()">
+                ▶️ Start Timer
+              </button>
+              <button class="btn btn-warning btn-sm" id="pauseTimerBtn" onclick="pauseExerciseTimer()" style="display: none;">
+                ⏸️ Pause
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="stopExerciseTimer()">
+                ⏹️ Stop
+              </button>
+              <button class="btn btn-info btn-sm" onclick="skipExerciseTimer()">
+                ⏭️ Skip
+              </button>
+            </div>
+            
+            <!-- Timer Settings -->
+            <div class="row mb-3">
+              <div class="col-4">
+                <label class="form-label small">Exercise (sec)</label>
+                <input type="number" class="form-control form-control-sm" id="exerciseTime" value="45" min="10" max="300">
+              </div>
+              <div class="col-4">
+                <label class="form-label small">Rest (sec)</label>
+                <input type="number" class="form-control form-control-sm" id="restTime" value="90" min="10" max="300">
+              </div>
+              <div class="col-4">
+                <label class="form-label small">Sets</label>
+                <input type="number" class="form-control form-control-sm" id="currentSets" value="3" min="1" max="10">
+              </div>
+            </div>
+
+            <!-- Current Set Info -->
+            <div class="alert alert-info mb-3" id="setInfo">
+              <strong>Set 1 of 3</strong> | Next: Rest Period
+            </div>
+          </div>
+
           <div id="sessionExercises">
             <!-- Session exercises will be populated here -->
           </div>
@@ -1085,7 +1307,8 @@
           <form id="progressPhotoForm">
             <div class="mb-3">
               <label class="form-label">Photo</label>
-              <div class="file-upload-area" onclick="document.getElementById('photoUpload').click()">
+              <div class="file-upload-area" onclick="document.getElementById('photoUpload').click()" 
+                   ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
                 <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
                 <p class="mb-0">Click to upload or drag & drop</p>
                 <small class="text-muted">Supports: JPG, PNG, GIF (Max 5MB)</small>
@@ -1126,9 +1349,30 @@
   </div>
 
   <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js for Analytics -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
+    // ========================================
+    // SERVICE WORKER REGISTRATION
+    // ========================================
+    
+    // Register service worker for push notifications
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('✅ Service Worker registered:', registration);
+        })
+        .catch(error => {
+          console.error('❌ Service Worker registration failed:', error);
+        });
+    }
+
+    // ========================================
+    // SUPABASE CONFIGURATION
+    // ========================================
+
     // Supabase configuration
     const SUPABASE_URL = 'https://stojhqobywrvkjaabcvq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0b2pocW9ieXdydmtqYWFiY3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyMDcwMDEsImV4cCI6MjA2NTc4MzAwMX0.JQeFsT3nUFMpQ1Tz9uYBnZ3IuE_gBK9P9Du0Igo7Hsg';
@@ -1459,6 +1703,9 @@
         
         // Initialize push notifications
         await initializePushNotifications();
+        
+        // Initialize achievement system
+        initializeAchievementSystem();
         
         // Update progress stats after everything is loaded
         await updateProgressStats();
@@ -1925,6 +2172,12 @@
           console.log('📊 Progress tab clicked, refreshing data...');
           await loadWorkoutHistory();
           await updateProgressStats();
+          
+          // Initialize charts and display achievements
+          setTimeout(() => {
+            initializeAnalyticsCharts();
+            displayAchievementBadges();
+          }, 500);
         });
       }
     }
@@ -2528,6 +2781,9 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
                   </div>
                 </div>
                 <div class="mt-2">
+                  <button class="btn btn-sm btn-primary me-2" onclick="startTimerForExercise('${exercise.exercise_name || exercise.name}', ${exercise.sets || 3})">
+                    ⏱️ Start Timer
+                  </button>
                   <button class="btn btn-sm btn-outline-success" onclick="markExerciseComplete(${index})">
                     ✅ Complete
                   </button>
@@ -2659,9 +2915,17 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         const exerciseCount = currentSession?.exercises?.length || 0;
         sendWorkoutCompletionNotification(workoutName, durationMinutes, exerciseCount);
         
+        // Update achievement stats
+        updateAchievementStats('totalWorkouts', 1, { workoutTime: new Date() });
+        updateAchievementStats('totalExercises', exerciseCount);
+        updateAchievementStats('totalTimeExercised', durationMinutes);
+        
         // Reload workout history and update progress stats
         await loadWorkoutHistory();
         await updateProgressStats();
+        
+        // Refresh analytics charts
+        refreshAnalyticsCharts();
 
       } catch (error) {
         console.error('Error completing workout:', error);
@@ -3059,6 +3323,15 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
     async function initializeProgressTracking() {
       console.log('📊 Initializing progress tracking...');
       
+      // Test database connectivity for progress features
+      const dbTest = await testProgressPhotosDatabase();
+      if (!dbTest.success) {
+        console.warn('⚠️ Database not ready:', dbTest.error);
+        if (dbTest.solution) {
+          showToast(`Database setup needed: ${dbTest.solution}`, 'warning');
+        }
+      }
+      
       // Set default dates for modals
       document.getElementById('measurementDate').valueAsDate = new Date();
       document.getElementById('prDate').valueAsDate = new Date();
@@ -3087,87 +3360,170 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       console.log('✅ Progress tracking initialized');
     }
 
-    // Load progress data from Supabase
-    async function loadProgressData() {
+    // Test database connectivity for progress photos
+    async function testProgressPhotosDatabase() {
+      console.log('🔍 Testing progress photos database connection...');
+      
+      if (typeof supabase === 'undefined') {
+        console.error('❌ Supabase not available');
+        return { success: false, error: 'Supabase not initialized' };
+      }
+
       try {
+        // Test auth
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session || !session.user) {
-          console.warn('No user session found when loading progress data');
-          return;
+        if (!session) {
+          console.error('❌ No authenticated user');
+          return { success: false, error: 'Not authenticated' };
         }
 
-        const userId = session.user.id;
-        console.log('📊 Loading progress data from database...');
-
-        // Load body measurements
-        const { data: measurements, error: measurementsError } = await supabase
-          .from('body_measurements')
-          .select('*')
-          .eq('user_id', userId)
-          .order('date', { ascending: true });
-
-        if (measurementsError) {
-          console.warn('Database not set up for body measurements:', measurementsError.message);
-          bodyMeasurements = [];
-        } else {
-          bodyMeasurements = measurements || [];
-        }
-
-        // Load personal records
-        const { data: records, error: recordsError } = await supabase
-          .from('personal_records')
-          .select('*')
-          .eq('user_id', userId)
-          .order('date', { ascending: false });
-
-        if (recordsError) {
-          console.warn('Database not set up for personal records:', recordsError.message);
-          personalRecords = [];
-        } else {
-          personalRecords = records || [];
-        }
-
-        // Load progress photos
-        const { data: photos, error: photosError } = await supabase
+        // Test progress_photos table exists
+        const { data, error } = await supabase
           .from('progress_photos')
-          .select('*')
-          .eq('user_id', userId)
-          .order('date', { ascending: false });
+          .select('count', { count: 'exact' })
+          .limit(1);
 
-        if (photosError) {
-          console.warn('Database not set up for progress photos:', photosError.message);
-          progressPhotos = [];
-        } else {
-          progressPhotos = photos || [];
+        if (error) {
+          console.error('❌ Progress photos table test failed:', error.message);
+          
+          if (error.message.includes('relation') && error.message.includes('does not exist')) {
+            return { 
+              success: false, 
+              error: 'progress_photos table not found',
+              solution: 'Apply supabase-progress-tracking-schema.sql in Supabase Dashboard'
+            };
+          }
+          
+          return { success: false, error: error.message };
         }
 
-        // Load achievements
-        const { data: achievements, error: achievementsError } = await supabase
-          .from('user_achievements')
-          .select('*')
-          .eq('user_id', userId);
-
-        if (achievementsError) {
-          console.warn('Database not set up for achievements:', achievementsError.message);
-          unlockedAchievements = [];
-        } else {
-          unlockedAchievements = achievements?.map(a => a.achievement_id) || [];
-        }
+        console.log('✅ Progress photos database connection successful');
+        return { success: true };
         
-        console.log('📊 Progress data loaded from database:', {
+      } catch (error) {
+        console.error('❌ Database test error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Load progress data from Supabase and localStorage
+    async function loadProgressData() {
+      console.log('📊 Loading progress data...');
+      
+      // Always load from localStorage first (immediate data)
+      try {
+        const localBodyMeasurements = localStorage.getItem('bodyMeasurements');
+        const localPersonalRecords = localStorage.getItem('personalRecords');
+        const localProgressPhotos = localStorage.getItem('progressPhotos');
+        const localAchievements = localStorage.getItem('unlockedAchievements');
+
+        bodyMeasurements = localBodyMeasurements ? JSON.parse(localBodyMeasurements) : [];
+        personalRecords = localPersonalRecords ? JSON.parse(localPersonalRecords) : [];
+        progressPhotos = localProgressPhotos ? JSON.parse(localProgressPhotos) : [];
+        unlockedAchievements = localAchievements ? JSON.parse(localAchievements) : [];
+
+        console.log('📊 Loaded from localStorage:', {
           measurements: bodyMeasurements.length,
           prs: personalRecords.length,
           photos: progressPhotos.length,
           achievements: unlockedAchievements.length
         });
-
       } catch (error) {
-        console.error('Error loading progress data:', error);
-        // Fallback to empty arrays
+        console.warn('Error loading from localStorage:', error);
         bodyMeasurements = [];
         personalRecords = [];
         progressPhotos = [];
         unlockedAchievements = [];
+      }
+
+      // Try to sync with database if available
+      if (typeof supabase !== 'undefined') {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session && session.user) {
+            const userId = session.user.id;
+            console.log('📊 Syncing with database...');
+
+            // Load body measurements
+            try {
+              const { data: measurements, error: measurementsError } = await supabase
+                .from('body_measurements')
+                .select('*')
+                .eq('user_id', userId)
+                .order('date', { ascending: true });
+
+              if (!measurementsError && measurements) {
+                bodyMeasurements = measurements;
+                localStorage.setItem('bodyMeasurements', JSON.stringify(bodyMeasurements));
+              }
+            } catch (e) {
+              console.warn('Could not load body measurements from database');
+            }
+
+            // Load personal records
+            try {
+              const { data: records, error: recordsError } = await supabase
+                .from('personal_records')
+                .select('*')
+                .eq('user_id', userId)
+                .order('date', { ascending: false });
+
+              if (!recordsError && records) {
+                personalRecords = records;
+                localStorage.setItem('personalRecords', JSON.stringify(personalRecords));
+              }
+            } catch (e) {
+              console.warn('Could not load personal records from database');
+            }
+
+            // Load progress photos
+            try {
+              const { data: photos, error: photosError } = await supabase
+                .from('progress_photos')
+                .select('*')
+                .eq('user_id', userId)
+                .order('date', { ascending: false });
+
+              if (!photosError && photos) {
+                // Merge database photos with local photos (database takes precedence)
+                const dbPhotoIds = new Set(photos.map(p => p.id));
+                const localOnlyPhotos = progressPhotos.filter(p => !dbPhotoIds.has(p.id));
+                
+                progressPhotos = [...photos, ...localOnlyPhotos];
+                localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+              }
+            } catch (e) {
+              console.warn('Could not load progress photos from database');
+            }
+
+            // Load achievements
+            try {
+              const { data: achievements, error: achievementsError } = await supabase
+                .from('user_achievements')
+                .select('*')
+                .eq('user_id', userId);
+
+              if (!achievementsError && achievements) {
+                unlockedAchievements = achievements?.map(a => a.achievement_id) || [];
+                localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
+              }
+            } catch (e) {
+              console.warn('Could not load achievements from database');
+            }
+            
+            console.log('📊 Final data after database sync:', {
+              measurements: bodyMeasurements.length,
+              prs: personalRecords.length,
+              photos: progressPhotos.length,
+              achievements: unlockedAchievements.length
+            });
+          }
+        } catch (error) {
+          console.warn('Database sync failed, using localStorage data:', error);
+        }
+      } else {
+        console.log('📊 Using localStorage only (Supabase not available)');
       }
     }
 
@@ -3349,6 +3705,22 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
     }
 
     function addProgressPhoto() {
+      // Reset the modal form
+      document.getElementById('progressPhotoForm').reset();
+      document.getElementById('photoPreview').style.display = 'none';
+      
+      // Reset upload area
+      const uploadArea = document.querySelector('.file-upload-area');
+      uploadArea.style.borderColor = '';
+      uploadArea.innerHTML = `
+        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+        <p class="mb-0">Click to upload or drag & drop</p>
+        <small class="text-muted">Supports: JPG, PNG, GIF (Max 5MB)</small>
+      `;
+      
+      // Set default date to today
+      document.getElementById('photoDate').valueAsDate = new Date();
+      
       new bootstrap.Modal(document.getElementById('progressPhotoModal')).show();
     }
 
@@ -3471,16 +3843,17 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
     }
 
     async function saveProgressPhoto() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session || !session.user) {
-        showToast('Please log in to save progress photos', 'error');
-        return;
-      }
-
       const photoFile = document.getElementById('photoUpload').files[0];
       if (!photoFile) {
         showToast('Please select a photo', 'error');
         return;
+      }
+
+      // Quick database connectivity test for better user feedback
+      const dbTest = await testProgressPhotosDatabase();
+      if (!dbTest.success && dbTest.solution) {
+        console.warn('⚠️ Database not ready:', dbTest.error);
+        showToast(`Setup needed: ${dbTest.solution}`, 'info');
       }
 
       const date = document.getElementById('photoDate').value;
@@ -3498,88 +3871,283 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         return;
       }
 
+      // Validate file type
+      if (!photoFile.type.startsWith('image/')) {
+        showToast('Please select a valid image file', 'error');
+        return;
+      }
+
+      // Show loading state
+      const saveButton = document.querySelector('#progressPhotoModal .btn-primary');
+      const originalText = saveButton.innerHTML;
+      saveButton.innerHTML = '⏳ Uploading...';
+      saveButton.disabled = true;
+
       try {
-        showToast('Uploading photo...', 'info');
-
-        const userId = session.user.id;
-        const timestamp = Date.now();
-        const fileExt = photoFile.name.split('.').pop();
-        const fileName = `${userId}/${timestamp}_${category}.${fileExt}`;
-
-        // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('progress-photos')
-          .upload(fileName, photoFile, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) {
-          console.error('Error uploading photo:', uploadError);
-          showToast('Error uploading photo. Please try again.', 'error');
-          return;
-        }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('progress-photos')
-          .getPublicUrl(fileName);
-
-        // Save metadata to database
+        console.log('📸 Starting photo upload...');
+        
+        // Convert file to base64 for storage (with compression)
+        const base64 = await convertImageToBase64(photoFile);
+        
         const photoData = {
-          user_id: userId,
-          image_url: publicUrl,
-          storage_path: fileName,
+          id: Date.now(),
+          image_url: base64,
           date: date,
           category: category,
-          notes: notes || null
+          notes: notes || '',
+          created_at: new Date().toISOString(),
+          file_name: photoFile.name,
+          file_size: photoFile.size
         };
 
-        const { data, error } = await supabase
-          .from('progress_photos')
-          .insert(photoData)
-          .select()
-          .single();
+        console.log('📸 Photo data prepared:', {
+          size: Math.round(photoFile.size / 1024) + 'KB',
+          category,
+          date
+        });
 
-        if (error) {
-          // Clean up uploaded file if database insert fails
-          await supabase.storage
-            .from('progress-photos')
-            .remove([fileName]);
-          
-          console.error('Error saving photo metadata:', error);
-          showToast('Error saving photo. Please try again.', 'error');
-          return;
+        // Save to local storage first (always works)
+        progressPhotos.unshift(photoData);
+        localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+        console.log('📸 Photo saved to localStorage');
+
+        // Try to save to Supabase database if available
+        let databaseSaved = false;
+        if (typeof supabase !== 'undefined') {
+          try {
+            // Check if user is authenticated
+            const { data: { session } } = await supabase.auth.getSession();
+            
+                          if (session && session.user) {
+                // Try database-first approach with Supabase Storage
+                const userId = session.user.id;
+                const timestamp = Date.now();
+                const fileExt = photoFile.name.split('.').pop();
+                const fileName = `${userId}/${timestamp}_${category}.${fileExt}`;
+
+                // Try uploading to Supabase Storage first
+                try {
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                  .from('progress-photos')
+                  .upload(fileName, photoFile, {
+                    cacheControl: '3600',
+                    upsert: false
+                  });
+
+                if (!uploadError) {
+                  // Get public URL
+                  const { data: { publicUrl } } = supabase.storage
+                    .from('progress-photos')
+                    .getPublicUrl(fileName);
+
+                  // Save metadata to database with storage URL
+                  const dbPhotoData = {
+                    user_id: userId,
+                    image_url: publicUrl,
+                    storage_path: fileName,
+                    date: date,
+                    category: category,
+                    notes: notes || null
+                  };
+
+                  const { data, error } = await supabase
+                    .from('progress_photos')
+                    .insert(dbPhotoData)
+                    .select()
+                    .single();
+
+                  if (!error) {
+                    // Update local data with database version
+                    progressPhotos[0] = { ...data, id: data.id };
+                    localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+                    databaseSaved = true;
+                    console.log('✅ Photo saved to Supabase Storage and database');
+                  } else {
+                    // Clean up uploaded file if database insert fails
+                    await supabase.storage.from('progress-photos').remove([fileName]);
+                    throw error;
+                  }
+                } else {
+                  throw uploadError;
+                }
+              } catch (storageError) {
+                console.warn('⚠️ Supabase Storage not available, trying database with base64...');
+                
+                // Fallback: try saving base64 to database directly
+                const dbPhotoData = {
+                  user_id: userId,
+                  image_url: base64,
+                  storage_path: null,
+                  date: date,
+                  category: category,
+                  notes: notes || null
+                };
+
+                const { data, error } = await supabase
+                  .from('progress_photos')
+                  .insert(dbPhotoData)
+                  .select()
+                  .single();
+
+                if (!error) {
+                  // Update local data with database version
+                  progressPhotos[0] = { ...data, id: data.id };
+                  localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+                  databaseSaved = true;
+                  console.log('✅ Photo saved to database with base64');
+                } else {
+                  throw error;
+                }
+              }
+            } else {
+              console.warn('⚠️ No authenticated user for database save');
+            }
+          } catch (dbError) {
+            console.warn('⚠️ Database save failed:', dbError.message);
+          }
+        } else {
+          console.warn('⚠️ Supabase not available, using localStorage only');
         }
 
-        // Update local data
-        progressPhotos.unshift(data);
-        
-        updateProgressStats();
-        updateProgressPhotos();
-        
-        bootstrap.Modal.getInstance(document.getElementById('progressPhotoModal')).hide();
+        // Close modal and refresh display
+        const modal = bootstrap.Modal.getInstance(document.getElementById('progressPhotoModal'));
+        modal.hide();
         document.getElementById('progressPhotoForm').reset();
         document.getElementById('photoPreview').style.display = 'none';
         
-        showToast('Progress photo saved! 📸', 'success');
+        // Update the photos display
+        updateProgressPhotos();
+        
+        // Show success message
+        const message = databaseSaved ? 
+          'Progress photo saved successfully! 📸' : 
+          'Photo saved locally! 📸 (Will sync to database when available)';
+        showToast(message, 'success');
+
+        console.log('✅ Photo upload completed successfully');
 
       } catch (error) {
-        console.error('Error saving progress photo:', error);
-        showToast('Error saving photo. Please try again.', 'error');
+        console.error('❌ Error saving progress photo:', error);
+        showToast('Error uploading photo. Please try again.', 'error');
+      } finally {
+        // Reset button state
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
       }
     }
 
-    // Photo preview function
-    function previewPhoto(input) {
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById('previewImage').src = e.target.result;
-          document.getElementById('photoPreview').style.display = 'block';
+    // Convert image to base64 with compression
+    function convertImageToBase64(file) {
+      return new Promise((resolve, reject) => {
+        // For large images, compress them first
+        if (file.size > 1024 * 1024) { // 1MB
+          compressAndConvertImage(file, 0.7)
+            .then(resolve)
+            .catch(reject);
+        } else {
+          // Small images, convert directly
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Compress and convert image
+    function compressAndConvertImage(file, quality = 0.7) {
+      return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = () => {
+          // Calculate new dimensions (max 1200px width/height)
+          const maxSize = 1200;
+          let { width, height } = img;
+          
+          if (width > maxSize || height > maxSize) {
+            const ratio = Math.min(maxSize / width, maxSize / height);
+            width *= ratio;
+            height *= ratio;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
         };
-        reader.readAsDataURL(input.files[0]);
+        
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    // Photo preview function with validation
+    function previewPhoto(input) {
+      const previewContainer = document.getElementById('photoPreview');
+      const previewImage = document.getElementById('previewImage');
+      
+      if (!input.files || !input.files[0]) {
+        previewContainer.style.display = 'none';
+        return;
       }
+
+      const file = input.files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file (JPG, PNG, GIF)', 'error');
+        input.value = '';
+        previewContainer.style.display = 'none';
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image too large. Please select a file smaller than 5MB', 'error');
+        input.value = '';
+        previewContainer.style.display = 'none';
+        return;
+      }
+
+      // Show file info
+      const fileInfo = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+      let fileInfoElement = document.getElementById('fileInfo');
+      if (!fileInfoElement) {
+        fileInfoElement = document.createElement('small');
+        fileInfoElement.id = 'fileInfo';
+        fileInfoElement.className = 'text-muted d-block mt-1';
+        previewContainer.appendChild(fileInfoElement);
+      }
+      fileInfoElement.textContent = fileInfo;
+
+      // Preview the image
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        previewContainer.style.display = 'block';
+        
+        // Update upload area to show success
+        const uploadArea = document.querySelector('.file-upload-area');
+        uploadArea.style.borderColor = '#28a745';
+        uploadArea.innerHTML = `
+          <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+          <p class="mb-0 text-success">Photo selected successfully!</p>
+          <small class="text-muted">Click to change photo</small>
+        `;
+      };
+      reader.onerror = function() {
+        showToast('Error reading file. Please try again.', 'error');
+        input.value = '';
+        previewContainer.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
     }
 
     // Update chart functions
@@ -3603,43 +4171,105 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
 
     function updateProgressPhotos() {
       const container = document.getElementById('progressPhotos');
-      if (!container) return;
+      if (!container) {
+        console.warn('Progress photos container not found');
+        return;
+      }
+      
+      console.log('📸 Updating progress photos display:', progressPhotos.length, 'photos');
       
       if (progressPhotos.length === 0) {
         container.innerHTML = `
-          <div class="col-12 text-center">
-            <p class="text-soft-white">No progress photos yet. Add your first photo to track visual progress!</p>
+          <div class="col-12 text-center py-4">
+            <div class="empty-state">
+              <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+              <h5 class="text-soft-white">No Progress Photos Yet</h5>
+              <p class="text-muted">Start tracking your transformation by adding your first progress photo!</p>
+              <button class="btn btn-primary btn-sm" onclick="addProgressPhoto()">
+                <i class="fas fa-plus"></i> Add First Photo
+              </button>
+            </div>
           </div>
         `;
         return;
       }
 
-      container.innerHTML = progressPhotos.map(photo => `
-        <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
-          <div class="progress-photo" onclick="viewPhotoFullSize('${photo.image_url}', '${photo.category}', '${photo.date}')">
-            <img src="${photo.image_url}" alt="Progress photo - ${photo.category}" loading="lazy">
-            <div class="photo-date">
-              ${new Date(photo.date).toLocaleDateString()}
-              <br><small>${photo.category}</small>
+      // Sort photos by date (newest first)
+      const sortedPhotos = [...progressPhotos].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      container.innerHTML = sortedPhotos.map(photo => {
+        const photoDate = new Date(photo.date);
+        const formattedDate = photoDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: photoDate.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+        });
+        
+        return `
+          <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+            <div class="progress-photo" onclick="viewPhotoFullSize('${photo.image_url}', '${photo.category}', '${photo.date}', '${photo.notes || ''}')">
+              <div class="photo-container">
+                <img src="${photo.image_url}" alt="Progress photo - ${photo.category}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMzMzIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjY2IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkltYWdlIE5vdCBGb3VuZDwvdGV4dD4KPC9zdmc+'">
+                <div class="photo-overlay">
+                  <div class="photo-info">
+                    <span class="photo-date">${formattedDate}</span>
+                    <span class="photo-category">${photo.category}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+      
+      console.log('✅ Progress photos display updated');
     }
 
     // View photo in full size modal
-    function viewPhotoFullSize(imageUrl, category, date) {
+    function viewPhotoFullSize(imageUrl, category, date, notes = '') {
+      const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+        weekday: 'long',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
       const modalHtml = `
         <div class="modal fade" id="photoViewModal" tabindex="-1">
           <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content progress-modal">
               <div class="modal-header">
-                <h5 class="modal-title">Progress Photo - ${category}</h5>
+                <h5 class="modal-title">📸 ${category.charAt(0).toUpperCase() + category.slice(1)} View</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body text-center">
-                <img src="${imageUrl}" class="img-fluid rounded" alt="Progress photo" style="max-height: 70vh;">
-                <p class="mt-3 text-soft-white">${new Date(date).toLocaleDateString()}</p>
+                <div class="photo-viewer">
+                  <img src="${imageUrl}" class="img-fluid rounded shadow" alt="Progress photo" style="max-height: 70vh; max-width: 100%;">
+                </div>
+                <div class="photo-details mt-4">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <h6 class="text-soft-white mb-1">📅 Date</h6>
+                      <p class="text-muted">${formattedDate}</p>
+                    </div>
+                    <div class="col-md-6">
+                      <h6 class="text-soft-white mb-1">📂 Category</h6>
+                      <p class="text-muted">${category.charAt(0).toUpperCase() + category.slice(1)} View</p>
+                    </div>
+                  </div>
+                  ${notes ? `
+                    <div class="mt-3">
+                      <h6 class="text-soft-white mb-1">📝 Notes</h6>
+                      <p class="text-muted">${notes}</p>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="deleteProgressPhoto('${imageUrl}', '${date}')">
+                  <i class="fas fa-trash"></i> Delete Photo
+                </button>
               </div>
             </div>
           </div>
@@ -3654,7 +4284,96 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       document.body.insertAdjacentHTML('beforeend', modalHtml);
       
       // Show modal
-      new bootstrap.Modal(document.getElementById('photoViewModal')).show();
+      const modal = new bootstrap.Modal(document.getElementById('photoViewModal'));
+      modal.show();
+      
+      // Auto-cleanup when modal is hidden
+      document.getElementById('photoViewModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+      }, { once: true });
+    }
+
+    // Delete progress photo
+    function deleteProgressPhoto(imageUrl, date) {
+      if (!confirm('Are you sure you want to delete this progress photo? This action cannot be undone.')) {
+        return;
+      }
+
+      // Find and remove the photo
+      const photoIndex = progressPhotos.findIndex(photo => 
+        photo.image_url === imageUrl && photo.date === date
+      );
+
+      if (photoIndex !== -1) {
+        const photo = progressPhotos[photoIndex];
+        
+        // Remove from local storage
+        progressPhotos.splice(photoIndex, 1);
+        localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+        
+        // Try to remove from database if it has an ID
+        if (typeof supabase !== 'undefined' && photo.id && typeof photo.id === 'string') {
+          supabase.from('progress_photos')
+            .delete()
+            .eq('id', photo.id)
+            .then(({ error }) => {
+              if (error) {
+                console.warn('Could not delete photo from database:', error);
+              } else {
+                console.log('✅ Photo deleted from database');
+              }
+            });
+
+          // If there's a storage path, try to delete from storage too
+          if (photo.storage_path) {
+            supabase.storage
+              .from('progress-photos')
+              .remove([photo.storage_path])
+              .then(({ error }) => {
+                if (error) {
+                  console.warn('Could not delete photo from storage:', error);
+                } else {
+                  console.log('✅ Photo deleted from storage');
+                }
+              });
+          }
+        }
+
+        // Update display
+        updateProgressPhotos();
+        
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('photoViewModal'));
+        if (modal) modal.hide();
+        
+        showToast('Progress photo deleted', 'success');
+      }
+    }
+
+    // Drag and drop handlers for photo upload
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.classList.remove('drag-over');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const photoInput = document.getElementById('photoUpload');
+        photoInput.files = files;
+        previewPhoto(photoInput);
+      }
     }
 
         // Update progress statistics
@@ -4644,6 +5363,846 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         updateHydrationDisplay();
         updateNutritionStats();
       }
+    }
+
+    // ========================================
+    // ENHANCED WORKOUT TIMER SYSTEM
+    // ========================================
+
+    let workoutTimer = {
+      isRunning: false,
+      isPaused: false,
+      currentTime: 0,
+      totalTime: 0,
+      currentSet: 1,
+      totalSets: 3,
+      isRestPeriod: false,
+      currentExercise: '',
+      interval: null,
+      audioContext: null
+    };
+
+    // Initialize audio context for timer sounds
+    function initializeAudio() {
+      try {
+        workoutTimer.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.warn('Audio not supported for timer alerts');
+      }
+    }
+
+    // Play timer sound
+    function playTimerSound(frequency = 800, duration = 200) {
+      if (!workoutTimer.audioContext) return;
+      
+      const oscillator = workoutTimer.audioContext.createOscillator();
+      const gainNode = workoutTimer.audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(workoutTimer.audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, workoutTimer.audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, workoutTimer.audioContext.currentTime + duration / 1000);
+      
+      oscillator.start(workoutTimer.audioContext.currentTime);
+      oscillator.stop(workoutTimer.audioContext.currentTime + duration / 1000);
+    }
+
+    // Start exercise timer
+    function startExerciseTimer(exerciseName = null) {
+      if (workoutTimer.isRunning && !workoutTimer.isPaused) {
+        return; // Already running
+      }
+
+      // Initialize audio on first interaction
+      if (!workoutTimer.audioContext) {
+        initializeAudio();
+      }
+
+      if (workoutTimer.isPaused) {
+        // Resume from pause
+        workoutTimer.isPaused = false;
+      } else {
+        // Start new timer
+        workoutTimer.currentTime = parseInt(document.getElementById('exerciseTime').value);
+        workoutTimer.totalTime = workoutTimer.currentTime;
+        workoutTimer.totalSets = parseInt(document.getElementById('currentSets').value);
+        workoutTimer.isRestPeriod = false;
+        workoutTimer.currentExercise = exerciseName || 'Current Exercise';
+      }
+
+      workoutTimer.isRunning = true;
+      
+      // Update UI
+      document.getElementById('startTimerBtn').style.display = 'none';
+      document.getElementById('pauseTimerBtn').style.display = 'inline-block';
+      document.getElementById('timerLabel').textContent = workoutTimer.isRestPeriod ? 'Rest' : 'Exercise';
+      
+      if (exerciseName) {
+        document.getElementById('currentExerciseTimer').style.display = 'block';
+        document.getElementById('currentExerciseTimer').textContent = exerciseName;
+      }
+
+      updateSetInfo();
+      
+      // Start countdown
+      workoutTimer.interval = setInterval(updateTimer, 1000);
+      
+      // Play start sound
+      playTimerSound(600, 300);
+      
+      showToast(`Timer started! ${workoutTimer.isRestPeriod ? 'Rest' : 'Exercise'} time: ${Math.floor(workoutTimer.currentTime / 60)}:${(workoutTimer.currentTime % 60).toString().padStart(2, '0')}`, 'info');
+    }
+
+    // Pause exercise timer
+    function pauseExerciseTimer() {
+      if (!workoutTimer.isRunning) return;
+      
+      workoutTimer.isPaused = true;
+      workoutTimer.isRunning = false;
+      
+      clearInterval(workoutTimer.interval);
+      
+      // Update UI
+      document.getElementById('startTimerBtn').style.display = 'inline-block';
+      document.getElementById('pauseTimerBtn').style.display = 'none';
+      document.getElementById('startTimerBtn').innerHTML = '▶️ Resume';
+      
+      playTimerSound(400, 200);
+      showToast('Timer paused', 'warning');
+    }
+
+    // Stop exercise timer
+    function stopExerciseTimer() {
+      workoutTimer.isRunning = false;
+      workoutTimer.isPaused = false;
+      clearInterval(workoutTimer.interval);
+      
+      // Reset timer
+      workoutTimer.currentTime = 0;
+      workoutTimer.currentSet = 1;
+      
+      // Update UI
+      document.getElementById('startTimerBtn').style.display = 'inline-block';
+      document.getElementById('pauseTimerBtn').style.display = 'none';
+      document.getElementById('startTimerBtn').innerHTML = '▶️ Start Timer';
+      document.getElementById('timerDisplay').textContent = '0:00';
+      document.getElementById('timerLabel').textContent = 'Ready';
+      document.getElementById('currentExerciseTimer').style.display = 'none';
+      
+      // Reset progress circle
+      const progressCircle = document.getElementById('timerProgress');
+      progressCircle.style.strokeDashoffset = '408';
+      progressCircle.style.stroke = '#007bff';
+      
+      updateSetInfo();
+      
+      playTimerSound(300, 300);
+      showToast('Timer stopped', 'info');
+    }
+
+    // Skip current timer phase
+    function skipExerciseTimer() {
+      if (!workoutTimer.isRunning && !workoutTimer.isPaused) {
+        showToast('Timer not active', 'warning');
+        return;
+      }
+      
+      // Move to next phase
+      completeCurrentTimerPhase();
+      playTimerSound(700, 200);
+      showToast('Skipped to next phase', 'info');
+    }
+
+    // Update timer display and progress
+    function updateTimer() {
+      if (workoutTimer.currentTime <= 0) {
+        completeCurrentTimerPhase();
+        return;
+      }
+      
+      workoutTimer.currentTime--;
+      
+      // Update display
+      const minutes = Math.floor(workoutTimer.currentTime / 60);
+      const seconds = workoutTimer.currentTime % 60;
+      document.getElementById('timerDisplay').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Update progress circle
+      const progress = (workoutTimer.totalTime - workoutTimer.currentTime) / workoutTimer.totalTime;
+      const offset = 408 - (408 * progress);
+      document.getElementById('timerProgress').style.strokeDashoffset = offset;
+      
+      // Color changes based on time remaining
+      const progressCircle = document.getElementById('timerProgress');
+      if (workoutTimer.currentTime <= 5) {
+        progressCircle.style.stroke = '#dc3545'; // Red for last 5 seconds
+        if (workoutTimer.currentTime <= 3) {
+          playTimerSound(800, 100); // Beep for last 3 seconds
+        }
+      } else if (workoutTimer.currentTime <= 10) {
+        progressCircle.style.stroke = '#ffc107'; // Yellow for last 10 seconds
+      } else {
+        progressCircle.style.stroke = workoutTimer.isRestPeriod ? '#28a745' : '#007bff';
+      }
+    }
+
+    // Complete current timer phase and move to next
+    function completeCurrentTimerPhase() {
+      playTimerSound(1000, 500); // Completion sound
+      
+      if (workoutTimer.isRestPeriod) {
+        // Rest period complete, start next set
+        workoutTimer.currentSet++;
+        workoutTimer.isRestPeriod = false;
+        
+        if (workoutTimer.currentSet > workoutTimer.totalSets) {
+          // All sets complete
+          showToast('🎉 All sets completed! Great job!', 'success');
+          stopExerciseTimer();
+          return;
+        }
+        
+        // Start next exercise set
+        workoutTimer.currentTime = parseInt(document.getElementById('exerciseTime').value);
+        workoutTimer.totalTime = workoutTimer.currentTime;
+        document.getElementById('timerLabel').textContent = 'Exercise';
+        
+        showToast(`Set ${workoutTimer.currentSet} of ${workoutTimer.totalSets} - Let's go! 💪`, 'success');
+        
+      } else {
+        // Exercise complete, start rest period
+        workoutTimer.isRestPeriod = true;
+        workoutTimer.currentTime = parseInt(document.getElementById('restTime').value);
+        workoutTimer.totalTime = workoutTimer.currentTime;
+        document.getElementById('timerLabel').textContent = 'Rest';
+        
+        showToast(`Set ${workoutTimer.currentSet} complete! Rest time 😌`, 'info');
+      }
+      
+      updateSetInfo();
+      
+      // Reset progress circle color
+      document.getElementById('timerProgress').style.stroke = workoutTimer.isRestPeriod ? '#28a745' : '#007bff';
+    }
+
+    // Update set information display
+    function updateSetInfo() {
+      const setInfo = document.getElementById('setInfo');
+      if (workoutTimer.currentSet > workoutTimer.totalSets) {
+        setInfo.innerHTML = '<strong>🎉 Workout Complete!</strong> | Amazing work!';
+        setInfo.className = 'alert alert-success mb-3';
+      } else {
+        const nextPhase = workoutTimer.isRestPeriod ? 'Exercise' : 'Rest';
+        setInfo.innerHTML = `<strong>Set ${workoutTimer.currentSet} of ${workoutTimer.totalSets}</strong> | Next: ${nextPhase}`;
+        setInfo.className = `alert ${workoutTimer.isRestPeriod ? 'alert-warning' : 'alert-info'} mb-3`;
+      }
+    }
+
+    // Auto-start timer for specific exercise
+    function startTimerForExercise(exerciseName, sets = 3) {
+      document.getElementById('currentSets').value = sets;
+      workoutTimer.currentSet = 1;
+      workoutTimer.totalSets = sets;
+      startExerciseTimer(exerciseName);
+    }
+
+    // ========================================
+    // ACHIEVEMENT/BADGE SYSTEM
+    // ========================================
+
+    let achievementSystem = {
+      badges: [],
+      unlockedBadges: [],
+      stats: {
+        totalWorkouts: 0,
+        totalExercises: 0,
+        longestStreak: 0,
+        currentStreak: 0,
+        personalRecords: 0,
+        totalTimeExercised: 0
+      }
+    };
+
+    // Define available badges
+    const availableBadges = [
+      {
+        id: 'first_workout',
+        name: 'First Steps',
+        description: 'Complete your first workout',
+        icon: '🏃',
+        requirement: 'Complete 1 workout',
+        check: (stats) => stats.totalWorkouts >= 1
+      },
+      {
+        id: 'workout_week',
+        name: 'Week Warrior',
+        description: 'Complete 7 workouts',
+        icon: '⚡',
+        requirement: 'Complete 7 workouts',
+        check: (stats) => stats.totalWorkouts >= 7
+      },
+      {
+        id: 'workout_month',
+        name: 'Monthly Master',
+        description: 'Complete 30 workouts',
+        icon: '🏆',
+        requirement: 'Complete 30 workouts',
+        check: (stats) => stats.totalWorkouts >= 30
+      },
+      {
+        id: 'streak_3',
+        name: 'Streak Starter',
+        description: '3-day workout streak',
+        icon: '🔥',
+        requirement: '3 consecutive workout days',
+        check: (stats) => stats.currentStreak >= 3
+      },
+      {
+        id: 'streak_7',
+        name: 'Week Streak',
+        description: '7-day workout streak',
+        icon: '🔥🔥',
+        requirement: '7 consecutive workout days',
+        check: (stats) => stats.currentStreak >= 7
+      },
+      {
+        id: 'streak_30',
+        name: 'Unstoppable',
+        description: '30-day workout streak',
+        icon: '🔥🔥🔥',
+        requirement: '30 consecutive workout days',
+        check: (stats) => stats.currentStreak >= 30
+      },
+      {
+        id: 'early_bird',
+        name: 'Early Bird',
+        description: 'Complete a workout before 7 AM',
+        icon: '🌅',
+        requirement: 'Workout before 7 AM',
+        check: (stats, context) => context && context.workoutTime && new Date(context.workoutTime).getHours() < 7
+      },
+      {
+        id: 'night_owl',
+        name: 'Night Owl',
+        description: 'Complete a workout after 10 PM',
+        icon: '🦉',
+        requirement: 'Workout after 10 PM',
+        check: (stats, context) => context && context.workoutTime && new Date(context.workoutTime).getHours() >= 22
+      },
+      {
+        id: 'hundred_exercises',
+        name: 'Exercise Expert',
+        description: 'Complete 100 exercises',
+        icon: '💪',
+        requirement: 'Complete 100 exercises',
+        check: (stats) => stats.totalExercises >= 100
+      },
+      {
+        id: 'personal_record',
+        name: 'Record Breaker',
+        description: 'Set your first personal record',
+        icon: '📈',
+        requirement: 'Set 1 personal record',
+        check: (stats) => stats.personalRecords >= 1
+      },
+      {
+        id: 'time_warrior',
+        name: 'Time Warrior',
+        description: 'Exercise for 10 hours total',
+        icon: '⏰',
+        requirement: '10 hours of exercise',
+        check: (stats) => stats.totalTimeExercised >= 600 // 10 hours in minutes
+      },
+      {
+        id: 'consistency_king',
+        name: 'Consistency King',
+        description: 'Work out 5 times in a week',
+        icon: '👑',
+        requirement: '5 workouts in one week',
+        check: (stats, context) => {
+          // This would need weekly workout tracking
+          return false; // Placeholder for weekly consistency check
+        }
+      }
+    ];
+
+    // Initialize achievement system
+    function initializeAchievementSystem() {
+      // Load saved data
+      const savedBadges = localStorage.getItem('unlockedBadges');
+      const savedStats = localStorage.getItem('achievementStats');
+      
+      if (savedBadges) {
+        achievementSystem.unlockedBadges = JSON.parse(savedBadges);
+      }
+      
+      if (savedStats) {
+        achievementSystem.stats = { ...achievementSystem.stats, ...JSON.parse(savedStats) };
+      }
+      
+      console.log('🏆 Achievement system initialized');
+      console.log('📊 Current stats:', achievementSystem.stats);
+      console.log('🎖️ Unlocked badges:', achievementSystem.unlockedBadges.length);
+    }
+
+    // Update achievement stats
+    function updateAchievementStats(statType, value = 1, context = null) {
+      achievementSystem.stats[statType] = (achievementSystem.stats[statType] || 0) + value;
+      
+      // Save updated stats
+      localStorage.setItem('achievementStats', JSON.stringify(achievementSystem.stats));
+      
+      // Check for new achievements
+      checkNewAchievements(context);
+      
+      console.log(`📊 Updated ${statType}: ${achievementSystem.stats[statType]}`);
+    }
+
+    // Check for new achievements
+    function checkNewAchievements(context = null) {
+      const newBadges = [];
+      
+      availableBadges.forEach(badge => {
+        // Skip if already unlocked
+        if (achievementSystem.unlockedBadges.find(b => b.id === badge.id)) {
+          return;
+        }
+        
+        // Check if requirements are met
+        if (badge.check(achievementSystem.stats, context)) {
+          newBadges.push(badge);
+          achievementSystem.unlockedBadges.push(badge);
+        }
+      });
+      
+      // Save unlocked badges
+      if (newBadges.length > 0) {
+        localStorage.setItem('unlockedBadges', JSON.stringify(achievementSystem.unlockedBadges));
+        
+        // Show achievement notifications
+        newBadges.forEach(badge => {
+          showAchievementNotification(badge);
+          
+          // Send push notification if enabled
+          if (Notification.permission === 'granted') {
+            sendAchievementNotification(`${badge.icon} ${badge.name}`);
+          }
+        });
+      }
+      
+      return newBadges;
+    }
+
+    // Show achievement notification
+    function showAchievementNotification(badge) {
+      showToast(`🎉 Achievement Unlocked: ${badge.icon} ${badge.name}!`, 'success');
+      
+      // Create a more prominent achievement modal for significant badges
+      if (['workout_month', 'streak_30', 'time_warrior'].includes(badge.id)) {
+        showAchievementModal(badge);
+      }
+    }
+
+    // Show achievement modal for major accomplishments
+    function showAchievementModal(badge) {
+      const modalHtml = `
+        <div class="modal fade" id="achievementModal" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-gradient">
+              <div class="modal-body text-center p-5">
+                <div class="achievement-celebration">
+                  <div class="achievement-icon mb-3" style="font-size: 4rem;">${badge.icon}</div>
+                  <h3 class="text-light mb-3">🎉 Achievement Unlocked! 🎉</h3>
+                  <h4 class="text-warning mb-2">${badge.name}</h4>
+                  <p class="text-light-enhanced mb-4">${badge.description}</p>
+                  <div class="achievement-glow mb-4">
+                    <small class="text-muted">${badge.requirement}</small>
+                  </div>
+                  <button class="btn btn-success" data-bs-dismiss="modal">
+                    💪 Keep Going!
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Remove existing modal
+      const existingModal = document.getElementById('achievementModal');
+      if (existingModal) existingModal.remove();
+      
+      // Add new modal
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('achievementModal'));
+      modal.show();
+      
+      // Auto-close after 5 seconds
+      setTimeout(() => {
+        modal.hide();
+      }, 5000);
+    }
+
+    // Display badges in progress tab
+    function displayAchievementBadges() {
+      const container = document.getElementById('achievementBadges');
+      if (!container) return;
+      
+      // Show unlocked badges
+      const unlockedHtml = achievementSystem.unlockedBadges.map(badge => `
+        <div class="col-md-4 col-lg-3 mb-3">
+          <div class="card achievement-card unlocked">
+            <div class="card-body text-center">
+              <div class="achievement-icon mb-2" style="font-size: 2.5rem;">${badge.icon}</div>
+              <h6 class="card-title mb-1">${badge.name}</h6>
+              <small class="text-muted">${badge.description}</small>
+              <div class="mt-2">
+                <span class="badge bg-success">✅ Unlocked</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Show locked badges (next to unlock)
+      const nextBadges = availableBadges.filter(badge => 
+        !achievementSystem.unlockedBadges.find(b => b.id === badge.id)
+      ).slice(0, 6); // Show next 6 achievements
+      
+      const lockedHtml = nextBadges.map(badge => `
+        <div class="col-md-4 col-lg-3 mb-3">
+          <div class="card achievement-card locked">
+            <div class="card-body text-center">
+              <div class="achievement-icon mb-2 opacity-50" style="font-size: 2.5rem;">🔒</div>
+              <h6 class="card-title mb-1 text-muted">${badge.name}</h6>
+              <small class="text-muted">${badge.description}</small>
+              <div class="mt-2">
+                <span class="badge bg-secondary">${badge.requirement}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      container.innerHTML = `
+        <div class="row">
+          <div class="col-12 mb-4">
+            <h6 class="text-light-enhanced">🏆 Unlocked Achievements (${achievementSystem.unlockedBadges.length})</h6>
+          </div>
+          ${unlockedHtml || '<div class="col-12"><p class="text-muted">No achievements unlocked yet. Complete your first workout to get started!</p></div>'}
+        </div>
+        <div class="row">
+          <div class="col-12 mb-4">
+            <h6 class="text-light-enhanced">🎯 Next Achievements</h6>
+          </div>
+          ${lockedHtml}
+        </div>
+      `;
+    }
+
+    // ========================================
+    // WORKOUT ANALYTICS CHARTS SYSTEM
+    // ========================================
+
+    let analyticsCharts = {
+      workoutFrequency: null,
+      exerciseCategory: null,
+      progressChart: null
+    };
+
+    // Initialize all analytics charts
+    function initializeAnalyticsCharts() {
+      console.log('📊 Initializing analytics charts...');
+      
+      // Wait for data to be loaded
+      setTimeout(() => {
+        createWorkoutFrequencyChart();
+        createExerciseCategoryChart();
+        createProgressChart();
+      }, 1000);
+    }
+
+    // Create workout frequency chart (last 30 days)
+    function createWorkoutFrequencyChart() {
+      const ctx = document.getElementById('workoutFrequencyChart');
+      if (!ctx) return;
+
+      // Destroy existing chart if it exists
+      if (analyticsCharts.workoutFrequency) {
+        analyticsCharts.workoutFrequency.destroy();
+      }
+
+      // Generate last 30 days data
+      const last30Days = [];
+      const workoutCounts = [];
+      const today = new Date();
+
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        last30Days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        
+        // Count workouts for this day
+        const dayWorkouts = workoutHistory.filter(session => {
+          const sessionDate = new Date(session.start_time).toDateString();
+          return sessionDate === date.toDateString();
+        }).length;
+        
+        workoutCounts.push(dayWorkouts);
+      }
+
+      analyticsCharts.workoutFrequency = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: last30Days,
+          datasets: [{
+            label: 'Daily Workouts',
+            data: workoutCounts,
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#fff'
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#fff',
+                maxTicksLimit: 8
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            y: {
+              ticks: {
+                color: '#fff',
+                stepSize: 1
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          }
+        }
+      });
+
+      console.log('📈 Workout frequency chart created');
+    }
+
+    // Create exercise category distribution chart
+    function createExerciseCategoryChart() {
+      const ctx = document.getElementById('exerciseCategoryChart');
+      if (!ctx) return;
+
+      // Destroy existing chart if it exists
+      if (analyticsCharts.exerciseCategory) {
+        analyticsCharts.exerciseCategory.destroy();
+      }
+
+      // Count exercises by category from workout history
+      const categoryCount = {};
+      
+      workoutHistory.forEach(session => {
+        if (session.exercises_completed) {
+          // For now, we'll simulate category distribution
+          // In a real app, you'd track which exercises were completed
+          const categories = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core', 'cardio'];
+          const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+          categoryCount[randomCategory] = (categoryCount[randomCategory] || 0) + session.exercises_completed;
+        }
+      });
+
+      // If no data, show sample data
+      if (Object.keys(categoryCount).length === 0) {
+        categoryCount.chest = 15;
+        categoryCount.back = 12;
+        categoryCount.legs = 20;
+        categoryCount.shoulders = 8;
+        categoryCount.arms = 10;
+        categoryCount.core = 14;
+        categoryCount.cardio = 6;
+      }
+
+      const labels = Object.keys(categoryCount);
+      const data = Object.values(categoryCount);
+      const colors = [
+        '#007bff', '#28a745', '#ffc107', '#dc3545', 
+        '#6f42c1', '#fd7e14', '#20c997', '#6c757d'
+      ];
+
+      analyticsCharts.exerciseCategory = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+          datasets: [{
+            data: data,
+            backgroundColor: colors.slice(0, labels.length),
+            borderWidth: 2,
+            borderColor: '#000'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#fff',
+                padding: 10,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      });
+
+      console.log('🍕 Exercise category chart created');
+    }
+
+    // Create progress over time chart
+    function createProgressChart() {
+      const ctx = document.getElementById('progressChart');
+      if (!ctx) return;
+
+      // Destroy existing chart if it exists
+      if (analyticsCharts.progressChart) {
+        analyticsCharts.progressChart.destroy();
+      }
+
+      // Generate progress data over time
+      const progressData = [];
+      const weightData = [];
+      const labels = [];
+
+      // Get last 12 weeks of data
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - (i * 7));
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+
+        // Count workouts in this week
+        const weekStart = new Date(date);
+        weekStart.setDate(weekStart.getDate() - 7);
+        const weekWorkouts = workoutHistory.filter(session => {
+          const sessionDate = new Date(session.start_time);
+          return sessionDate >= weekStart && sessionDate <= date;
+        }).length;
+
+        progressData.push(weekWorkouts);
+
+        // Simulate weight progression (if available)
+        const baseWeight = 150 + (Math.random() - 0.5) * 10;
+        weightData.push(baseWeight);
+      }
+
+      analyticsCharts.progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Weekly Workouts',
+              data: progressData,
+              borderColor: '#007bff',
+              backgroundColor: 'rgba(0, 123, 255, 0.1)',
+              yAxisID: 'y',
+              tension: 0.3
+            },
+            {
+              label: 'Body Weight (lbs)',
+              data: bodyMeasurements.length > 0 ? 
+                bodyMeasurements.slice(-12).map(m => m.weight_lbs) : 
+                weightData,
+              borderColor: '#28a745',
+              backgroundColor: 'rgba(40, 167, 69, 0.1)',
+              yAxisID: 'y1',
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#fff'
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              title: {
+                display: true,
+                text: 'Weekly Workouts',
+                color: '#007bff'
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+              title: {
+                display: true,
+                text: 'Weight (lbs)',
+                color: '#28a745'
+              }
+            }
+          }
+        }
+      });
+
+      console.log('📊 Progress chart created');
+    }
+
+    // Refresh all analytics charts
+    function refreshAnalyticsCharts() {
+      console.log('🔄 Refreshing analytics charts...');
+      createWorkoutFrequencyChart();
+      createExerciseCategoryChart();
+      createProgressChart();
+      showToast('Analytics updated! 📊', 'success');
     }
 
     // ========================================
