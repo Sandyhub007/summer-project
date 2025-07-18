@@ -205,6 +205,11 @@
     small, .small {
       color: #d0d0d0 !important;
     }
+    
+    /* Stats cards */
+    .border-secondary {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
 
     /* Premium Button Styling */
     .btn-primary {
@@ -250,7 +255,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
       <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand fw-bold" href="#">GYMCYCLOPEDIA</a>
+        <a class="navbar-brand fw-bold" href="/" id="brand-link">GYMCYCLOPEDIA</a>
 
         <!-- Mobile Toggler -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -434,8 +439,26 @@
                 <input type="text" class="form-control" placeholder="Your name" required id="signupName">
               </div>
               <div class="col-md-6">
+                <label class="form-label small text-uppercase fw-semibold mb-1">Phone Number</label>
+                <input type="tel" class="form-control" placeholder="+1 (555) 123-4567" id="signupPhone">
+                <small class="text-muted">Optional - for workout reminders via SMS</small>
+              </div>
+            </div>
+
+            <!-- Physical Information -->
+            <div class="row">
+              <div class="col-md-6">
                 <label class="form-label small text-uppercase fw-semibold mb-1">Height (cm)</label>
                 <input type="number" class="form-control" placeholder="170" min="100" max="250" required id="signupHeight">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small text-uppercase fw-semibold mb-1">SMS Reminders</label>
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="signupSmsEnabled">
+                  <label class="form-check-label" for="signupSmsEnabled">
+                    Enable SMS workout reminders
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -529,6 +552,8 @@
           options: {
             data: {
               name: userData.name,
+              phone_number: userData.phone_number,
+              sms_reminders_enabled: userData.sms_reminders_enabled,
               height_cm: userData.height_cm,
               current_weight_kg: userData.current_weight_kg,
               goal_weight_kg: userData.goal_weight_kg,
@@ -840,6 +865,10 @@
     window.addEventListener('DOMContentLoaded', async () => {
       console.log('🔄 Page loaded - checking authentication state...');
       
+      // Check if user came here to login/signup from another page
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      
       // Check if user is already logged in
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -860,12 +889,30 @@
         console.log('❌ No user session found on page load - showing hero page');
         console.log('🔄 Calling toggleAuthButtons(false) from page load');
         toggleAuthButtons(false);
+        
+        // If user came here to login/signup, open the appropriate modal
+        if (action === 'login') {
+          console.log('🔓 Opening login modal from URL parameter');
+          setTimeout(() => {
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+          }, 500);
+        } else if (action === 'signup') {
+          console.log('📝 Opening signup modal from URL parameter');
+          setTimeout(() => {
+            const signupModal = new bootstrap.Modal(document.getElementById('signupModal'));
+            signupModal.show();
+          }, 500);
+        }
       }
       
       console.log('✅ Page load authentication check complete');
       
-      // Setup logout button after initial auth check
-      setTimeout(() => setupLogoutButton(), 200);
+      // Setup logout button and brand link after initial auth check
+      setTimeout(() => {
+        setupLogoutButton();
+        setupBrandLink();
+      }, 200);
     });
     
     // Additional failsafe: check auth state when page becomes visible
@@ -892,6 +939,8 @@
       const email = document.getElementById('signupEmail').value.trim().toLowerCase();
       const password = document.getElementById('signupPassword').value;
       const name = document.getElementById('signupName').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const smsEnabled = document.getElementById('signupSmsEnabled').checked;
       const height = parseInt(document.getElementById('signupHeight').value);
       const currentWeight = parseFloat(document.getElementById('signupCurrentWeight').value);
       const goalWeight = parseFloat(document.getElementById('signupGoalWeight').value);
@@ -901,6 +950,8 @@
       // Sign up the user with personalized metadata
       const result = await signUpUser(email, password, {
         name: name,
+        phone_number: phone,
+        sms_reminders_enabled: smsEnabled,
         height_cm: height,
         current_weight_kg: currentWeight,
         goal_weight_kg: goalWeight,
@@ -1212,7 +1263,45 @@
       }
     };
     
-    // Add click listener to logout button with multiple methods
+    // Handle brand link click to maintain auth state
+    function setupBrandLink() {
+      const brandLink = document.getElementById('brand-link');
+      if (brandLink) {
+        brandLink.addEventListener('click', async (e) => {
+          // If user is on homepage, prevent default and check auth state
+          if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+            e.preventDefault();
+            
+            // Check current auth state
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session && session.user) {
+              console.log('🏠 Brand clicked - User logged in, showing dashboard');
+              // User is logged in, ensure dashboard is shown
+              toggleAuthButtons(true);
+              
+              // Try to load user profile
+              const result = await getUserProfile(session.user.id);
+              if (result.success && result.profile) {
+                populateDashboard(result.profile);
+              } else {
+                showBasicDashboard(session.user);
+              }
+            } else {
+              console.log('🏠 Brand clicked - User not logged in, showing hero');
+              // User not logged in, show hero section
+              toggleAuthButtons(false);
+            }
+          } else {
+            // User is on a different page, allow normal navigation to homepage
+            console.log('🏠 Brand clicked - Navigating to homepage');
+          }
+                 });
+       }
+     }
+     
+                
+     // Add click listener to logout button with multiple methods
     function setupLogoutButton() {
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {

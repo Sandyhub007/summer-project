@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     html, body {
       height: 100%;
@@ -157,9 +158,12 @@
           <li class="nav-item"><a class="nav-link" href="/support.html">Support & Contact</a></li>
         </ul>
       </div>
+      <!-- Auth buttons for all screen sizes -->
       <div class="d-flex">
-        <span class="navbar-text me-3">Welcome, <span id="user-name">User</span></span>
-        <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+        <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
+        <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
+        <button id="logoutBtn" class="btn btn-outline-light btn-sm d-none">Logout</button>
+        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -868,11 +872,168 @@
       console.log('✅ Nutrition & Recovery page fully loaded');
     });
 
-    // Logout functionality
-    document.getElementById('logoutBtn')?.addEventListener('click', async function() {
-      await supabase.auth.signOut();
-      window.location.href = '/';
+    /* ===== AUTHENTICATION SYSTEM ===== */
+    
+    // Toggle authentication buttons based on login state
+    function toggleAuthButtons(loggedIn) {
+      const loginBtns = document.querySelectorAll('.auth-login-btn');
+      const signupBtns = document.querySelectorAll('.auth-signup-btn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const userWelcome = document.getElementById('user-welcome');
+      
+      console.log(`🔄 [Nutrition] Toggling auth state: loggedIn=${loggedIn}`);
+      console.log('🔍 [Nutrition] Found elements:', {
+        loginBtns: loginBtns.length,
+        signupBtns: signupBtns.length,
+        logoutBtn: !!logoutBtn,
+        userWelcome: !!userWelcome
+      });
+      
+      if (loggedIn) {
+        // User is logged in - FORCE HIDE login/signup, FORCE SHOW logout and welcome
+        loginBtns.forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.add('d-none');
+        });
+        signupBtns.forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.add('d-none');
+        });
+        if (logoutBtn) {
+          logoutBtn.style.display = 'inline-block';
+          logoutBtn.classList.remove('d-none');
+        }
+        if (userWelcome) {
+          userWelcome.style.display = 'inline-block';
+          userWelcome.classList.remove('d-none');
+        }
+        
+        console.log('✅ [Nutrition] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Logout SHOWN');
+      } else {
+        // User is logged out - FORCE SHOW login/signup, FORCE HIDE logout and welcome  
+        loginBtns.forEach(btn => {
+          btn.style.display = 'inline-block';
+          btn.classList.remove('d-none');
+        });
+        signupBtns.forEach(btn => {
+          btn.style.display = 'inline-block';
+          btn.classList.remove('d-none');
+        });
+        if (logoutBtn) {
+          logoutBtn.style.display = 'none';
+          logoutBtn.classList.add('d-none');
+        }
+        if (userWelcome) {
+          userWelcome.style.display = 'none';
+          userWelcome.classList.add('d-none');
+        }
+        
+        console.log('✅ [Nutrition] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
+      }
+    }
+
+    // Setup logout functionality
+    function setupLogoutButton() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        // Remove any existing listeners
+        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+        const newLogoutBtn = document.getElementById('logoutBtn');
+        
+        newLogoutBtn.addEventListener('click', async () => {
+          try {
+            console.log('🔓 [Nutrition] Logout button clicked');
+            await supabase.auth.signOut();
+            window.location.href = '/';
+          } catch (error) {
+            console.error('[Nutrition] Logout error:', error);
+          }
+        });
+        console.log('✅ [Nutrition] Logout button setup complete');
+      }
+    }
+
+    // Check authentication state on page load
+    async function checkAuthStateNutrition() {
+      try {
+        console.log('🔄 [Nutrition] Checking authentication state...');
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session && session.user) {
+          console.log('✅ [Nutrition] User is logged in:', session.user.email);
+          
+          // Update user name in welcome message
+          const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+          const userNameSpan = document.getElementById('user-name');
+          if (userNameSpan) {
+            userNameSpan.textContent = userName;
+          }
+          
+          toggleAuthButtons(true);
+          return session.user;
+        } else {
+          console.log('❌ [Nutrition] No user session found');
+          toggleAuthButtons(false);
+          
+          // Redirect to homepage if not logged in
+          console.log('🏠 [Nutrition] Redirecting to homepage - please log in');
+          window.location.href = '/';
+          return null;
+        }
+      } catch (error) {
+        console.error('[Nutrition] Auth check error:', error);
+        toggleAuthButtons(false);
+        window.location.href = '/';
+        return null;
+      }
+    }
+
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 [Nutrition] Auth state change:', event);
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ [Nutrition] User signed in:', session.user.email);
+        
+        const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+        const userNameSpan = document.getElementById('user-name');
+        if (userNameSpan) {
+          userNameSpan.textContent = userName;
+        }
+        
+        toggleAuthButtons(true);
+      } else if (event === 'SIGNED_OUT') {
+        console.log('🔓 [Nutrition] User signed out');
+        toggleAuthButtons(false);
+        
+        // Redirect to homepage if not already there
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+          console.log('🏠 [Nutrition] Redirecting to homepage after logout');
+          window.location.href = '/';
+        }
+      }
     });
+
+    // Initialize authentication immediately and on page load
+    async function initializeNutritionAuth() {
+      console.log('🚀 [Nutrition] Initializing authentication...');
+      const user = await checkAuthStateNutrition();
+      if (user) {
+        setupLogoutButton();
+        console.log('✅ [Nutrition] Authentication initialization complete');
+      }
+    }
+
+    // Run auth check immediately when script loads
+    initializeNutritionAuth();
+
+    // Also run when DOM is ready
+    document.addEventListener('DOMContentLoaded', initializeNutritionAuth);
+
+    // Also run after a short delay to catch any timing issues
+    setTimeout(initializeNutritionAuth, 100);
+    setTimeout(initializeNutritionAuth, 500);
+
   </script>
 </body>
 </html>

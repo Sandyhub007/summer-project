@@ -335,14 +335,12 @@
         </ul>
       </div>
 
-      <div class="d-none auth-buttons">
-        <button class="btn btn-outline-light me-2 auth-login-btn">Login</button>
-        <button class="btn btn-primary auth-signup-btn">Sign Up</button>
-      </div>
-      
-      <div class="d-none auth-user-info">
-        <span class="navbar-text me-3">Welcome, <span id="user-name">User</span></span>
-        <button id="logoutBtn" class="btn btn-outline-light">Logout</button>
+      <!-- Auth buttons for all screen sizes -->
+      <div class="d-flex">
+        <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
+        <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
+        <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
+        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -578,41 +576,1283 @@
     
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Authentication state management
-    async function checkAuthStatus() {
-      const { data: { session } } = await supabase.auth.getSession();
+    // Show article function
+    function showArticle(title) {
+      const articles = {
+        'Progressive Overload: The Science of Getting Stronger': {
+          content: `
+            <div class="article-content">
+              <h2>Progressive Overload: The Science of Getting Stronger</h2>
+              <p class="lead">Progressive overload is the fundamental principle behind all muscle growth and strength gains. Understanding and applying this concept is crucial for anyone serious about fitness progress.</p>
+              
+              <h3>What is Progressive Overload?</h3>
+              <p>Progressive overload is the gradual increase of stress placed on your muscles during exercise training. This principle was first scientifically documented in the 1950s and remains the cornerstone of effective resistance training today.</p>
+              
+              <h3>The Science Behind It</h3>
+              <p>When you challenge your muscles beyond their current capacity, they adapt by becoming stronger and larger. Research shows that this adaptation occurs through:</p>
+              <ul>
+                <li><strong>Myofibrillar hypertrophy:</strong> Increase in muscle protein synthesis</li>
+                <li><strong>Neural adaptations:</strong> Improved motor unit recruitment</li>
+                <li><strong>Metabolic adaptations:</strong> Enhanced energy systems</li>
+              </ul>
+              
+              <h3>Methods of Progressive Overload</h3>
+              <ol>
+                <li><strong>Increase Weight:</strong> Add more resistance to your exercises</li>
+                <li><strong>Increase Repetitions:</strong> Perform more reps with the same weight</li>
+                <li><strong>Increase Sets:</strong> Add additional sets to your workout</li>
+                <li><strong>Increase Frequency:</strong> Train muscle groups more often</li>
+                <li><strong>Improve Range of Motion:</strong> Work through fuller movement patterns</li>
+                <li><strong>Increase Time Under Tension:</strong> Slow down the eccentric phase</li>
+              </ol>
+              
+              <h3>Practical Application</h3>
+              <p>Current research suggests that a 2-10% increase in training variables weekly is optimal for most individuals. This allows for consistent progress while avoiding overtraining.</p>
+              
+              <div class="alert alert-info">
+                <h4>Weekly Progression Guidelines:</h4>
+                <ul>
+                  <li>Beginners: 5-10% increases</li>
+                  <li>Intermediate: 2-5% increases</li>
+                  <li>Advanced: 1-3% increases</li>
+                </ul>
+              </div>
+              
+              <h3>Common Mistakes to Avoid</h3>
+              <ul>
+                <li>Progressing too quickly and risking injury</li>
+                <li>Not tracking progress systematically</li>
+                <li>Ignoring recovery and sleep</li>
+                <li>Focusing only on weight increases</li>
+              </ul>
+              
+              <h3>The Bottom Line</h3>
+              <p>Progressive overload isn't just about lifting heavier weights—it's about consistently challenging your body in measurable ways. Whether you're a beginner or advanced athlete, this principle will drive your success in the gym.</p>
+            </div>
+          `
+        },
+        '5 Essential Compound Movements Every Beginner Should Master': {
+          content: `
+            <div class="article-content">
+              <h2>5 Essential Compound Movements Every Beginner Should Master</h2>
+              <p class="lead">Master these five foundational exercises to build a strong, functional physique. These compound movements work multiple muscle groups simultaneously and form the backbone of any effective training program.</p>
+              
+              <h3>Why Compound Movements?</h3>
+              <p>Research consistently shows that compound exercises provide superior muscle activation, hormonal response, and functional strength compared to isolation exercises. They're time-efficient and translate better to real-world activities.</p>
+              
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <h3>1. The Squat</h3>
+                  <p><strong>Primary muscles:</strong> Quadriceps, glutes, hamstrings, core</p>
+                  <p><strong>Why it matters:</strong> Often called the "king of exercises," squats develop lower body power and core stability essential for daily activities.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Bodyweight squats</li>
+                    <li>Goblet squats</li>
+                    <li>Front squats</li>
+                    <li>Back squats</li>
+                  </ul>
+                  
+                  <h4>Key Technique Points:</h4>
+                  <ul>
+                    <li>Feet shoulder-width apart</li>
+                    <li>Chest up, core braced</li>
+                    <li>Knees track over toes</li>
+                    <li>Hip hinge movement pattern</li>
+                  </ul>
+                </div>
+                
+                <div class="col-md-6">
+                  <h3>2. The Deadlift</h3>
+                  <p><strong>Primary muscles:</strong> Hamstrings, glutes, erector spinae, traps, lats</p>
+                  <p><strong>Why it matters:</strong> Builds total-body strength and teaches proper lifting mechanics for daily activities.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Romanian deadlifts</li>
+                    <li>Trap bar deadlifts</li>
+                    <li>Conventional deadlifts</li>
+                    <li>Sumo deadlifts</li>
+                  </ul>
+                  
+                  <h4>Key Technique Points:</h4>
+                  <ul>
+                    <li>Neutral spine throughout</li>
+                    <li>Bar close to body</li>
+                    <li>Hip hinge movement</li>
+                    <li>Engage lats and core</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <h3>3. The Push-Up/Bench Press</h3>
+                  <p><strong>Primary muscles:</strong> Chest, shoulders, triceps, core</p>
+                  <p><strong>Why it matters:</strong> Develops upper body pushing strength and shoulder stability.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Wall push-ups</li>
+                    <li>Incline push-ups</li>
+                    <li>Standard push-ups</li>
+                    <li>Bench press variations</li>
+                  </ul>
+                </div>
+                
+                <div class="col-md-6">
+                  <h3>4. The Pull-Up/Row</h3>
+                  <p><strong>Primary muscles:</strong> Lats, rhomboids, rear delts, biceps</p>
+                  <p><strong>Why it matters:</strong> Balances pushing movements and improves posture.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Assisted pull-ups</li>
+                    <li>Negative pull-ups</li>
+                    <li>Band-assisted pull-ups</li>
+                    <li>Full pull-ups</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="row mt-4">
+                <div class="col-md-12">
+                  <h3>5. The Overhead Press</h3>
+                  <p><strong>Primary muscles:</strong> Shoulders, triceps, upper chest, core</p>
+                  <p><strong>Why it matters:</strong> Develops functional shoulder strength and stability crucial for overhead activities.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Seated dumbbell press</li>
+                    <li>Standing dumbbell press</li>
+                    <li>Military press</li>
+                    <li>Push press</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <h3>Programming These Movements</h3>
+              <div class="alert alert-success">
+                <h4>Beginner Template:</h4>
+                <ul>
+                  <li><strong>Frequency:</strong> 2-3 times per week</li>
+                  <li><strong>Sets:</strong> 3-4 sets per exercise</li>
+                  <li><strong>Reps:</strong> 8-12 repetitions</li>
+                  <li><strong>Rest:</strong> 60-90 seconds between sets</li>
+                </ul>
+              </div>
+              
+              <h3>Safety First</h3>
+              <p>Always prioritize proper form over weight lifted. Start with bodyweight or light weights and focus on movement quality. Consider working with a qualified trainer when learning these movements.</p>
+            </div>
+          `
+        },
+        'Home Workouts vs. Gym: Which is More Effective?': {
+          content: `
+            <div class="article-content">
+              <h2>Home Workouts vs. Gym: Which is More Effective?</h2>
+              <p class="lead">The age-old debate: can you achieve the same results training at home as you can in a fully equipped gym? Recent research provides some surprising answers.</p>
+              
+              <h3>The Research Says...</h3>
+              <p>A comprehensive 2024 meta-analysis examining home-based versus gym-based training found that <strong>equipment availability matters less than training consistency and progression</strong>. When volume and intensity are matched, both environments can produce similar results for:</p>
+              <ul>
+                <li>Muscle hypertrophy</li>
+                <li>Strength gains</li>
+                <li>Cardiovascular improvements</li>
+                <li>Body composition changes</li>
+              </ul>
+              
+              <h3>Home Workout Advantages</h3>
+              <div class="row">
+                <div class="col-md-6">
+                  <h4>✅ Convenience</h4>
+                  <ul>
+                    <li>No commute time</li>
+                    <li>Train anytime</li>
+                    <li>No gym hours restrictions</li>
+                    <li>Privacy and comfort</li>
+                  </ul>
+                  
+                  <h4>✅ Cost-Effective</h4>
+                  <ul>
+                    <li>No monthly membership fees</li>
+                    <li>One-time equipment investment</li>
+                    <li>No gas/transport costs</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h4>✅ Consistency</h4>
+                  <ul>
+                    <li>Fewer barriers to exercise</li>
+                    <li>Weather independent</li>
+                    <li>Family-friendly</li>
+                    <li>Multitasking opportunities</li>
+                  </ul>
+                  
+                  <h4>✅ Customization</h4>
+                  <ul>
+                    <li>Control environment</li>
+                    <li>Choose your music</li>
+                    <li>Set your pace</li>
+                    <li>No equipment waiting</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <h3>Gym Advantages</h3>
+              <div class="row">
+                <div class="col-md-6">
+                  <h4>🏋️ Equipment Variety</h4>
+                  <ul>
+                    <li>Specialized machines</li>
+                    <li>Heavy free weights</li>
+                    <li>Cardio equipment</li>
+                    <li>Latest technology</li>
+                  </ul>
+                  
+                  <h4>🏋️ Professional Support</h4>
+                  <ul>
+                    <li>Personal trainers</li>
+                    <li>Technique guidance</li>
+                    <li>Safety spotting</li>
+                    <li>Program design help</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h4>🏋️ Social Environment</h4>
+                  <ul>
+                    <li>Community motivation</li>
+                    <li>Group classes</li>
+                    <li>Training partners</li>
+                    <li>Competitive atmosphere</li>
+                  </ul>
+                  
+                  <h4>🏋️ Mental Separation</h4>
+                  <ul>
+                    <li>Dedicated workout space</li>
+                    <li>Fewer distractions</li>
+                    <li>Focus mindset</li>
+                    <li>Routine establishment</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <h3>Effective Home Workout Equipment</h3>
+              <p>Research shows these tools can provide gym-level results:</p>
+              
+              <h4>Essential (Under $200):</h4>
+              <ul>
+                <li><strong>Resistance bands:</strong> Variable resistance, full-body training</li>
+                <li><strong>Dumbbells (adjustable):</strong> Progressive overload capability</li>
+                <li><strong>Pull-up bar:</strong> Upper body strength development</li>
+                <li><strong>Yoga mat:</strong> Floor exercises and stretching</li>
+              </ul>
+              
+              <h4>Advanced ($200-$500):</h4>
+              <ul>
+                <li><strong>Kettlebells:</strong> Dynamic strength and cardio</li>
+                <li><strong>Suspension trainer:</strong> Bodyweight exercise enhancement</li>
+                <li><strong>Bench:</strong> Exercise variety expansion</li>
+                <li><strong>Medicine ball:</strong> Power and core training</li>
+              </ul>
+              
+              <h3>Bodyweight Exercise Effectiveness</h3>
+              <p>Studies demonstrate that bodyweight exercises can be as effective as weighted exercises when:</p>
+              <ul>
+                <li>Volume is progressively increased</li>
+                <li>Exercise difficulty is advanced</li>
+                <li>Time under tension is manipulated</li>
+                <li>Rest periods are optimized</li>
+              </ul>
+              
+              <div class="alert alert-info">
+                <h4>Bodyweight Progression Examples:</h4>
+                <ul>
+                  <li>Push-ups → One-arm push-ups</li>
+                  <li>Squats → Pistol squats</li>
+                  <li>Planks → Single-arm planks</li>
+                  <li>Lunges → Jumping lunges</li>
+                </ul>
+              </div>
+              
+              <h3>The Verdict</h3>
+              <p>Both home and gym workouts can be highly effective. The best choice depends on:</p>
+              <ul>
+                <li><strong>Your goals:</strong> General fitness vs. powerlifting</li>
+                <li><strong>Your preferences:</strong> Social vs. private</li>
+                <li><strong>Your schedule:</strong> Flexible vs. structured</li>
+                <li><strong>Your experience:</strong> Self-directed vs. guided</li>
+              </ul>
+              
+              <h3>Success Factors (Regardless of Location)</h3>
+              <ol>
+                <li><strong>Consistency:</strong> Regular training beats perfect equipment</li>
+                <li><strong>Progressive overload:</strong> Gradually increase difficulty</li>
+                <li><strong>Proper form:</strong> Quality over quantity</li>
+                <li><strong>Adequate recovery:</strong> Rest and nutrition matter</li>
+                <li><strong>Long-term commitment:</strong> Patience with the process</li>
+              </ol>
+              
+              <p class="mt-4"><strong>Bottom line:</strong> The most effective workout is the one you'll actually do consistently. Whether that's at home or in a gym, both can deliver excellent results when approached intelligently.</p>
+            </div>
+          `
+        },
+        'Understanding Rep Ranges: Strength vs. Hypertrophy vs. Endurance': {
+          content: `
+            <div class="article-content">
+              <h2>Understanding Rep Ranges: Strength vs. Hypertrophy vs. Endurance</h2>
+              <p class="lead">One of the most debated topics in fitness: do different rep ranges really target different adaptations? Recent research has challenged traditional thinking and revealed some surprising truths.</p>
+              
+              <h3>The Traditional Model</h3>
+              <p>For decades, the fitness industry has promoted this "repetition continuum":</p>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card border-danger">
+                    <div class="card-body text-center">
+                      <h4 class="text-danger">Strength</h4>
+                      <h3>1-5 Reps</h3>
+                      <p>85-100% 1RM</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card border-warning">
+                    <div class="card-body text-center">
+                      <h4 class="text-warning">Hypertrophy</h4>
+                      <h3>6-12 Reps</h3>
+                      <p>65-85% 1RM</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card border-success">
+                    <div class="card-body text-center">
+                      <h4 class="text-success">Endurance</h4>
+                      <h3>15+ Reps</h3>
+                      <p>&lt;65% 1RM</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <h3>What Modern Research Shows</h3>
+              <p>A 2023 comprehensive meta-analysis examining over 200 studies found that <strong>the boundaries between these ranges are far more flexible than previously thought</strong>.</p>
+              
+              <h4>Key Findings:</h4>
+              <ul>
+                <li><strong>Hypertrophy:</strong> Can occur effectively across 1-30+ reps when taken to or near failure</li>
+                <li><strong>Strength:</strong> Responds best to heavier loads (1-6 reps) but can improve with higher reps</li>
+                <li><strong>Endurance:</strong> Improves across all rep ranges with appropriate training</li>
+              </ul>
+              
+              <h3>The Science Behind Each Range</h3>
+              
+              <h4>Low Reps (1-5): Maximum Strength</h4>
+              <p><strong>Primary adaptations:</strong></p>
+              <ul>
+                <li>Neural efficiency improvements</li>
+                <li>Increased motor unit recruitment</li>
+                <li>Enhanced intermuscular coordination</li>
+                <li>Improved force production capability</li>
+              </ul>
+              
+              <p><strong>Best for:</strong> Powerlifters, strength athletes, breaking plateaus</p>
+              <p><strong>Research note:</strong> Heavy loads (≥85% 1RM) immediately recruit high-threshold motor units, making them essential for maximum strength development.</p>
+              
+              <h4>Moderate Reps (6-12): Hypertrophy Sweet Spot</h4>
+              <p><strong>Primary adaptations:</strong></p>
+              <ul>
+                <li>Optimal balance of mechanical tension and metabolic stress</li>
+                <li>Increased protein synthesis</li>
+                <li>Enhanced muscle fiber growth</li>
+                <li>Improved muscle endurance</li>
+              </ul>
+              
+              <p><strong>Best for:</strong> Bodybuilders, general fitness, muscle building</p>
+              <p><strong>Research note:</strong> This range provides the best "bang for your buck" for most people seeking muscle growth.</p>
+              
+              <h4>High Reps (15+): Muscular Endurance</h4>
+              <p><strong>Primary adaptations:</strong></p>
+              <ul>
+                <li>Increased mitochondrial density</li>
+                <li>Enhanced capillarization</li>
+                <li>Improved metabolic efficiency</li>
+                <li>Greater lactate tolerance</li>
+              </ul>
+              
+              <p><strong>Best for:</strong> Endurance athletes, fat loss, muscle endurance</p>
+              <p><strong>Research note:</strong> Can produce significant hypertrophy when taken to failure, especially in untrained individuals.</p>
+              
+              <h3>The Game-Changing Research</h3>
+              
+              <h4>Study 1: Load Doesn't Matter for Hypertrophy</h4>
+              <p>A landmark 2016 study by Morton et al. found that when sets are taken to failure, muscle growth was similar between:</p>
+              <ul>
+                <li>30-50% 1RM (20-25 reps)</li>
+                <li>75-90% 1RM (8-12 reps)</li>
+              </ul>
+              
+              <h4>Study 2: Fiber Type Recruitment</h4>
+              <p>Research using muscle biopsies showed that when exercises are performed to failure, all muscle fiber types are recruited regardless of the load used. This explains why different rep ranges can all build muscle effectively.</p>
+              
+              <h3>Practical Applications</h3>
+              
+              <h4>For Strength Goals:</h4>
+              <ul>
+                <li><strong>Primary focus:</strong> 1-5 reps at 85-100% 1RM</li>
+                <li><strong>Frequency:</strong> 2-3 times per week per movement</li>
+                <li><strong>Rest periods:</strong> 3-5 minutes</li>
+                <li><strong>Volume:</strong> 10-25 total reps per exercise per session</li>
+              </ul>
+              
+              <h4>For Hypertrophy Goals:</h4>
+              <ul>
+                <li><strong>Primary focus:</strong> 6-12 reps, but include variety</li>
+                <li><strong>Volume:</strong> 10-20 sets per muscle group per week</li>
+                <li><strong>Rest periods:</strong> 60-120 seconds</li>
+                <li><strong>Key factor:</strong> Training to or near muscle failure</li>
+              </ul>
+              
+              <h4>For Endurance Goals:</h4>
+              <ul>
+                <li><strong>Primary focus:</strong> 15-30+ reps</li>
+                <li><strong>Rest periods:</strong> 30-60 seconds</li>
+                <li><strong>Volume:</strong> Higher total training volume</li>
+                <li><strong>Progression:</strong> Increase reps before adding weight</li>
+              </ul>
+              
+              <h3>The Importance of Training to Failure</h3>
+              <p>Recent research emphasizes that <strong>training to or near muscular failure</strong> is more important than the specific rep range for muscle growth. This is because:</p>
+              <ul>
+                <li>It ensures maximum motor unit recruitment</li>
+                <li>It provides sufficient stimulus for adaptation</li>
+                <li>It guarantees progressive overload</li>
+              </ul>
+              
+              <div class="alert alert-warning">
+                <h4>The "Effective Reps" Concept</h4>
+                <p>Only the last few challenging reps of a set (typically the last 5) provide the primary stimulus for muscle growth. This is true regardless of whether you're doing 5 reps at 85% or 20 reps at 65%.</p>
+              </div>
+              
+              <h3>Programming Recommendations</h3>
+              
+              <h4>Beginner Approach:</h4>
+              <ul>
+                <li>Focus primarily on 8-12 rep range</li>
+                <li>Learn proper form and movement patterns</li>
+                <li>Build base level of strength and muscle</li>
+              </ul>
+              
+              <h4>Intermediate/Advanced Approach:</h4>
+              <ul>
+                <li>Use periodization with multiple rep ranges</li>
+                <li>Heavy days (3-6 reps) for strength</li>
+                <li>Moderate days (8-12 reps) for hypertrophy</li>
+                <li>Light days (15-20 reps) for endurance and recovery</li>
+              </ul>
+              
+              <h3>Common Mistakes to Avoid</h3>
+              <ul>
+                <li><strong>Rep range dogma:</strong> Thinking you can ONLY build muscle with 8-12 reps</li>
+                <li><strong>Avoiding failure:</strong> Not training hard enough to stimulate adaptation</li>
+                <li><strong>Ignoring periodization:</strong> Staying in one rep range forever</li>
+                <li><strong>Volume neglect:</strong> Not doing enough total work</li>
+              </ul>
+              
+              <h3>The Bottom Line</h3>
+              <p>While traditional rep ranges provide useful guidelines, they're not rigid rules. The most important factors for success are:</p>
+              <ol>
+                <li><strong>Consistency:</strong> Regular training over time</li>
+                <li><strong>Progressive overload:</strong> Gradually increasing demands</li>
+                <li><strong>Effort:</strong> Training to or near failure</li>
+                <li><strong>Volume:</strong> Sufficient total work</li>
+                <li><strong>Recovery:</strong> Adequate rest and nutrition</li>
+              </ol>
+              
+              <p>Use different rep ranges as tools in your toolbox, not as rigid prescriptions. Variety in training stimuli can lead to better long-term progress and help prevent plateaus.</p>
+            </div>
+          `
+        },
+        '5 Essential Compound Movements for Beginners': {
+          content: `
+            <div class="article-content">
+              <h2>5 Essential Compound Movements for Beginners</h2>
+              <p class="lead">Master these five foundational exercises to build a strong, functional physique. These compound movements work multiple muscle groups simultaneously and form the backbone of any effective training program.</p>
+              
+              <h3>Why Compound Movements?</h3>
+              <p>Research consistently shows that compound exercises provide superior muscle activation, hormonal response, and functional strength compared to isolation exercises. They're time-efficient and translate better to real-world activities.</p>
+              
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <h3>1. The Squat</h3>
+                  <p><strong>Primary muscles:</strong> Quadriceps, glutes, hamstrings, core</p>
+                  <p><strong>Why it matters:</strong> Often called the "king of exercises," squats develop lower body power and core stability essential for daily activities.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Bodyweight squats</li>
+                    <li>Goblet squats</li>
+                    <li>Front squats</li>
+                    <li>Back squats</li>
+                  </ul>
+                  
+                  <h4>Key Technique Points:</h4>
+                  <ul>
+                    <li>Feet shoulder-width apart</li>
+                    <li>Chest up, core braced</li>
+                    <li>Knees track over toes</li>
+                    <li>Hip hinge movement pattern</li>
+                  </ul>
+                </div>
+                
+                <div class="col-md-6">
+                  <h3>2. The Deadlift</h3>
+                  <p><strong>Primary muscles:</strong> Hamstrings, glutes, erector spinae, traps, lats</p>
+                  <p><strong>Why it matters:</strong> Builds total-body strength and teaches proper lifting mechanics for daily activities.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Romanian deadlifts</li>
+                    <li>Trap bar deadlifts</li>
+                    <li>Conventional deadlifts</li>
+                    <li>Sumo deadlifts</li>
+                  </ul>
+                  
+                  <h4>Key Technique Points:</h4>
+                  <ul>
+                    <li>Neutral spine throughout</li>
+                    <li>Bar close to body</li>
+                    <li>Hip hinge movement</li>
+                    <li>Engage lats and core</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <h3>3. The Push-Up/Bench Press</h3>
+                  <p><strong>Primary muscles:</strong> Chest, shoulders, triceps, core</p>
+                  <p><strong>Why it matters:</strong> Develops upper body pushing strength and shoulder stability.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Wall push-ups</li>
+                    <li>Incline push-ups</li>
+                    <li>Standard push-ups</li>
+                    <li>Bench press variations</li>
+                  </ul>
+                </div>
+                
+                <div class="col-md-6">
+                  <h3>4. The Pull-Up/Row</h3>
+                  <p><strong>Primary muscles:</strong> Lats, rhomboids, rear delts, biceps</p>
+                  <p><strong>Why it matters:</strong> Balances pushing movements and improves posture.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Assisted pull-ups</li>
+                    <li>Negative pull-ups</li>
+                    <li>Band-assisted pull-ups</li>
+                    <li>Full pull-ups</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="row mt-4">
+                <div class="col-md-12">
+                  <h3>5. The Overhead Press</h3>
+                  <p><strong>Primary muscles:</strong> Shoulders, triceps, upper chest, core</p>
+                  <p><strong>Why it matters:</strong> Develops functional shoulder strength and stability crucial for overhead activities.</p>
+                  
+                  <h4>Progression:</h4>
+                  <ul>
+                    <li>Seated dumbbell press</li>
+                    <li>Standing dumbbell press</li>
+                    <li>Military press</li>
+                    <li>Push press</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <h3>Programming These Movements</h3>
+              <div class="alert alert-success">
+                <h4>Beginner Template:</h4>
+                <ul>
+                  <li><strong>Frequency:</strong> 2-3 times per week</li>
+                  <li><strong>Sets:</strong> 3-4 sets per exercise</li>
+                  <li><strong>Reps:</strong> 8-12 repetitions</li>
+                  <li><strong>Rest:</strong> 60-90 seconds between sets</li>
+                </ul>
+              </div>
+              
+              <h3>Safety First</h3>
+              <p>Always prioritize proper form over weight lifted. Start with bodyweight or light weights and focus on movement quality. Consider working with a qualified trainer when learning these movements.</p>
+            </div>
+          `
+        },
+        'Home vs. Gym Workouts: Maximizing Results Anywhere': {
+          content: `
+            <div class="article-content">
+              <h2>Home vs. Gym Workouts: Maximizing Results Anywhere</h2>
+              <p class="lead">The age-old debate: can you achieve the same results training at home as you can in a fully equipped gym? Recent research provides some surprising answers.</p>
+              
+              <h3>The Research Says...</h3>
+              <p>A comprehensive 2024 meta-analysis examining home-based versus gym-based training found that <strong>equipment availability matters less than training consistency and progression</strong>. When volume and intensity are matched, both environments can produce similar results for:</p>
+              <ul>
+                <li>Muscle hypertrophy</li>
+                <li>Strength gains</li>
+                <li>Cardiovascular improvements</li>
+                <li>Body composition changes</li>
+              </ul>
+              
+              <h3>Home Workout Advantages</h3>
+              <div class="row">
+                <div class="col-md-6">
+                  <h4>✅ Convenience</h4>
+                  <ul>
+                    <li>No commute time</li>
+                    <li>Train anytime</li>
+                    <li>No gym hours restrictions</li>
+                    <li>Privacy and comfort</li>
+                  </ul>
+                  
+                  <h4>✅ Cost-Effective</h4>
+                  <ul>
+                    <li>No monthly membership fees</li>
+                    <li>One-time equipment investment</li>
+                    <li>No gas/transport costs</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h4>✅ Consistency</h4>
+                  <ul>
+                    <li>Fewer barriers to exercise</li>
+                    <li>Weather independent</li>
+                    <li>Family-friendly</li>
+                    <li>Multitasking opportunities</li>
+                  </ul>
+                  
+                  <h4>✅ Customization</h4>
+                  <ul>
+                    <li>Control environment</li>
+                    <li>Choose your music</li>
+                    <li>Set your pace</li>
+                    <li>No equipment waiting</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <h3>Gym Advantages</h3>
+              <div class="row">
+                <div class="col-md-6">
+                  <h4>🏋️ Equipment Variety</h4>
+                  <ul>
+                    <li>Specialized machines</li>
+                    <li>Heavy free weights</li>
+                    <li>Cardio equipment</li>
+                    <li>Latest technology</li>
+                  </ul>
+                  
+                  <h4>🏋️ Professional Support</h4>
+                  <ul>
+                    <li>Personal trainers</li>
+                    <li>Technique guidance</li>
+                    <li>Safety spotting</li>
+                    <li>Program design help</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h4>🏋️ Social Environment</h4>
+                  <ul>
+                    <li>Community motivation</li>
+                    <li>Group classes</li>
+                    <li>Training partners</li>
+                    <li>Competitive atmosphere</li>
+                  </ul>
+                  
+                  <h4>🏋️ Mental Separation</h4>
+                  <ul>
+                    <li>Dedicated workout space</li>
+                    <li>Fewer distractions</li>
+                    <li>Focus mindset</li>
+                    <li>Routine establishment</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <h3>Effective Home Workout Equipment</h3>
+              <p>Research shows these tools can provide gym-level results:</p>
+              
+              <h4>Essential (Under $200):</h4>
+              <ul>
+                <li><strong>Resistance bands:</strong> Variable resistance, full-body training</li>
+                <li><strong>Dumbbells (adjustable):</strong> Progressive overload capability</li>
+                <li><strong>Pull-up bar:</strong> Upper body strength development</li>
+                <li><strong>Yoga mat:</strong> Floor exercises and stretching</li>
+              </ul>
+              
+              <h4>Advanced ($200-$500):</h4>
+              <ul>
+                <li><strong>Kettlebells:</strong> Dynamic strength and cardio</li>
+                <li><strong>Suspension trainer:</strong> Bodyweight exercise enhancement</li>
+                <li><strong>Bench:</strong> Exercise variety expansion</li>
+                <li><strong>Medicine ball:</strong> Power and core training</li>
+              </ul>
+              
+              <h3>Bodyweight Exercise Effectiveness</h3>
+              <p>Studies demonstrate that bodyweight exercises can be as effective as weighted exercises when:</p>
+              <ul>
+                <li>Volume is progressively increased</li>
+                <li>Exercise difficulty is advanced</li>
+                <li>Time under tension is manipulated</li>
+                <li>Rest periods are optimized</li>
+              </ul>
+              
+              <div class="alert alert-info">
+                <h4>Bodyweight Progression Examples:</h4>
+                <ul>
+                  <li>Push-ups → One-arm push-ups</li>
+                  <li>Squats → Pistol squats</li>
+                  <li>Planks → Single-arm planks</li>
+                  <li>Lunges → Jumping lunges</li>
+                </ul>
+              </div>
+              
+              <h3>The Verdict</h3>
+              <p>Both home and gym workouts can be highly effective. The best choice depends on:</p>
+              <ul>
+                <li><strong>Your goals:</strong> General fitness vs. powerlifting</li>
+                <li><strong>Your preferences:</strong> Social vs. private</li>
+                <li><strong>Your schedule:</strong> Flexible vs. structured</li>
+                <li><strong>Your experience:</strong> Self-directed vs. guided</li>
+              </ul>
+              
+              <h3>Success Factors (Regardless of Location)</h3>
+              <ol>
+                <li><strong>Consistency:</strong> Regular training beats perfect equipment</li>
+                <li><strong>Progressive overload:</strong> Gradually increase difficulty</li>
+                <li><strong>Proper form:</strong> Quality over quantity</li>
+                <li><strong>Adequate recovery:</strong> Rest and nutrition matter</li>
+                <li><strong>Long-term commitment:</strong> Patience with the process</li>
+              </ol>
+              
+              <p class="mt-4"><strong>Bottom line:</strong> The most effective workout is the one you'll actually do consistently. Whether that's at home or in a gym, both can deliver excellent results when approached intelligently.</p>
+            </div>
+          `
+        },
+        'Perfect Your Deadlift: Form Breakdown': {
+          content: `
+            <div class="article-content">
+              <h2>Perfect Your Deadlift: Form Breakdown</h2>
+              <p class="lead">The deadlift is one of the most powerful exercises in your arsenal, but improper form can lead to injury and decreased performance. Master these techniques to unlock your true deadlift potential.</p>
+              
+              <h3>The Three Pillars of Perfect Deadlift Setup</h3>
+              <p>According to leading biomechanics experts, proper deadlift technique revolves around three fundamental pillars:</p>
+              
+              <h4>1. Bar Position: Mid-Foot Alignment</h4>
+              <p>The bar should be positioned directly over your mid-foot. This ensures the bar travels in a straight path from floor to lockout. If the bar is too far forward, you'll need to pull it back toward your body during the lift, which wastes energy and compromises form.</p>
+              
+              <h4>2. Bar Contact: Connected to Your Body</h4>
+              <p>The bar should be touching your shins at the start position. Many people mistakenly set up with the bar several inches from their body, but this creates horizontal displacement and makes the lift less efficient.</p>
+              
+              <h4>3. Shoulder Position: Posterior Deltoid Over Bar</h4>
+              <p>Position your posterior deltoid (rear shoulder) directly over the bar. This is more precise than the common cue "shoulders over bar" and creates the proper vertical arm position essential for maximum force production.</p>
+              
+              <h3>The Setup Sequence</h3>
+              
+              <h4>Step 1: Foot Position</h4>
+              <ul>
+                <li>Feet hip-width apart</li>
+                <li>Toes pointed slightly forward</li>
+                <li>Bar over mid-foot</li>
+              </ul>
+              
+              <h4>Step 2: Grip and Hand Position</h4>
+              <ul>
+                <li>Double overhand grip for lighter weights</li>
+                <li>Mixed grip (one over, one under) for heavier loads</li>
+                <li>Hook grip for Olympic lifting variations</li>
+                <li>Hands just outside your legs</li>
+              </ul>
+              
+              <h4>Step 3: Hip Hinge and Spine Alignment</h4>
+              <ul>
+                <li>Push hips back first</li>
+                <li>Maintain neutral spine (avoid excessive arching)</li>
+                <li>Chest up, but not excessively so</li>
+                <li>Engage your lats by "protecting your armpits"</li>
+              </ul>
+              
+              <h3>The Lift Execution</h3>
+              
+              <h4>Phase 1: Floor to Knee (The "Squat" Phase)</h4>
+              <p>From the floor to knee level, think of this as a squat movement. Your chest and hips should rise at the same rate. Key points:</p>
+              <ul>
+                <li>Drive through your heels</li>
+                <li>Keep the bar close to your body</li>
+                <li>Maintain the three setup pillars</li>
+                <li>Don't let your hips shoot up first</li>
+              </ul>
+              
+              <h4>Phase 2: Knee to Lockout (The "Hip Drive" Phase)</h4>
+              <p>From knee to standing, this becomes a hip hinge movement similar to an RDL. Focus on:</p>
+              <ul>
+                <li>Driving your hips forward</li>
+                <li>Squeezing your glutes at the top</li>
+                <li>Standing tall with chest proud</li>
+                <li>Avoiding leaning back at lockout</li>
+              </ul>
+              
+              <h3>Common Deadlift Mistakes and Fixes</h3>
+              
+              <h4>Mistake 1: Bar Drifts Away From Body</h4>
+              <p><strong>Fix:</strong> Focus on keeping the bar in contact with your legs throughout the entire movement. Practice with lighter weights first.</p>
+              
+              <h4>Mistake 2: Hips Rise Too Quickly</h4>
+              <p><strong>Fix:</strong> Think "chest and hips rise together" during the first half of the lift. This often indicates weak quads.</p>
+              
+              <h4>Mistake 3: Rounded Back</h4>
+              <p><strong>Fix:</strong> Reduce the weight and focus on maintaining a neutral spine. Strengthen your core and practice proper hip hinge patterns.</p>
+              
+              <h4>Mistake 4: Looking Up</h4>
+              <p><strong>Fix:</strong> Keep your neck neutral. Look ahead, not up. Your head position affects your entire spine.</p>
+              
+              <h4>Mistake 5: Not Engaging Lats</h4>
+              <p><strong>Fix:</strong> Before lifting, imagine "protecting your armpits" or "squeezing oranges in your armpits." This engages your lats and creates upper body stability.</p>
+              
+              <h3>Deadlift Variations and When to Use Them</h3>
+              
+              <h4>Conventional Deadlift</h4>
+              <ul>
+                <li><strong>Best for:</strong> General strength, posterior chain development</li>
+                <li><strong>Stance:</strong> Hip-width apart</li>
+                <li><strong>Hand position:</strong> Outside the legs</li>
+              </ul>
+              
+              <h4>Sumo Deadlift</h4>
+              <ul>
+                <li><strong>Best for:</strong> Those with longer limbs, hip mobility emphasis</li>
+                <li><strong>Stance:</strong> Wide, toes pointed out</li>
+                <li><strong>Hand position:</strong> Inside the legs</li>
+              </ul>
+              
+              <h4>Trap Bar Deadlift</h4>
+              <ul>
+                <li><strong>Best for:</strong> Beginners, knee-dominant lifters</li>
+                <li><strong>Advantages:</strong> More upright torso, easier to learn</li>
+                <li><strong>Research shows:</strong> Higher power output and less spinal stress</li>
+              </ul>
+              
+              <h3>Programming Your Deadlifts</h3>
+              
+              <h4>Beginner Program (2-3x per week):</h4>
+              <ul>
+                <li>Focus on technique with light weight</li>
+                <li>3-4 sets of 5-8 repetitions</li>
+                <li>Rest 2-3 minutes between sets</li>
+              </ul>
+              
+              <h4>Intermediate Program (1-2x per week):</h4>
+              <ul>
+                <li>Mix of intensity ranges</li>
+                <li>Heavy: 3-5 sets of 1-5 reps</li>
+                <li>Moderate: 3-4 sets of 6-8 reps</li>
+                <li>Light technique work: 2-3 sets of 8-12 reps</li>
+              </ul>
+              
+              <h4>Advanced Program (1x per week heavy):</h4>
+              <ul>
+                <li>Periodized approach with waves</li>
+                <li>Competition prep or max strength focus</li>
+                <li>Include assistance exercises</li>
+              </ul>
+              
+              <h3>The Controlled Eccentric</h3>
+              <p>Don't just drop the bar! The lowering phase (eccentric) provides additional strength and muscle-building benefits. Lower the bar by:</p>
+              <ul>
+                <li>Reversing the lifting pattern</li>
+                <li>Hip hinge to knee level</li>
+                <li>Then squat pattern to the floor</li>
+                <li>Control the descent for 2-3 seconds</li>
+              </ul>
+              
+              <h3>Recovery and Injury Prevention</h3>
+              
+              <h4>Warm-Up Protocol:</h4>
+              <ol>
+                <li>5-10 minutes light cardio</li>
+                <li>Dynamic stretching (leg swings, hip circles)</li>
+                <li>Bodyweight squats and hip hinges</li>
+                <li>Gradual load progression with the bar</li>
+              </ol>
+              
+              <h4>Signs to Stop and Assess:</h4>
+              <ul>
+                <li>Lower back pain or discomfort</li>
+                <li>Form breakdown under load</li>
+                <li>Extreme fatigue affecting technique</li>
+                <li>Sharp pain anywhere in the body</li>
+              </ul>
+              
+              <h3>Final Thoughts</h3>
+              <p>The deadlift is a skill that takes time to master. Focus on perfect technique with lighter weights before progressing to heavier loads. Remember: it's not just about moving weight from point A to point B—it's about how you move it.</p>
+              
+              <p>Consider working with a qualified coach when first learning the deadlift. Video analysis from multiple angles can help identify form issues you might not feel. Master the basics, stay consistent, and the strength gains will follow.</p>
+            </div>
+          `
+        },
+        'Common Squat Mistakes and How to Fix Them': {
+          content: `
+            <div class="article-content">
+              <h2>Common Squat Mistakes and How to Fix Them</h2>
+              <p class="lead">The squat is fundamental to human movement, but even experienced lifters struggle with common form issues. Learn to identify and fix these mistakes to squat safer and stronger.</p>
+              
+              <h3>Why Squat Form Matters</h3>
+              <p>Poor squat form doesn't just limit your performance—it can lead to injury and long-term joint problems. The squat requires coordination between multiple joints and muscle groups, making it particularly susceptible to form breakdown under fatigue or improper load progression.</p>
+              
+              <h3>The 7 Most Common Squat Mistakes</h3>
+              
+              <h4>1. Knee Valgus (Knees Caving In)</h4>
+              
+              <p><strong>What it looks like:</strong> Knees collapse inward toward each other during the descent or ascent.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Weak gluteus medius and maximus</li>
+                <li>Limited ankle mobility</li>
+                <li>Poor motor control and muscle activation</li>
+                <li>Overactive adductors (inner thigh muscles)</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Strengthen glutes:</strong> Lateral walks, clamshells, single-leg glute bridges</li>
+                <li><strong>Improve ankle mobility:</strong> Calf stretches, wall ankle mobilizations</li>
+                <li><strong>Practice proper tracking:</strong> Use a resistance band around knees during bodyweight squats</li>
+                <li><strong>Visual cue:</strong> "Push your knees out over your toes"</li>
+              </ul>
+              
+              <h4>2. Butt Wink (Excessive Lower Back Rounding)</h4>
+              
+              <p><strong>What it looks like:</strong> The tailbone tucks under and lower back rounds at the bottom of the squat.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Limited hip mobility</li>
+                <li>Tight hamstrings and calves</li>
+                <li>Weak core muscles</li>
+                <li>Anatomical limitations</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Don't force depth:</strong> Squat only as deep as you can maintain neutral spine</li>
+                <li><strong>Improve hip mobility:</strong> 90/90 stretches, deep squats holds</li>
+                <li><strong>Strengthen core:</strong> Planks, dead bugs, bird dogs</li>
+                <li><strong>Consider individual anatomy:</strong> Some people may never achieve full depth</li>
+              </ul>
+              
+              <h4>3. Forward Lean (Losing Torso Position)</h4>
+              
+              <p><strong>What it looks like:</strong> Chest drops and torso leans too far forward during the squat.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Weak quads relative to posterior chain</li>
+                <li>Tight hip flexors</li>
+                <li>Poor bar position</li>
+                <li>Limited ankle mobility</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Strengthen quads:</strong> Front squats, Bulgarian split squats, leg extensions</li>
+                <li><strong>Stretch hip flexors:</strong> Couch stretch, kneeling hip flexor stretch</li>
+                <li><strong>Practice goblet squats:</strong> Forces more upright torso position</li>
+                <li><strong>Consider high bar or front squat variations</strong></li>
+              </ul>
+              
+              <h4>4. Heels Rising Off the Ground</h4>
+              
+              <p><strong>What it looks like:</strong> Heels lift up during the descent, weight shifts to toes.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Limited ankle dorsiflexion</li>
+                <li>Tight calves and Achilles tendon</li>
+                <li>Poor weight distribution awareness</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Improve ankle mobility:</strong> Daily calf stretches, wall slides</li>
+                <li><strong>Temporary fix:</strong> Small plates under heels while working on mobility</li>
+                <li><strong>Focus on weight distribution:</strong> Feel pressure through whole foot</li>
+                <li><strong>Consider squat shoes:</strong> Raised heel can help with mobility limitations</li>
+              </ul>
+              
+              <h4>5. Shallow Depth (Not Squatting Deep Enough)</h4>
+              
+              <p><strong>What it looks like:</strong> Hip crease doesn't reach knee level, partial range of motion.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Fear of injury or falling backward</li>
+                <li>Mobility restrictions</li>
+                <li>Weak stabilizer muscles</li>
+                <li>Ego lifting (too much weight)</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Use a box or bench:</strong> Sit back to a target depth</li>
+                <li><strong>Reduce weight:</strong> Focus on full range of motion</li>
+                <li><strong>Bodyweight practice:</strong> Daily deep squat holds</li>
+                <li><strong>Address mobility issues:</strong> Work on specific limitations</li>
+              </ul>
+              
+              <h4>6. Weight Distribution Issues</h4>
+              
+              <p><strong>What it looks like:</strong> Weight shifts to toes, heels, or one side during the movement.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Poor proprioception (body awareness)</li>
+                <li>Muscle imbalances</li>
+                <li>Previous injuries</li>
+                <li>Rushing the movement</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Practice barefoot:</strong> Better ground connection and feedback</li>
+                <li><strong>Slow down the movement:</strong> Focus on control and balance</li>
+                <li><strong>Single-leg work:</strong> Address imbalances with unilateral exercises</li>
+                <li><strong>Use a mirror:</strong> Visual feedback for symmetry</li>
+              </ul>
+              
+              <h4>7. Breath Holding and Core Issues</h4>
+              
+              <p><strong>What it looks like:</strong> Holding breath throughout entire set, or losing core tension.</p>
+              
+              <p><strong>Why it happens:</strong></p>
+              <ul>
+                <li>Poor breathing mechanics</li>
+                <li>Weak core muscles</li>
+                <li>Anxiety or fear</li>
+                <li>Lack of bracing knowledge</li>
+              </ul>
+              
+              <p><strong>How to fix it:</strong></p>
+              <ul>
+                <li><strong>Learn proper bracing:</strong> 360-degree core expansion</li>
+                <li><strong>Breath at the top:</strong> Breathe in, brace, descend, ascend, exhale</li>
+                <li><strong>Core strengthening:</strong> Planks, dead bugs, pallof presses</li>
+                <li><strong>Practice breathing drills:</strong> Diaphragmatic breathing exercises</li>
+              </ul>
+              
+              <h3>The Assessment Process</h3>
+              
+              <h4>Self-Assessment Tools:</h4>
+              <ol>
+                <li><strong>Video yourself:</strong> Record from front and side angles</li>
+                <li><strong>Bodyweight first:</strong> Master movement before adding load</li>
+                <li><strong>Wall squat test:</strong> Face wall, toes 6 inches away, squat without touching</li>
+                <li><strong>Overhead squat:</strong> Reveals mobility and stability limitations</li>
+              </ol>
+              
+              <h3>Progressive Squat Development</h3>
+              
+              <h4>Phase 1: Movement Quality (Weeks 1-4)</h4>
+              <ul>
+                <li>Bodyweight squats with focus on form</li>
+                <li>Box squats for depth reference</li>
+                <li>Goblet squats for posture</li>
+                <li>Daily mobility work</li>
+              </ul>
+              
+              <h4>Phase 2: Load Introduction (Weeks 5-8)</h4>
+              <ul>
+                <li>Add light weights while maintaining form</li>
+                <li>Introduce barbell with just the bar</li>
+                <li>Continue corrective exercises</li>
+                <li>Focus on consistent depth and speed</li>
+              </ul>
+              
+              <h4>Phase 3: Strength Building (Weeks 9+)</h4>
+              <ul>
+                <li>Progressive overload with proper form</li>
+                <li>Vary rep ranges and intensities</li>
+                <li>Regular form check-ins</li>
+                <li>Address issues as they arise</li>
+              </ul>
+              
+              <h3>When to Seek Help</h3>
+              
+              <p>Consider working with a qualified trainer if you:</p>
+              <ul>
+                <li>Experience pain during or after squatting</li>
+                <li>Can't identify your form issues</li>
+                <li>Have previous injuries affecting movement</li>
+                <li>Want to compete in powerlifting or weightlifting</li>
+                <li>Feel stuck in your progress despite consistent training</li>
+              </ul>
+              
+              <h3>Key Takeaways</h3>
+              
+              <ul>
+                <li><strong>Form before load:</strong> Master the movement pattern before adding weight</li>
+                <li><strong>Individual differences:</strong> Not everyone will squat the same way</li>
+                <li><strong>Patience is key:</strong> Fixing form issues takes time and consistency</li>
+                <li><strong>Address root causes:</strong> Don't just treat symptoms</li>
+                <li><strong>Stay consistent:</strong> Regular practice of corrective exercises is essential</li>
+              </ul>
+              
+              <p>Remember, the "perfect" squat looks different for everyone based on individual anatomy, mobility, and goals. Focus on moving well within your capabilities and gradually expanding those capabilities over time.</p>
+            </div>
+          `
+        }
+      };
       
-      if (session && session.user) {
-        // User is logged in - Hide login/signup, show logout
-        document.querySelector('.auth-buttons').classList.add('d-none');
-        document.querySelector('.auth-user-info').classList.remove('d-none');
-        document.querySelector('.auth-user-info').classList.add('d-flex');
-        document.getElementById('user-name').textContent = session.user.email.split('@')[0];
+      const article = articles[title];
+      if (article) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+          <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content bg-dark text-light">
+              <div class="modal-header">
+                <h5 class="modal-title">${title}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                ${article.content}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        `;
         
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
         
-        
-        console.log('✅ USER LOGGED IN - Auth buttons hidden, logout shown');
+        // Remove modal from DOM when hidden
+        modal.addEventListener('hidden.bs.modal', () => {
+          document.body.removeChild(modal);
+        });
       } else {
-        // User is not logged in - Show login/signup, hide logout
-        document.querySelector('.auth-buttons').classList.remove('d-none');
-        document.querySelector('.auth-buttons').classList.add('d-flex');
-        document.querySelector('.auth-user-info').classList.add('d-none');
-        document.querySelector('.auth-user-info').classList.remove('d-flex');
-        
-        
-        
-        console.log('❌ USER LOGGED OUT - Auth buttons shown, logout hidden');
+        alert(`Coming soon: ${title}\n\nThis article will be available in a future update!`);
       }
     }
 
-    // Logout functionality
-    function setupLogout() {
+    // Toggle authentication buttons based on login state
+    function toggleAuthButtons(loggedIn) {
+      const loginBtns = document.querySelectorAll('.auth-login-btn');
+      const signupBtns = document.querySelectorAll('.auth-signup-btn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const userWelcome = document.getElementById('user-welcome');
+      
+      console.log(`🔄 [Blog] Toggling auth state: loggedIn=${loggedIn}`);
+      console.log('🔍 [Blog] Found elements:', {
+        loginBtns: loginBtns.length,
+        signupBtns: signupBtns.length,
+        logoutBtn: !!logoutBtn,
+        userWelcome: !!userWelcome
+      });
+      
+      if (loggedIn) {
+        // User is logged in - FORCE HIDE login/signup, FORCE SHOW logout and welcome
+        loginBtns.forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.add('d-none');
+        });
+        signupBtns.forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.add('d-none');
+        });
+        if (logoutBtn) {
+          logoutBtn.style.display = 'inline-block';
+          logoutBtn.classList.remove('d-none');
+        }
+        if (userWelcome) {
+          userWelcome.style.display = 'inline-block';
+          userWelcome.classList.remove('d-none');
+        }
+        
+        console.log('✅ [Blog] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Logout SHOWN');
+      } else {
+        // User is logged out - FORCE SHOW login/signup, FORCE HIDE logout and welcome  
+        loginBtns.forEach(btn => {
+          btn.style.display = 'inline-block';
+          btn.classList.remove('d-none');
+        });
+        signupBtns.forEach(btn => {
+          btn.style.display = 'inline-block';
+          btn.classList.remove('d-none');
+        });
+        if (logoutBtn) {
+          logoutBtn.style.display = 'none';
+          logoutBtn.classList.add('d-none');
+        }
+        if (userWelcome) {
+          userWelcome.style.display = 'none';
+          userWelcome.classList.add('d-none');
+        }
+        
+        console.log('✅ [Blog] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
+      }
+    }
+
+    // Check authentication state on page load
+    async function checkAuthState() {
+      try {
+        console.log('🔄 [Blog] Checking authentication state...');
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session && session.user) {
+          console.log('✅ [Blog] User is logged in:', session.user.email);
+          
+          // Update user name in welcome message
+          const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+          const userNameSpan = document.getElementById('user-name');
+          if (userNameSpan) {
+            userNameSpan.textContent = userName;
+          }
+          
+          toggleAuthButtons(true);
+        } else {
+          console.log('❌ [Blog] No user session found');
+          toggleAuthButtons(false);
+        }
+      } catch (error) {
+        console.error('[Blog] Auth check error:', error);
+        toggleAuthButtons(false);
+      }
+    }
+
+    // Setup logout functionality
+    function setupLogoutButton() {
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-          await supabase.auth.signOut();
-          window.location.href = '/';
+        // Remove any existing listeners
+        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+        const newLogoutBtn = document.getElementById('logoutBtn');
+        
+        newLogoutBtn.addEventListener('click', async () => {
+          try {
+            console.log('🔓 [Blog] Logout button clicked');
+            await supabase.auth.signOut();
+            window.location.href = '/';
+          } catch (error) {
+            console.error('[Blog] Logout error:', error);
+          }
         });
+        console.log('✅ [Blog] Logout button setup complete');
       }
     }
 
@@ -688,10 +1928,46 @@
       });
     }
 
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 [Blog] Auth state change:', event);
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ [Blog] User signed in:', session.user.email);
+        
+        const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+        const userNameSpan = document.getElementById('user-name');
+        if (userNameSpan) {
+          userNameSpan.textContent = userName;
+        }
+        
+        toggleAuthButtons(true);
+      } else if (event === 'SIGNED_OUT') {
+        console.log('🔓 [Blog] User signed out');
+        toggleAuthButtons(false);
+        
+        // Redirect to homepage if not already there
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+          console.log('🏠 [Blog] Redirecting to homepage after logout');
+          window.location.href = '/';
+        }
+      }
+    });
+
+    // Initialize authentication immediately and on page load
+    async function initializeBlogAuth() {
+      console.log('🚀 [Blog] Initializing authentication...');
+      await checkAuthState();
+      setupLogoutButton();
+      console.log('✅ [Blog] Authentication initialization complete');
+    }
+
+    // Run auth check immediately when script loads
+    initializeBlogAuth();
+
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-      checkAuthStatus();
-      setupLogout();
+      initializeBlogAuth();
       setupCategoryFilter();
       setupSearch();
       
@@ -699,15 +1975,14 @@
       document.querySelectorAll('.blog-card').forEach(card => {
         card.addEventListener('click', () => {
           const title = card.querySelector('.card-title').textContent;
-          alert(`Coming soon: ${title}\n\nThis article will be available in a future update!`);
+          showArticle(title);
         });
       });
     });
 
-    // Listen for auth state changes
-    supabase.auth.onAuthStateChange((event, session) => {
-      checkAuthStatus();
-    });
+    // Also run after a short delay to catch any timing issues
+    setTimeout(initializeBlogAuth, 100);
+    setTimeout(initializeBlogAuth, 500);
   </script>
 </body>
 </html> 

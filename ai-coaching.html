@@ -9,16 +9,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
-          html, body {
-        height: 100%;
-        margin: 0;
-        font-family: 'Poppins', 'Inter', sans-serif;
-        font-weight: 400;
-        letter-spacing: 0.3px;
-        background-color: #000;
-        color: #ffffff;
-      }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Poppins', 'Inter', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      background-color: #000;
+      color: #ffffff;
+    }
     .navbar-brand {
       font-size: 1.4rem;
       letter-spacing: 2px;
@@ -73,6 +74,15 @@
       box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
       color: #fff;
     }
+    
+    /* Ensure navbar links stay light */
+    .navbar-dark .navbar-nav .nav-link {
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .navbar-dark .navbar-nav .nav-link:hover,
+    .navbar-dark .navbar-nav .nav-link.active {
+      color: #fff;
+    }
     .hero-section {
       background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 212, 255, 0.05));
       border-radius: 20px;
@@ -114,6 +124,57 @@
       small {
         color: #d0d0d0 !important;
       }
+      
+      /* AI Recommendations Enhanced Styling */
+      .ai-recommendation {
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.15), rgba(0, 212, 255, 0.1)) !important;
+        border: 2px solid rgba(0, 123, 255, 0.3) !important;
+        border-radius: 15px !important;
+        color: #ffffff !important;
+        padding: 1.5rem !important;
+        margin-top: 1rem;
+      }
+      
+      .ai-recommendation h5 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.3rem !important;
+        margin-bottom: 1rem !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      .ai-recommendation strong {
+        color: #00d4ff !important;
+        font-weight: 600 !important;
+        display: inline-block;
+        margin-bottom: 0.3rem;
+      }
+      
+      .ai-recommendation ul {
+        margin: 1rem 0 !important;
+        padding-left: 1.5rem !important;
+      }
+      
+      .ai-recommendation li {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.5;
+      }
+      
+      .ai-recommendation .workout-tip {
+        background: rgba(255, 193, 7, 0.1) !important;
+        border-left: 4px solid #ffc107 !important;
+        padding: 1rem !important;
+        margin-top: 1rem !important;
+        border-radius: 8px;
+      }
+      
+      .ai-recommendation .workout-tip small {
+        color: #ffc107 !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+      }
   </style>
 </head>
 <body>
@@ -134,9 +195,12 @@
           <li class="nav-item"><a class="nav-link" href="/support.html">Support & Contact</a></li>
         </ul>
       </div>
+      <!-- Auth buttons for all screen sizes -->
       <div class="d-flex">
-        <span class="navbar-text me-3">Welcome, <span id="user-name">User</span></span>
-        <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+        <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
+        <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
+        <button id="logoutBtn" class="btn btn-outline-light btn-sm d-none">Logout</button>
+        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -326,7 +390,7 @@
       const suggestions = getWorkoutSuggestions(goal, level, parseInt(time));
       
       container.innerHTML = `
-        <div class="alert alert-success">
+        <div class="ai-recommendation">
           <h5>🎯 Your Personalized AI Workout Recommendation</h5>
           <div class="mt-3">
             <strong>Workout Plan:</strong> ${suggestions.plan}<br>
@@ -336,8 +400,8 @@
             <ul class="mt-2">
               ${suggestions.exercises.map(ex => `<li>${ex}</li>`).join('')}
             </ul>
-            <div class="mt-3">
-              <small class="text-muted">💡 ${suggestions.tip}</small>
+            <div class="workout-tip">
+              <small>💡 ${suggestions.tip}</small>
             </div>
           </div>
         </div>
@@ -513,22 +577,22 @@
       const tips = formTips[exercise];
       
       container.innerHTML = `
-        <div class="alert alert-info" style="background-color: rgba(13, 202, 240, 0.1); border: 1px solid rgba(13, 202, 240, 0.3); color: #ffffff;">
-          <h5 style="color: #ffffff; font-weight: 600;">📋 Form Guide: ${exercise}</h5>
+        <div class="ai-recommendation">
+          <h5>📋 Form Guide: ${exercise}</h5>
           <div class="row mt-3">
             <div class="col-md-6">
-              <h6 style="color: #e0e0e0; font-weight: 500;">Setup:</h6>
-              <p style="color: #ffffff; font-weight: 400;">${tips.setup}</p>
-              <h6 style="color: #e0e0e0; font-weight: 500;">Execution:</h6>
-              <p style="color: #ffffff; font-weight: 400;">${tips.execution}</p>
-              <h6 style="color: #e0e0e0; font-weight: 500;">Breathing:</h6>
-              <p style="color: #ffffff; font-weight: 400;">${tips.breathing}</p>
+              <strong>Setup:</strong>
+              <p style="color: #ffffff; margin-bottom: 1rem;">${tips.setup}</p>
+              <strong>Execution:</strong>
+              <p style="color: #ffffff; margin-bottom: 1rem;">${tips.execution}</p>
+              <strong>Breathing:</strong>
+              <p style="color: #ffffff; margin-bottom: 1rem;">${tips.breathing}</p>
             </div>
             <div class="col-md-6">
-              <h6 style="color: #e0e0e0; font-weight: 500;">Common Mistakes:</h6>
-              <p style="color: #ffc107; font-weight: 400;">${tips.common_mistakes}</p>
-              <h6 style="color: #e0e0e0; font-weight: 500;">Safety Tips:</h6>
-              <p style="color: #28a745; font-weight: 500;">${tips.safety}</p>
+              <strong>Common Mistakes:</strong>
+              <p style="color: #ffc107; font-weight: 500; margin-bottom: 1rem;">${tips.common_mistakes}</p>
+              <strong>Safety Tips:</strong>
+              <p style="color: #28a745; font-weight: 600; margin-bottom: 1rem;">${tips.safety}</p>
             </div>
           </div>
         </div>
@@ -537,11 +601,168 @@
       showToast(`Form tips loaded for ${exercise}! 📋`, 'success');
     }
 
-    // Logout functionality
-    document.getElementById('logoutBtn')?.addEventListener('click', async function() {
-      await supabase.auth.signOut();
-      window.location.href = '/';
+    /* ===== AUTHENTICATION SYSTEM ===== */
+    
+    // Toggle authentication buttons based on login state
+    function toggleAuthButtons(loggedIn) {
+      const loginBtns = document.querySelectorAll('.auth-login-btn');
+      const signupBtns = document.querySelectorAll('.auth-signup-btn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const userWelcome = document.getElementById('user-welcome');
+      
+      console.log(`🔄 [AI Coaching] Toggling auth state: loggedIn=${loggedIn}`);
+      console.log('🔍 [AI Coaching] Found elements:', {
+        loginBtns: loginBtns.length,
+        signupBtns: signupBtns.length,
+        logoutBtn: !!logoutBtn,
+        userWelcome: !!userWelcome
+      });
+      
+      if (loggedIn) {
+        // User is logged in - FORCE HIDE login/signup, FORCE SHOW logout and welcome
+        loginBtns.forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.add('d-none');
+        });
+        signupBtns.forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.add('d-none');
+        });
+        if (logoutBtn) {
+          logoutBtn.style.display = 'inline-block';
+          logoutBtn.classList.remove('d-none');
+        }
+        if (userWelcome) {
+          userWelcome.style.display = 'inline-block';
+          userWelcome.classList.remove('d-none');
+        }
+        
+        console.log('✅ [AI Coaching] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Logout SHOWN');
+      } else {
+        // User is logged out - FORCE SHOW login/signup, FORCE HIDE logout and welcome  
+        loginBtns.forEach(btn => {
+          btn.style.display = 'inline-block';
+          btn.classList.remove('d-none');
+        });
+        signupBtns.forEach(btn => {
+          btn.style.display = 'inline-block';
+          btn.classList.remove('d-none');
+        });
+        if (logoutBtn) {
+          logoutBtn.style.display = 'none';
+          logoutBtn.classList.add('d-none');
+        }
+        if (userWelcome) {
+          userWelcome.style.display = 'none';
+          userWelcome.classList.add('d-none');
+        }
+        
+        console.log('✅ [AI Coaching] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
+      }
+    }
+
+    // Setup logout functionality
+    function setupLogoutButton() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        // Remove any existing listeners
+        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+        const newLogoutBtn = document.getElementById('logoutBtn');
+        
+        newLogoutBtn.addEventListener('click', async () => {
+          try {
+            console.log('🔓 [AI Coaching] Logout button clicked');
+            await supabase.auth.signOut();
+            window.location.href = '/';
+          } catch (error) {
+            console.error('[AI Coaching] Logout error:', error);
+          }
+        });
+        console.log('✅ [AI Coaching] Logout button setup complete');
+      }
+    }
+
+    // Check authentication state on page load
+    async function checkAuthStateAI() {
+      try {
+        console.log('🔄 [AI Coaching] Checking authentication state...');
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session && session.user) {
+          console.log('✅ [AI Coaching] User is logged in:', session.user.email);
+          
+          // Update user name in welcome message
+          const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+          const userNameSpan = document.getElementById('user-name');
+          if (userNameSpan) {
+            userNameSpan.textContent = userName;
+          }
+          
+          toggleAuthButtons(true);
+          return session.user;
+        } else {
+          console.log('❌ [AI Coaching] No user session found');
+          toggleAuthButtons(false);
+          
+          // Redirect to homepage if not logged in
+          console.log('🏠 [AI Coaching] Redirecting to homepage - please log in');
+          window.location.href = '/';
+          return null;
+        }
+      } catch (error) {
+        console.error('[AI Coaching] Auth check error:', error);
+        toggleAuthButtons(false);
+        window.location.href = '/';
+        return null;
+      }
+    }
+
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 [AI Coaching] Auth state change:', event);
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ [AI Coaching] User signed in:', session.user.email);
+        
+        const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+        const userNameSpan = document.getElementById('user-name');
+        if (userNameSpan) {
+          userNameSpan.textContent = userName;
+        }
+        
+        toggleAuthButtons(true);
+      } else if (event === 'SIGNED_OUT') {
+        console.log('🔓 [AI Coaching] User signed out');
+        toggleAuthButtons(false);
+        
+        // Redirect to homepage if not already there
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+          console.log('🏠 [AI Coaching] Redirecting to homepage after logout');
+          window.location.href = '/';
+        }
+      }
     });
+
+    // Initialize authentication immediately and on page load
+    async function initializeAIAuth() {
+      console.log('🚀 [AI Coaching] Initializing authentication...');
+      const user = await checkAuthStateAI();
+      if (user) {
+        setupLogoutButton();
+        console.log('✅ [AI Coaching] Authentication initialization complete');
+      }
+    }
+
+    // Run auth check immediately when script loads
+    initializeAIAuth();
+
+    // Also run when DOM is ready
+    document.addEventListener('DOMContentLoaded', initializeAIAuth);
+
+    // Also run after a short delay to catch any timing issues
+    setTimeout(initializeAIAuth, 100);
+    setTimeout(initializeAIAuth, 500);
+
   </script>
 </body>
 </html>
