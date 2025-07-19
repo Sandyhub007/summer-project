@@ -80,9 +80,9 @@ TWILIO_PHONE_NUMBER=your_twilio_phone_number_here
 
 Example:
 ```bash
-TWILIO_ACCOUNT_SID=AC1234567890abcdef1234567890abcdef
-TWILIO_AUTH_TOKEN=your_secret_auth_token
-TWILIO_PHONE_NUMBER=+15551234567
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_secret_auth_token_here
+TWILIO_PHONE_NUMBER=+1555XXXXXXX
 ```
 
 ## Step 5: Set Up Scheduled Reminders
