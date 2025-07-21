@@ -892,13 +892,17 @@
           toggleAuthButtons(true);
           return session.user;
         } else {
-          console.log('❌ [Support] No user session found');
-          toggleAuthButtons(false);
+          console.log('❌ [Support] No user session found - redirecting to login');
+          console.log('🏠 [Support] Redirecting to homepage for authentication');
+          
+          // Redirect to homepage for login
+          window.location.href = '/';
           return null;
         }
       } catch (error) {
         console.error('[Support] Auth check error:', error);
-        toggleAuthButtons(false);
+        console.log('🏠 [Support] Authentication error - redirecting to homepage');
+        window.location.href = '/';
         return null;
       }
     }

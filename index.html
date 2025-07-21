@@ -262,8 +262,8 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Centered Nav Links -->
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <!-- Centered Nav Links (HIDDEN until logged in) -->
+        <div class="collapse navbar-collapse justify-content-center d-none" id="navbarNav">
           <ul class="navbar-nav mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link active" aria-current="page" href="/workouts.html">Workouts</a></li>
             <li class="nav-item"><a class="nav-link" href="/ai-coaching.html">AI Coaching</a></li>
@@ -275,8 +275,12 @@
 
         <!-- Auth buttons for all screen sizes -->
         <div class="d-flex">
+          <!-- Login/Signup buttons (visible when NOT logged in) -->
           <button class="btn btn-outline-light me-2 auth-login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
           <button class="btn btn-cta auth-signup-btn" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
+          
+          <!-- User info and logout (hidden until logged in) -->
+          <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name-nav">User</span></span>
           <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
         </div>
       </div>
@@ -287,7 +291,7 @@
       <div class="hero-content text-center px-3">
         <h1 class="display-2 fw-bold mb-3 slide-in">Your Fitness Journey Starts Here</h1>
         <p class="lead mb-4">Join Gymcyclopedia to access workouts, nutrition tips, and community support to reach your goals.</p>
-        <a href="/workouts.html" class="btn btn-cta btn-outline-light btn-lg">Get Started</a>
+        <p class="text-muted"><strong>Please log in or sign up above to access all features.</strong></p>
       </div>
     </div>
 
@@ -749,6 +753,8 @@
       const loginBtns = document.querySelectorAll('.auth-login-btn');
       const signupBtns = document.querySelectorAll('.auth-signup-btn');
       const logoutBtn = document.getElementById('logoutBtn');
+      const userWelcome = document.getElementById('user-welcome');
+      const navbarNav = document.getElementById('navbarNav');
       const heroSection = document.getElementById('hero-section');
       const dashboard = document.getElementById('user-dashboard');
       
@@ -756,7 +762,7 @@
       console.log(`🔍 Found ${loginBtns.length} login buttons, ${signupBtns.length} signup buttons`);
       
       if (loggedIn) {
-        // User is logged in - hide login/signup, show logout, hide hero, show dashboard
+        // User is logged in - hide login/signup, show logout/nav/dashboard, hide hero
         loginBtns.forEach((btn, index) => {
           console.log(`🔒 Hiding login button ${index + 1}`);
           btn.classList.add('d-none');
@@ -767,22 +773,30 @@
         });
         if (logoutBtn) {
           console.log('🔓 Showing logout button');
-        logoutBtn.classList.remove('d-none');
+          logoutBtn.classList.remove('d-none');
           // Setup logout button event listeners when it becomes visible
           setTimeout(() => setupLogoutButton(), 100);
         }
+        if (userWelcome) {
+          console.log('👋 Showing user welcome');
+          userWelcome.classList.remove('d-none');
+        }
+        if (navbarNav) {
+          console.log('🧭 Showing navigation menu');
+          navbarNav.classList.remove('d-none');
+        }
         if (heroSection) {
-          console.log('👋 Hiding hero section');
-        heroSection.classList.add('d-none');
+          console.log('🏠 Hiding hero section');
+          heroSection.classList.add('d-none');
         }
         if (dashboard) {
           console.log('📊 Showing dashboard');
           dashboard.classList.remove('d-none');
         }
         
-        console.log('✅ AUTH STATE: LOGGED IN - Login/Signup hidden, Logout shown, Dashboard shown');
+        console.log('✅ AUTH STATE: LOGGED IN - Navigation visible, Dashboard shown');
       } else {
-        // User is logged out - show login/signup, hide logout, show hero, hide dashboard
+        // User is logged out - show login/signup/hero, hide logout/nav/dashboard
         loginBtns.forEach((btn, index) => {
           console.log(`🔓 Showing login button ${index + 1}`);
           btn.classList.remove('d-none');
@@ -793,18 +807,26 @@
         });
         if (logoutBtn) {
           console.log('🔒 Hiding logout button');
-        logoutBtn.classList.add('d-none');
+          logoutBtn.classList.add('d-none');
+        }
+        if (userWelcome) {
+          console.log('🚫 Hiding user welcome');
+          userWelcome.classList.add('d-none');
+        }
+        if (navbarNav) {
+          console.log('🚫 Hiding navigation menu');
+          navbarNav.classList.add('d-none');
         }
         if (heroSection) {
-          console.log('👋 Showing hero section');
-        heroSection.classList.remove('d-none');
-      }
+          console.log('🏠 Showing hero section');
+          heroSection.classList.remove('d-none');
+        }
         if (dashboard) {
           console.log('📊 Hiding dashboard');
           dashboard.classList.add('d-none');
         }
         
-        console.log('✅ AUTH STATE: LOGGED OUT - Login/Signup shown, Logout hidden, Hero shown');
+        console.log('✅ AUTH STATE: LOGGED OUT - Only Login/Signup visible');
       }
       
       // Double-check button states after 100ms

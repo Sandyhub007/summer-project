@@ -2936,12 +2936,18 @@
           
           toggleAuthButtons(true);
         } else {
-          console.log('❌ [Blog] No user session found');
-          toggleAuthButtons(false);
+          console.log('❌ [Blog] No user session found - redirecting to login');
+          console.log('🏠 [Blog] Redirecting to homepage for authentication');
+          
+          // Redirect to homepage for login
+          window.location.href = '/';
+          return;
         }
       } catch (error) {
         console.error('[Blog] Auth check error:', error);
-        toggleAuthButtons(false);
+        console.log('🏠 [Blog] Authentication error - redirecting to homepage');
+        window.location.href = '/';
+        return;
       }
     }
 

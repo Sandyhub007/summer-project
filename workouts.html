@@ -7562,12 +7562,18 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
           
           toggleAuthButtons(true);
         } else {
-          console.log('❌ [Workouts] No user session found');
-          toggleAuthButtons(false);
+          console.log('❌ [Workouts] No user session found - redirecting to login');
+          console.log('🏠 [Workouts] Redirecting to homepage for authentication');
+          
+          // Redirect to homepage for login
+          window.location.href = '/';
+          return;
         }
       } catch (error) {
         console.error('[Workouts] Auth check error:', error);
-        toggleAuthButtons(false);
+        console.log('🏠 [Workouts] Authentication error - redirecting to homepage');
+        window.location.href = '/';
+        return;
       }
     }
 
