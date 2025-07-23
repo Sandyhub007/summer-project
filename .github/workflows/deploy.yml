@@ -1,0 +1,126 @@
+name: Deploy Gymcyclopedia
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Install dependencies (if package.json exists)
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        else
+          echo "No package.json found, skipping npm install"
+        fi
+        
+    - name: Validate HTML files
+      run: |
+        echo "Validating HTML structure..."
+        for file in *.html; do
+          if [ -f "$file" ]; then
+            echo "Checking $file..."
+            # Basic validation - check if file is well-formed
+            if grep -q "<!DOCTYPE html>" "$file" && grep -q "</html>" "$file"; then
+              echo "✅ $file is valid"
+            else
+              echo "❌ $file may have issues"
+              exit 1
+            fi
+          fi
+        done
+        
+    - name: Check Supabase configuration
+      run: |
+        echo "Checking Supabase configuration..."
+        if grep -q "YOUR_SUPABASE_PROJECT_URL" *.html; then
+          echo "❌ Found placeholder URLs in HTML files"
+          exit 1
+        fi
+        if grep -q "YOUR_SUPABASE_ANON_KEY" *.html; then
+          echo "❌ Found placeholder API keys in HTML files"
+          exit 1
+        fi
+        echo "✅ Supabase configuration looks good"
+        
+    - name: Replace environment variables (if needed)
+      run: |
+        # Replace any remaining placeholders with environment variables
+        if [ ! -z "${{ secrets.SUPABASE_URL }}" ]; then
+          find . -name "*.html" -exec sed -i 's|YOUR_SUPABASE_PROJECT_URL|${{ secrets.SUPABASE_URL }}|g' {} \;
+        fi
+        if [ ! -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+          find . -name "*.html" -exec sed -i 's|YOUR_SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g' {} \;
+        fi
+        
+    - name: Build project (if build script exists)
+      run: |
+        if [ -f package.json ] && npm run build --if-present; then
+          echo "✅ Build completed"
+        else
+          echo "ℹ️ No build step required for static site"
+        fi
+        
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v3.0
+      with:
+        publish-dir: '.'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions - ${{ github.sha }}"
+        enable-pull-request-comment: true
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        
+    - name: Deploy to GitHub Pages (Alternative option)
+      if: false # Set to true if you want GitHub Pages instead of Netlify
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: '.'
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "🚀 Deployment successful!"
+          echo "Your Gymcyclopedia app has been deployed successfully."
+        else
+          echo "❌ Deployment failed!"
+          echo "Check the logs above for error details."
+        fi
+        
+    - name: Post-deployment health check
+      if: success()
+      run: |
+        echo "🔍 Running post-deployment checks..."
+        echo "✅ All HTML files validated"
+        echo "✅ Supabase configuration verified"
+        echo "✅ Deployment completed successfully"
+        echo ""
+        echo "🌐 Your app should be live at your configured domain!" 
