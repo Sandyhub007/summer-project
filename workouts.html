@@ -815,6 +815,86 @@
 
       <!-- Progress Tracking Tab -->
       <div class="tab-pane fade" id="progress" role="tabpanel">
+        <!-- Profile Setup Section -->
+        <div id="profileSetupSection" class="card mb-4" style="display: none;">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">👤 Complete Your Profile</h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="hideProfileSetup()">
+              <i class="fas fa-times"></i> Skip for now
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Complete your profile to get personalized workout recommendations and track your progress more effectively!
+            </div>
+            <form id="profileSetupForm" class="row g-3">
+              <!-- Personal Information -->
+              <div class="col-md-6">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="profileName" placeholder="Your name">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone Number (Optional)</label>
+                <input type="tel" class="form-control" id="profilePhone" placeholder="+1 (555) 123-4567">
+              </div>
+              
+              <!-- Physical Information -->
+              <div class="col-md-4">
+                <label class="form-label">Height (cm)</label>
+                <input type="number" class="form-control" id="profileHeight" placeholder="170" min="100" max="250">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Current Weight (kg)</label>
+                <input type="number" class="form-control" id="profileCurrentWeight" placeholder="70" min="30" max="300" step="0.1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Goal Weight (kg)</label>
+                <input type="number" class="form-control" id="profileGoalWeight" placeholder="65" min="30" max="300" step="0.1">
+              </div>
+              
+              <!-- Goals and Preferences -->
+              <div class="col-md-6">
+                <label class="form-label">Timeline (months)</label>
+                <select class="form-control" id="profileTimeline">
+                  <option value="">Select timeline</option>
+                  <option value="1">1 month</option>
+                  <option value="2">2 months</option>
+                  <option value="3">3 months</option>
+                  <option value="6">6 months</option>
+                  <option value="9">9 months</option>
+                  <option value="12">1 year</option>
+                  <option value="18">1.5 years</option>
+                  <option value="24">2 years</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Daily Calorie Goal</label>
+                <input type="number" class="form-control" id="profileCalories" placeholder="2000" min="1000" max="5000">
+              </div>
+              
+              <!-- SMS Preferences -->
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="profileSmsEnabled">
+                  <label class="form-check-label" for="profileSmsEnabled">
+                    Enable SMS workout reminders
+                  </label>
+                </div>
+              </div>
+              
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary me-2">
+                  <i class="fas fa-save"></i> Save Profile
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="hideProfileSetup()">
+                  Skip for now
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <!-- Progress Overview Cards -->
         <div class="row mb-4">
           <div class="col-lg-3 col-md-6 mb-3">
@@ -1886,6 +1966,9 @@
         
         // Initialize achievement system
         initializeAchievementSystem();
+        
+        // Check profile setup status
+        await checkProfileSetupStatus();
         
         // Update progress stats after everything is loaded
         await updateProgressStats();
@@ -6748,6 +6831,76 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       }
     };
 
+    // =============================================
+    // PROFILE SETUP FUNCTIONALITY
+    // =============================================
+
+    // Show profile setup section if user profile is incomplete
+    async function checkProfileSetupStatus() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) return;
+
+      try {
+        // Check if user has profile data
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+
+        // Show profile setup if no profile exists or key fields are missing
+        if (!profile || !profile.height_cm || !profile.current_weight_kg) {
+          document.getElementById('profileSetupSection').style.display = 'block';
+          console.log('👤 Showing profile setup - incomplete profile detected');
+        } else {
+          console.log('✅ Profile complete, hiding setup section');
+          document.getElementById('profileSetupSection').style.display = 'none';
+        }
+      } catch (error) {
+        console.warn('Could not check profile status:', error);
+        // Show profile setup as fallback
+        document.getElementById('profileSetupSection').style.display = 'block';
+      }
+    }
+
+    // Hide profile setup section
+    function hideProfileSetup() {
+      document.getElementById('profileSetupSection').style.display = 'none';
+      localStorage.setItem('profileSetupSkipped', 'true');
+    }
+
+    // Save user profile
+    async function saveUserProfile(profileData) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) {
+        showToast('Please log in to save profile', 'error');
+        return false;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .upsert({
+            user_id: session.user.id,
+            ...profileData,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        console.log('✅ Profile saved successfully:', data);
+        return true;
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        // Save to localStorage as fallback
+        localStorage.setItem('userProfile', JSON.stringify(profileData));
+        console.log('📱 Profile saved to localStorage as fallback');
+        return true;
+      }
+    }
+
     // Initialize push notifications
     async function initializePushNotifications() {
       console.log('🔔 Initializing push notifications...');
@@ -7627,6 +7780,38 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
 
     // Also run when DOM is ready
     document.addEventListener('DOMContentLoaded', initializeAuth);
+
+    // Handle profile setup form submission
+    document.addEventListener('DOMContentLoaded', () => {
+      const profileForm = document.getElementById('profileSetupForm');
+      if (profileForm) {
+        profileForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const profileData = {
+            name: document.getElementById('profileName').value.trim(),
+            phone_number: document.getElementById('profilePhone').value.trim(),
+            height_cm: parseInt(document.getElementById('profileHeight').value) || null,
+            current_weight_kg: parseFloat(document.getElementById('profileCurrentWeight').value) || null,
+            goal_weight_kg: parseFloat(document.getElementById('profileGoalWeight').value) || null,
+            timeline_months: parseInt(document.getElementById('profileTimeline').value) || null,
+            daily_calories: parseInt(document.getElementById('profileCalories').value) || null,
+            sms_enabled: document.getElementById('profileSmsEnabled').checked
+          };
+
+          const success = await saveUserProfile(profileData);
+          if (success) {
+            showToast('Profile saved successfully! 🎉', 'success');
+            hideProfileSetup();
+            
+            // Refresh progress stats with new profile data
+            await updateProgressStats();
+          } else {
+            showToast('Error saving profile. Please try again.', 'error');
+          }
+        });
+      }
+    });
 
     // Also run after a short delay to catch any timing issues
     setTimeout(initializeAuth, 100);

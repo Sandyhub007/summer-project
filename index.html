@@ -426,80 +426,23 @@
         </div>
         <div class="modal-body">
           <form id="signupForm" class="vstack gap-3">
-            <!-- Account Information -->
+            <!-- Simplified Account Information -->
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-12">
                 <label class="form-label small text-uppercase fw-semibold mb-1">Email Address</label>
                 <input type="email" class="form-control" placeholder="Enter your email" required id="signupEmail">
               </div>
-              <div class="col-md-6">
+            </div>
+            <div class="row">
+              <div class="col-12">
                 <label class="form-label small text-uppercase fw-semibold mb-1">Password</label>
                 <input type="password" class="form-control" placeholder="Create a password" required id="signupPassword">
               </div>
             </div>
 
-            <!-- Personal Information -->
-            <div class="row">
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Full Name</label>
-                <input type="text" class="form-control" placeholder="Your name" required id="signupName">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Phone Number</label>
-                <input type="tel" class="form-control" placeholder="+1 (555) 123-4567" id="signupPhone">
-                <small class="text-muted">Optional - for workout reminders via SMS</small>
-              </div>
-            </div>
-
-            <!-- Physical Information -->
-            <div class="row">
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Height (cm)</label>
-                <input type="number" class="form-control" placeholder="170" min="100" max="250" required id="signupHeight">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">SMS Reminders</label>
-                <div class="form-check form-switch mt-2">
-                  <input class="form-check-input" type="checkbox" id="signupSmsEnabled">
-                  <label class="form-check-label" for="signupSmsEnabled">
-                    Enable SMS workout reminders
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- Fitness Goals -->
-            <div class="row">
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Current Weight (kg)</label>
-                <input type="number" class="form-control" placeholder="70" min="30" max="300" step="0.1" required id="signupCurrentWeight">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Goal Weight (kg)</label>
-                <input type="number" class="form-control" placeholder="65" min="30" max="300" step="0.1" required id="signupGoalWeight">
-              </div>
-            </div>
-
-            <!-- Timeline and Calories -->
-            <div class="row">
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Timeline (months)</label>
-                <select class="form-control" required id="signupTimeline">
-                  <option value="">Select timeline</option>
-                  <option value="1">1 month</option>
-                  <option value="2">2 months</option>
-                  <option value="3">3 months</option>
-                  <option value="6">6 months</option>
-                  <option value="9">9 months</option>
-                  <option value="12">1 year</option>
-                  <option value="18">1.5 years</option>
-                  <option value="24">2 years</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Daily Calorie Goal</label>
-                <input type="number" class="form-control" placeholder="2000" min="1000" max="5000" required id="signupCalories">
-              </div>
+            <div class="alert alert-info d-flex align-items-center">
+              <i class="fas fa-info-circle me-2"></i>
+              <span>Complete your profile details in the <strong>Progress</strong> tab after signing up!</span>
             </div>
 
             <button type="submit" class="btn btn-cta btn-lg mt-3">Create My Account</button>
@@ -963,30 +906,12 @@
       e.preventDefault();
       hideError('signupError');
       
-      // Collect all form data
+      // Collect simplified form data
       const email = document.getElementById('signupEmail').value.trim().toLowerCase();
       const password = document.getElementById('signupPassword').value;
-      const name = document.getElementById('signupName').value.trim();
-      const phone = document.getElementById('signupPhone').value.trim();
-      const smsEnabled = document.getElementById('signupSmsEnabled').checked;
-      const height = parseInt(document.getElementById('signupHeight').value);
-      const currentWeight = parseFloat(document.getElementById('signupCurrentWeight').value);
-      const goalWeight = parseFloat(document.getElementById('signupGoalWeight').value);
-      const timeline = parseInt(document.getElementById('signupTimeline').value);
-      const calories = parseInt(document.getElementById('signupCalories').value);
 
-      // Sign up the user with personalized metadata
-      const result = await signUpUser(email, password, {
-        name: name,
-        phone_number: phone,
-        sms_reminders_enabled: smsEnabled,
-        height_cm: height,
-        current_weight_kg: currentWeight,
-        goal_weight_kg: goalWeight,
-        start_weight_kg: currentWeight, // Start weight = current weight initially
-        months_to_goal: timeline,
-        daily_calories: calories
-      });
+      // Sign up the user with minimal data - no email confirmation required
+      const result = await signUpUser(email, password);
       
       if (result.success) {
         // Success - close modal and reset form
@@ -995,7 +920,13 @@
         document.getElementById('signupForm').reset();
         
         // Show success message
-        alert('Account created successfully! Please check your email to verify your account.');
+        showToast('Account created successfully! Welcome to Gymcyclopedia! 🎉', 'success');
+        
+        // Force immediate UI update to logged-in state
+        setTimeout(() => {
+          console.log('🔧 Forcing logged-in state after signup success');
+          toggleAuthButtons(true);
+        }, 500);
       } else {
         // Show error
         showError('signupError', result.error);
@@ -1161,13 +1092,14 @@
       }
     }
 
-    // Sign up new user
-    async function signUpUser(email, password, profileData) {
+    // Sign up new user - simplified with no email confirmation
+    async function signUpUser(email, password, profileData = {}) {
       try {
         const { data, error } = await supabase.auth.signUp({
           email: email,
           password: password,
           options: {
+            emailRedirectTo: window.location.origin,
             data: profileData
           }
         });
@@ -1176,6 +1108,8 @@
           return { success: false, error: error.message };
         }
         
+        // For projects with email confirmation disabled, user is immediately signed in
+        console.log('✅ User signed up successfully:', data);
         return { success: true, data: data };
       } catch (error) {
         console.error('Sign up error:', error);
