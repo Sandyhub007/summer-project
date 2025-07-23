@@ -189,12 +189,19 @@
     .faq-answer {
       color: #f0f0f0 !important;
     }
+
+    /* Hide auth buttons when logged in */
+    body.logged-in .auth-login-btn,
+    body.logged-in .auth-signup-btn {
+      display: none !important;
+      visibility: hidden !important;
+    }
   </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="/">GYMCYCLOPEDIA</a>
+      <span class="navbar-brand fw-bold">GYMCYCLOPEDIA</span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -207,12 +214,10 @@
           <li class="nav-item"><a class="nav-link active" href="/support.html">Support & Contact</a></li>
         </ul>
       </div>
-      <!-- Auth buttons for all screen sizes -->
+      <!-- Auth buttons - redirect to homepage for login -->
       <div class="d-flex">
         <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
         <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
-        <button id="logoutBtn" class="btn btn-outline-light btn-sm d-none">Logout</button>
-        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -850,6 +855,7 @@
         
         console.log('✅ [Support] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
       }
+      document.body.classList.toggle('logged-in', loggedIn);
     }
 
     // Setup logout functionality
@@ -882,6 +888,10 @@
         if (session && session.user) {
           console.log('✅ [Support] User is logged in:', session.user.email);
           
+          // IMMEDIATELY set logged-in class to hide buttons
+          document.body.classList.add('logged-in');
+          document.body.classList.remove('logged-out');
+          
           // Update user name in welcome message
           const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
           const userNameSpan = document.getElementById('user-name');
@@ -894,6 +904,10 @@
         } else {
           console.log('❌ [Support] No user session found - redirecting to login');
           console.log('🏠 [Support] Redirecting to homepage for authentication');
+          
+          // IMMEDIATELY set logged-out class
+          document.body.classList.remove('logged-in');
+          document.body.classList.add('logged-out');
           
           // Redirect to homepage for login
           window.location.href = '/';

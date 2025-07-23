@@ -138,6 +138,13 @@
     small {
       color: #d0d0d0 !important;
     }
+
+    /* Hide auth buttons when logged in */
+    body.logged-in .auth-login-btn,
+    body.logged-in .auth-signup-btn {
+      display: none !important;
+      visibility: hidden !important;
+    }
   </style>
 </head>
 <body>
@@ -145,7 +152,7 @@
   
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="/">GYMCYCLOPEDIA</a>
+      <span class="navbar-brand fw-bold">GYMCYCLOPEDIA</span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -158,12 +165,10 @@
           <li class="nav-item"><a class="nav-link" href="/support.html">Support & Contact</a></li>
         </ul>
       </div>
-      <!-- Auth buttons for all screen sizes -->
+      <!-- Auth buttons - redirect to homepage for login -->
       <div class="d-flex">
         <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
         <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
-        <button id="logoutBtn" class="btn btn-outline-light btn-sm d-none">Logout</button>
-        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -907,6 +912,8 @@
           userWelcome.style.display = 'inline-block';
           userWelcome.classList.remove('d-none');
         }
+        document.body.classList.add('logged-in');
+        document.body.classList.remove('logged-out');
         
         console.log('✅ [Nutrition] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Logout SHOWN');
       } else {
@@ -927,6 +934,8 @@
           userWelcome.style.display = 'none';
           userWelcome.classList.add('d-none');
         }
+        document.body.classList.remove('logged-in');
+        document.body.classList.add('logged-out');
         
         console.log('✅ [Nutrition] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
       }
@@ -962,6 +971,10 @@
         if (session && session.user) {
           console.log('✅ [Nutrition] User is logged in:', session.user.email);
           
+          // IMMEDIATELY set logged-in class to hide buttons
+          document.body.classList.add('logged-in');
+          document.body.classList.remove('logged-out');
+          
           // Update user name in welcome message
           const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
           const userNameSpan = document.getElementById('user-name');
@@ -973,6 +986,11 @@
           return session.user;
         } else {
           console.log('❌ [Nutrition] No user session found');
+          
+          // IMMEDIATELY set logged-out class
+          document.body.classList.remove('logged-in');
+          document.body.classList.add('logged-out');
+          
           toggleAuthButtons(false);
           
           // Redirect to homepage if not logged in

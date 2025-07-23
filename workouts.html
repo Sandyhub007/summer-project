@@ -648,13 +648,33 @@
       color: #007bff;
       transform: translateY(-2px);
     }
+
+    /* Hide auth buttons when logged in - VERY AGGRESSIVE */
+    body.logged-in .auth-login-btn,
+    body.logged-in .auth-signup-btn,
+    .logged-in .auth-login-btn,
+    .logged-in .auth-signup-btn {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      position: absolute !important;
+      left: -9999px !important;
+    }
+    
+    /* EMERGENCY: Hide auth buttons by default on internal pages */
+    .auth-login-btn,
+    .auth-signup-btn {
+      display: none !important;
+      visibility: hidden !important;
+    }
   </style>
 </head>
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3 border-bottom border-secondary">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="/">GYMCYCLOPEDIA</a>
+      <span class="navbar-brand fw-bold">GYMCYCLOPEDIA</span>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -670,12 +690,10 @@
         </ul>
       </div>
 
-      <!-- Auth buttons for all screen sizes -->
+      <!-- Auth buttons - redirect to homepage for login -->
       <div class="d-flex">
         <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
         <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
-        <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
-        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -1439,9 +1457,8 @@
   </div>
 
   <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Chart.js for Analytics -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
     // ========================================
@@ -1913,7 +1930,10 @@
 
         if (profile) {
           currentUser = profile;
-          document.getElementById('user-name').textContent = profile.name || session.user.email.split('@')[0];
+          const userNameEl = document.getElementById('user-name');
+          if (userNameEl) {
+            userNameEl.textContent = profile.name || session.user.email.split('@')[0];
+          }
           console.log('✅ User profile loaded:', profile.name);
         } else {
           // Profile doesn't exist or failed to load, but user is authenticated
@@ -1922,7 +1942,10 @@
             email: session.user.email,
             name: session.user.email.split('@')[0]
           };
-          document.getElementById('user-name').textContent = currentUser.name;
+          const userNameEl = document.getElementById('user-name');
+          if (userNameEl) {
+            userNameEl.textContent = currentUser.name;
+          }
           console.log('⚠️ No user profile found, using session data');
         }
       } catch (error) {
@@ -1934,7 +1957,10 @@
           email: session.user.email,
           name: session.user.email.split('@')[0]
         };
-        document.getElementById('user-name').textContent = currentUser.name;
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+          userNameEl.textContent = currentUser.name;
+        }
       }
     }
 
@@ -2379,14 +2405,14 @@
         saveBtn.addEventListener('click', saveWorkout);
       }
 
-      // Logout button
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-          await supabase.auth.signOut();
-          window.location.href = '/';
-        });
-      }
+      // Logout button (removed from UI, no longer needed)
+      // const logoutBtn = document.getElementById('logoutBtn');
+      // if (logoutBtn) {
+      //   logoutBtn.addEventListener('click', async () => {
+      //     await supabase.auth.signOut();
+      //     window.location.href = '/';
+      //   });
+      // }
 
       // Re-populate exercises when modal is opened
       const createWorkoutModal = document.getElementById('createWorkoutModal');
@@ -6469,7 +6495,7 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       // Get last 12 weeks of data
       for (let i = 11; i >= 0; i--) {
         const date = new Date();
-        date.setDate(date.getDate() - (i * 7));
+        date.getDate(date.getDate() - (i * 7));
         labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
 
         // Count workouts in this week
@@ -7460,59 +7486,15 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
 
     // Toggle authentication buttons based on login state
     function toggleAuthButtons(loggedIn) {
-      const loginBtns = document.querySelectorAll('.auth-login-btn');
-      const signupBtns = document.querySelectorAll('.auth-signup-btn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const userWelcome = document.getElementById('user-welcome');
-      
       console.log(`🔄 [Workouts] Toggling auth state: loggedIn=${loggedIn}`);
-      console.log('🔍 [Workouts] Found elements:', {
-        loginBtns: loginBtns.length,
-        signupBtns: signupBtns.length,
-        logoutBtn: !!logoutBtn,
-        userWelcome: !!userWelcome
-      });
+      
+      // Just set the body class - CSS will handle hiding/showing buttons
+      document.body.classList.toggle('logged-in', loggedIn);
       
       if (loggedIn) {
-        // User is logged in - FORCE HIDE login/signup, FORCE SHOW logout and welcome
-        loginBtns.forEach(btn => {
-          btn.style.display = 'none';
-          btn.classList.add('d-none');
-        });
-        signupBtns.forEach(btn => {
-          btn.style.display = 'none';
-          btn.classList.add('d-none');
-        });
-        if (logoutBtn) {
-          logoutBtn.style.display = 'inline-block';
-          logoutBtn.classList.remove('d-none');
-        }
-        if (userWelcome) {
-          userWelcome.style.display = 'inline-block';
-          userWelcome.classList.remove('d-none');
-        }
-        
-        console.log('✅ [Workouts] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Logout SHOWN');
+        console.log('✅ [Workouts] AUTH STATE: LOGGED IN - Buttons hidden via CSS');
       } else {
-        // User is logged out - FORCE SHOW login/signup, FORCE HIDE logout and welcome  
-        loginBtns.forEach(btn => {
-          btn.style.display = 'inline-block';
-          btn.classList.remove('d-none');
-        });
-        signupBtns.forEach(btn => {
-          btn.style.display = 'inline-block';
-          btn.classList.remove('d-none');
-        });
-        if (logoutBtn) {
-          logoutBtn.style.display = 'none';
-          logoutBtn.classList.add('d-none');
-        }
-        if (userWelcome) {
-          userWelcome.style.display = 'none';
-          userWelcome.classList.add('d-none');
-        }
-        
-        console.log('✅ [Workouts] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
+        console.log('✅ [Workouts] AUTH STATE: LOGGED OUT - Buttons visible via CSS');
       }
     }
 
@@ -7522,31 +7504,23 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       return session?.user || null;
     }
 
-    // Setup logout functionality
+    // Setup logout functionality (no logout button exists anymore)
     function setupLogoutButton() {
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-          try {
-            console.log('🔓 [Workouts] Logout button clicked');
-            await window.supabase.auth.signOut();
-            window.location.href = '/';
-          } catch (error) {
-            console.error('[Workouts] Logout error:', error);
-          }
-        });
-        console.log('✅ [Workouts] Logout button setup complete');
-      }
+      console.log('ℹ️ [Workouts] No logout button to setup - buttons removed from UI');
     }
 
     // Check authentication state on page load
     async function checkAuthState() {
       try {
         console.log('🔄 [Workouts] Checking authentication state...');
-        const { data: { session } } = await window.supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (session && session.user) {
           console.log('✅ [Workouts] User is logged in:', session.user.email);
+          
+          // IMMEDIATELY set logged-in class to hide buttons
+          document.body.classList.add('logged-in');
+          document.body.classList.remove('logged-out');
           
           // Update user name in welcome message
           const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
@@ -7565,6 +7539,10 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
           console.log('❌ [Workouts] No user session found - redirecting to login');
           console.log('🏠 [Workouts] Redirecting to homepage for authentication');
           
+          // IMMEDIATELY set logged-out class 
+          document.body.classList.remove('logged-in');
+          document.body.classList.add('logged-out');
+          
           // Redirect to homepage for login
           window.location.href = '/';
           return;
@@ -7578,11 +7556,15 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
     }
 
     // Listen for auth state changes
-    window.supabase.auth.onAuthStateChange(async (event, session) => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 [Workouts] Auth state change:', event);
       
       if (event === 'SIGNED_IN' && session) {
         console.log('✅ [Workouts] User signed in:', session.user.email);
+        
+        // IMMEDIATELY set logged-in class to hide buttons
+        document.body.classList.add('logged-in');
+        document.body.classList.remove('logged-out');
         
         const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
         const userNameSpan = document.getElementById('user-name');
@@ -7597,6 +7579,10 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         toggleAuthButtons(true);
       } else if (event === 'SIGNED_OUT') {
         console.log('🔓 [Workouts] User signed out');
+        
+        // IMMEDIATELY set logged-out class 
+        document.body.classList.remove('logged-in');
+        document.body.classList.add('logged-out');
         
         if (typeof currentUser !== 'undefined') {
           currentUser = null;
@@ -7615,11 +7601,27 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
     // Initialize authentication immediately and on page load
     async function initializeAuth() {
       console.log('🚀 [Workouts] Initializing authentication...');
+      
+      // IMMEDIATELY check for existing session and set class
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user) {
+        console.log('🔄 [Workouts] Session found - immediately setting logged-in class');
+        document.body.classList.add('logged-in');
+        document.body.classList.remove('logged-out');
+      } else {
+        document.body.classList.remove('logged-in');
+        document.body.classList.add('logged-out');
+      }
+      
       await checkAuthState();
       setupLogoutButton();
       console.log('✅ [Workouts] Authentication initialization complete');
     }
 
+    // IMMEDIATE: Try to hide buttons before anything else
+    console.log('🔧 [Workouts] Setting emergency logged-in class immediately');
+    document.body.classList.add('logged-in');
+    
     // Run auth check immediately when script loads
     initializeAuth();
 

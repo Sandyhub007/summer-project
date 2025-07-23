@@ -313,13 +313,20 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
     }
+
+    /* Hide auth buttons when logged in */
+    body.logged-in .auth-login-btn,
+    body.logged-in .auth-signup-btn {
+      display: none !important;
+      visibility: hidden !important;
+    }
   </style>
 </head>
 <body>
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3 border-bottom border-secondary">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="/">GYMCYCLOPEDIA</a>
+      <span class="navbar-brand fw-bold">GYMCYCLOPEDIA</span>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -335,12 +342,10 @@
         </ul>
       </div>
 
-      <!-- Auth buttons for all screen sizes -->
+      <!-- Auth buttons - redirect to homepage for login -->
       <div class="d-flex">
         <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
         <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
-        <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
-        <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name">User</span></span>
       </div>
     </div>
   </nav>
@@ -2916,6 +2921,12 @@
         
         console.log('✅ [Blog] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
       }
+      setTimeout(() => {
+        const currentLoginVisible = Array.from(loginBtns).some(btn => !btn.classList.contains('d-none'));
+        const currentSignupVisible = Array.from(signupBtns).some(btn => !btn.classList.contains('d-none'));
+        const currentLogoutVisible = logoutBtn && !logoutBtn.classList.contains('d-none');
+      }, 100);
+      document.body.classList.toggle('logged-in', loggedIn);
     }
 
     // Check authentication state on page load
@@ -2926,6 +2937,10 @@
         
         if (session && session.user) {
           console.log('✅ [Blog] User is logged in:', session.user.email);
+          
+          // IMMEDIATELY set logged-in class to hide buttons
+          document.body.classList.add('logged-in');
+          document.body.classList.remove('logged-out');
           
           // Update user name in welcome message
           const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
@@ -2938,6 +2953,10 @@
         } else {
           console.log('❌ [Blog] No user session found - redirecting to login');
           console.log('🏠 [Blog] Redirecting to homepage for authentication');
+          
+          // IMMEDIATELY set logged-out class
+          document.body.classList.remove('logged-in');
+          document.body.classList.add('logged-out');
           
           // Redirect to homepage for login
           window.location.href = '/';

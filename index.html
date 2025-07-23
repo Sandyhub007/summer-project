@@ -247,6 +247,13 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
     }
+
+    /* Hide auth buttons when logged in */
+    body.logged-in .auth-login-btn,
+    body.logged-in .auth-signup-btn {
+      display: none !important;
+      visibility: hidden !important;
+    }
   </style>
 </head>
 <body>
@@ -255,7 +262,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
       <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand fw-bold" href="/" id="brand-link">GYMCYCLOPEDIA</a>
+        <span class="navbar-brand fw-bold">GYMCYCLOPEDIA</span>
 
         <!-- Mobile Toggler -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -273,15 +280,10 @@
           </ul>
         </div>
 
-        <!-- Auth buttons for all screen sizes -->
+        <!-- Auth buttons - show only when NOT logged in -->
         <div class="d-flex">
-          <!-- Login/Signup buttons (visible when NOT logged in) -->
           <button class="btn btn-outline-light me-2 auth-login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
           <button class="btn btn-cta auth-signup-btn" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
-          
-          <!-- User info and logout (hidden until logged in) -->
-          <span class="navbar-text me-3 d-none" id="user-welcome">Welcome, <span id="user-name-nav">User</span></span>
-          <button id="logoutBtn" class="btn btn-outline-light d-none">Logout</button>
         </div>
       </div>
     </nav>
@@ -772,10 +774,9 @@
           btn.classList.add('d-none');
         });
         if (logoutBtn) {
-          console.log('🔓 Showing logout button');
-          logoutBtn.classList.remove('d-none');
-          // Setup logout button event listeners when it becomes visible
-          setTimeout(() => setupLogoutButton(), 100);
+          console.log('🚫 Hiding logout button (per new requirement)');
+          logoutBtn.classList.add('d-none');
+          logoutBtn.style.display = 'none';
         }
         if (userWelcome) {
           console.log('👋 Showing user welcome');
@@ -800,14 +801,17 @@
         loginBtns.forEach((btn, index) => {
           console.log(`🔓 Showing login button ${index + 1}`);
           btn.classList.remove('d-none');
+          btn.style.display = 'inline-block';
         });
         signupBtns.forEach((btn, index) => {
           console.log(`🔓 Showing signup button ${index + 1}`);
           btn.classList.remove('d-none');
+          btn.style.display = 'inline-block';
         });
         if (logoutBtn) {
           console.log('🔒 Hiding logout button');
           logoutBtn.classList.add('d-none');
+          logoutBtn.style.display = 'none';
         }
         if (userWelcome) {
           console.log('🚫 Hiding user welcome');
@@ -836,6 +840,7 @@
         const currentLogoutVisible = logoutBtn && !logoutBtn.classList.contains('d-none');
         console.log(`🔍 Button state check - Login visible: ${currentLoginVisible}, Signup visible: ${currentSignupVisible}, Logout visible: ${currentLogoutVisible}`);
       }, 100);
+      document.body.classList.toggle('logged-in', loggedIn);
     }
 
     function showError(elementId, message) {
