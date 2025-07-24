@@ -919,14 +919,19 @@
         modal.hide();
         document.getElementById('signupForm').reset();
         
-        // Show success message
-        showToast('Account created successfully! Welcome to Gymcyclopedia! 🎉', 'success');
-        
-        // Force immediate UI update to logged-in state
-        setTimeout(() => {
-          console.log('🔧 Forcing logged-in state after signup success');
-          toggleAuthButtons(true);
-        }, 500);
+        if (result.needsConfirmation) {
+          // Show message about email confirmation
+          showToast(result.message || 'Account created! Please check your email to verify your account.', 'info');
+        } else {
+          // Show success message for immediate login
+          showToast('Account created successfully! Welcome to Gymcyclopedia! 🎉', 'success');
+          
+          // Force immediate UI update to logged-in state
+          setTimeout(() => {
+            console.log('🔧 Forcing logged-in state after signup success');
+            toggleAuthButtons(true);
+          }, 500);
+        }
       } else {
         // Show error
         showError('signupError', result.error);
@@ -1108,8 +1113,19 @@
           return { success: false, error: error.message };
         }
         
-        // For projects with email confirmation disabled, user is immediately signed in
         console.log('✅ User signed up successfully:', data);
+        
+        // Check if user is immediately confirmed (email confirmation disabled)
+        if (data.user && !data.user.email_confirmed_at) {
+          // If email confirmation is still enabled, show helpful message
+          return { 
+            success: true, 
+            data: data, 
+            needsConfirmation: true,
+            message: "Account created! Please check your email or contact support if email confirmation is taking too long."
+          };
+        }
+        
         return { success: true, data: data };
       } catch (error) {
         console.error('Sign up error:', error);
