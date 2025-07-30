@@ -285,6 +285,11 @@
           <button class="btn btn-outline-light me-2 auth-login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
           <button class="btn btn-cta auth-signup-btn" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
         </div>
+
+        <!-- Logout button - show only when logged in -->
+        <div class="d-flex d-none" id="logoutSection">
+          <button class="btn btn-outline-light" id="logoutBtn">Logout</button>
+        </div>
       </div>
     </nav>
 
@@ -303,7 +308,17 @@
         <div class="col-md-10">
           <!-- Welcome Header -->
           <div class="text-center mb-4">
-            <h2 class="fw-bold text-white">Welcome back, <span id="user-name"></span>! 🎯</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div></div> <!-- Empty div for spacing -->
+              <div>
+                <h2 class="fw-bold text-white mb-0">Welcome back, <span id="user-name"></span>! 🎯</h2>
+              </div>
+              <div>
+                <button id="signOutBtn" class="btn btn-outline-light btn-sm">
+                  <i class="fas fa-sign-out-alt me-1"></i>Sign Out
+                </button>
+              </div>
+            </div>
             <p class="text-light">Here's your fitness journey progress</p>
           </div>
 
@@ -882,6 +897,7 @@
       // Setup logout button and brand link after initial auth check
       setTimeout(() => {
         setupLogoutButton();
+        setupSignOutButton();
         setupBrandLink();
       }, 200);
     });
@@ -919,19 +935,9 @@
         modal.hide();
         document.getElementById('signupForm').reset();
         
-        if (result.needsConfirmation) {
-          // Show message about email confirmation
-          showToast(result.message || 'Account created! Please check your email to verify your account.', 'info');
-        } else {
-          // Show success message for immediate login
-          showToast('Account created successfully! Welcome to Gymcyclopedia! 🎉', 'success');
-          
-          // Force immediate UI update to logged-in state
-          setTimeout(() => {
-            console.log('🔧 Forcing logged-in state after signup success');
-            toggleAuthButtons(true);
-          }, 500);
-        }
+        // Show simple success alert
+        alert('Sign up successful! You can now login with your credentials.');
+        
       } else {
         // Show error
         showError('signupError', result.error);
@@ -1097,10 +1103,11 @@
       }
     }
 
-    // Sign up new user - simplified with no email confirmation
+    // Sign up new user - no email confirmation required
     async function signUpUser(email, password, profileData = {}) {
       try {
-        const { data, error } = await supabase.auth.signUp({
+        // First, try to sign up the user
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: email,
           password: password,
           options: {
@@ -1109,24 +1116,40 @@
           }
         });
         
-        if (error) {
-          return { success: false, error: error.message };
+        if (signUpError) {
+          return { success: false, error: signUpError.message };
         }
         
-        console.log('✅ User signed up successfully:', data);
+        console.log('✅ User signed up successfully:', signUpData);
         
-        // Check if user is immediately confirmed (email confirmation disabled)
-        if (data.user && !data.user.email_confirmed_at) {
-          // If email confirmation is still enabled, show helpful message
-          return { 
-            success: true, 
-            data: data, 
-            needsConfirmation: true,
-            message: "Account created! Please check your email or contact support if email confirmation is taking too long."
-          };
+        // If email confirmation is disabled, user should be automatically signed in
+        if (signUpData.user && signUpData.session) {
+          console.log('✅ User automatically signed in after signup');
+          return { success: true, data: signUpData, autoSignedIn: true };
         }
         
-        return { success: true, data: data };
+        // If no session, try to sign in immediately (email confirmation disabled case)
+        if (signUpData.user && !signUpData.session) {
+          console.log('🔄 Attempting immediate sign in...');
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+          
+          if (!signInError && signInData.session) {
+            console.log('✅ Successfully signed in immediately after signup');
+            return { success: true, data: signInData, autoSignedIn: true };
+          }
+        }
+        
+        // Fallback: email confirmation might still be required
+        return { 
+          success: true, 
+          data: signUpData, 
+          needsConfirmation: true,
+          message: "Account created! If you can't login immediately, please disable email confirmation in Supabase settings."
+        };
+        
       } catch (error) {
         console.error('Sign up error:', error);
         return { success: false, error: 'Failed to create account' };
@@ -1279,39 +1302,62 @@
      }
      
                 
-     // Add click listener to logout button with multiple methods
-    function setupLogoutButton() {
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        console.log('🔧 Setting up logout button event listeners');
-        
-        // Remove existing listeners and add new ones
-        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
-        const newLogoutBtn = document.getElementById('logoutBtn');
-        
-        newLogoutBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🔓 Logout button clicked via event listener');
-          
-          // Show loading state
-          newLogoutBtn.textContent = 'Logging out...';
-          newLogoutBtn.disabled = true;
-          
-          await manualLogout();
-        });
-        
-        // Also add onclick attribute as backup
-        newLogoutBtn.onclick = async () => {
-          console.log('🔓 Logout button clicked via onclick');
-          await manualLogout();
-        };
-        
-        console.log('✅ Logout button event listeners set up');
-      } else {
-        console.error('❌ Logout button not found!');
-      }
-    }
+         // Add click listener to logout button with multiple methods
+   function setupLogoutButton() {
+     const logoutBtn = document.getElementById('logoutBtn');
+     if (logoutBtn) {
+       console.log('🔧 Setting up logout button event listeners');
+       
+       // Remove existing listeners and add new ones
+       logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+       const newLogoutBtn = document.getElementById('logoutBtn');
+       
+       newLogoutBtn.addEventListener('click', async (e) => {
+         e.preventDefault();
+         e.stopPropagation();
+         console.log('🔓 Logout button clicked via event listener');
+         
+         // Show loading state
+         newLogoutBtn.textContent = 'Logging out...';
+         newLogoutBtn.disabled = true;
+         
+         await manualLogout();
+       });
+       
+       // Also add onclick attribute as backup
+       newLogoutBtn.onclick = async () => {
+         console.log('🔓 Logout button clicked via onclick');
+         await manualLogout();
+       };
+       
+       console.log('✅ Logout button event listeners set up');
+     } else {
+       console.error('❌ Logout button not found!');
+     }
+   }
+
+   // Add click listener to dashboard sign out button
+   function setupSignOutButton() {
+     const signOutBtn = document.getElementById('signOutBtn');
+     if (signOutBtn) {
+       console.log('🔧 Setting up dashboard sign out button event listeners');
+       
+       signOutBtn.addEventListener('click', async (e) => {
+         e.preventDefault();
+         e.stopPropagation();
+         console.log('🔓 Dashboard sign out button clicked');
+         
+         // Show loading state
+         const originalText = signOutBtn.innerHTML;
+         signOutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Signing out...';
+         signOutBtn.disabled = true;
+         
+         await manualLogout();
+       });
+       
+       console.log('✅ Dashboard sign out button event listeners set up');
+     }
+   }
     
     // Check auth state every 2 seconds and fix if needed
     window.authStateChecker = setInterval(async () => {
