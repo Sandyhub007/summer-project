@@ -169,6 +169,9 @@
       <div class="d-flex">
         <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
         <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
+        <button id="signOutBtn" class="btn btn-outline-light d-none">
+          <i class="fas fa-sign-out-alt me-1"></i>Sign Out
+        </button>
       </div>
     </div>
   </nav>
@@ -944,6 +947,8 @@
     // Setup logout functionality
     function setupLogoutButton() {
       const logoutBtn = document.getElementById('logoutBtn');
+      const signOutBtn = document.getElementById('signOutBtn');
+      
       if (logoutBtn) {
         // Remove any existing listeners
         logoutBtn.replaceWith(logoutBtn.cloneNode(true));
@@ -959,6 +964,32 @@
           }
         });
         console.log('✅ [Nutrition] Logout button setup complete');
+      }
+      
+      if (signOutBtn) {
+        signOutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔓 [Nutrition] Sign out button clicked');
+          
+          // Show loading state
+          const originalText = signOutBtn.innerHTML;
+          signOutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Signing out...';
+          signOutBtn.disabled = true;
+          
+          try {
+            await supabase.auth.signOut();
+            console.log('✅ [Nutrition] Sign out successful - redirecting to homepage');
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/';
+          } catch (error) {
+            console.error('[Nutrition] Sign out error:', error);
+            signOutBtn.innerHTML = originalText;
+            signOutBtn.disabled = false;
+          }
+        });
+        console.log('✅ [Nutrition] Sign out button setup complete');
       }
     }
 

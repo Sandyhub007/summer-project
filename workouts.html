@@ -694,6 +694,9 @@
       <div class="d-flex">
         <button class="btn btn-outline-light me-2 auth-login-btn" onclick="window.location.href='/?action=login'">Login</button>
         <button class="btn btn-primary auth-signup-btn" onclick="window.location.href='/?action=signup'">Sign Up</button>
+        <button id="signOutBtn" class="btn btn-outline-light d-none">
+          <i class="fas fa-sign-out-alt me-1"></i>Sign Out
+        </button>
       </div>
     </div>
   </nav>
@@ -7644,10 +7647,20 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       // Just set the body class - CSS will handle hiding/showing buttons
       document.body.classList.toggle('logged-in', loggedIn);
       
+      // Handle sign out button visibility
+      const signOutBtn = document.getElementById('signOutBtn');
+      if (signOutBtn) {
+        if (loggedIn) {
+          signOutBtn.classList.remove('d-none');
+        } else {
+          signOutBtn.classList.add('d-none');
+        }
+      }
+      
       if (loggedIn) {
-        console.log('✅ [Workouts] AUTH STATE: LOGGED IN - Buttons hidden via CSS');
+        console.log('✅ [Workouts] AUTH STATE: LOGGED IN - Buttons hidden via CSS, Sign Out visible');
       } else {
-        console.log('✅ [Workouts] AUTH STATE: LOGGED OUT - Buttons visible via CSS');
+        console.log('✅ [Workouts] AUTH STATE: LOGGED OUT - Buttons visible via CSS, Sign Out hidden');
       }
     }
 
@@ -7657,9 +7670,53 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       return session?.user || null;
     }
 
-    // Setup logout functionality (no logout button exists anymore)
+    // Setup logout functionality 
     function setupLogoutButton() {
-      console.log('ℹ️ [Workouts] No logout button to setup - buttons removed from UI');
+      console.log('🔧 [Workouts] Setting up sign out button...');
+      const signOutBtn = document.getElementById('signOutBtn');
+      if (signOutBtn) {
+        signOutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔓 [Workouts] Sign out button clicked');
+          
+          // Show loading state
+          const originalText = signOutBtn.innerHTML;
+          signOutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Signing out...';
+          signOutBtn.disabled = true;
+          
+          try {
+            // Call Supabase signOut
+            const { error } = await window.supabase.auth.signOut();
+            if (error) {
+              console.error('❌ [Workouts] Sign out error:', error);
+              // Restore button state
+              signOutBtn.innerHTML = originalText;
+              signOutBtn.disabled = false;
+              return;
+            }
+            
+            console.log('✅ [Workouts] Sign out successful - redirecting to homepage');
+            
+            // Clear any session data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Redirect to homepage
+            window.location.href = '/';
+            
+          } catch (error) {
+            console.error('❌ [Workouts] Sign out error:', error);
+            // Restore button state
+            signOutBtn.innerHTML = originalText;
+            signOutBtn.disabled = false;
+          }
+        });
+        
+        console.log('✅ [Workouts] Sign out button event listener set up');
+      } else {
+        console.log('ℹ️ [Workouts] No sign out button found');
+      }
     }
 
     // Check authentication state on page load
