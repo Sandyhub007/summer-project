@@ -10,7 +10,8 @@
 
 ## 🌟 Live Demo
 
-🔗 **[View Live Application](http://localhost:8000)** *(Configure with your credentials first)*
+🔗 **[View Live Application](https://gymcyclopedia-fitness-app.vercel.app)** *(Deployed on Vercel)*  
+🏠 **[Local Development](http://localhost:8000)** *(Configure with your credentials first)*
 
 ## 📊 Project Overview
 
@@ -90,8 +91,10 @@ Gymcyclopedia is a full-stack fitness web application that provides users with a
 - **Email Services** - Automated email notifications via Supabase
 - **Service Workers** - PWA capabilities and background sync
 
-### Development Tools
+### Development & Deployment
 - **Git & GitHub** - Version control with comprehensive commit history
+- **Vercel** - Production deployment with automatic CI/CD
+- **GitHub Actions** - Continuous integration and automated workflows
 - **SQL Schema Management** - Database migrations and setup scripts
 - **Local Development Server** - Python HTTP server for testing
 - **Browser DevTools** - Debugging and performance optimization
@@ -121,9 +124,18 @@ Gymcyclopedia is a full-stack fitness web application that provides users with a
    ```
    Navigate to `http://localhost:8000`
 
+### Production Deployment
+
+This project is deployed on **Vercel** with automatic deployments from GitHub:
+
+1. **Fork this repository** to your GitHub account
+2. **Sign up for [Vercel](https://vercel.com)** with your GitHub account
+3. **Import the project** and deploy with one click
+4. **Automatic updates** - Every push to `main` branch triggers a new deployment
+
 ### Advanced Setup
 
-For complete setup including SMS notifications, email customization, and production deployment, see the detailed [**Setup Guide**](SETUP.md).
+For complete setup including SMS notifications, email customization, and local development, see the detailed [**Setup Guide**](SETUP.md).
 
 ## 📁 Project Structure
 
@@ -155,7 +167,8 @@ gymcyclopedia/
 │   └── FREE_REMINDERS_SETUP.md # Email setup
 └── 🔧 Configuration
     ├── sw.js                  # Service worker for PWA
-    └── enhanced-notifications.js # Notification system
+    ├── enhanced-notifications.js # Notification system
+    └── vercel.json           # Vercel deployment configuration
 ```
 
 ## 🎨 Design Philosophy
@@ -185,17 +198,41 @@ gymcyclopedia/
 - **Mobile Responsiveness**: 100% compatible across all device sizes
 - **Browser Support**: Chrome, Firefox, Safari, Edge (last 2 versions)
 
+## 🚀 Deployment & DevOps
+
+### Production Environment
+- **Platform**: Vercel (Serverless deployment)
+- **Domain**: Custom domain with automatic HTTPS
+- **CDN**: Global edge network for optimal performance
+- **Monitoring**: Real-time deployment status and error tracking
+
+### Continuous Integration/Deployment
+- **Automatic Deployments**: Every push to main branch
+- **Preview Deployments**: Branch-based staging environments
+- **Zero Downtime**: Instant atomic deployments
+- **Rollback Support**: One-click rollback to previous versions
+
+### Authentication Flow
+- **Client-Side Auth Guards**: Route protection on all pages
+- **Simplified Signup**: Email + password only, profile completion post-signup
+- **Session Management**: Persistent login state across page navigation
+- **Security**: Proper logout functionality with session cleanup
+
 ## 🧪 Testing
 
 ### Manual Testing Completed
 - ✅ User registration and email verification
 - ✅ Login/logout functionality across all pages
+- ✅ Authentication guards and route protection
+- ✅ Simplified signup flow with profile completion
 - ✅ Workout creation and tracking
 - ✅ Exercise library browsing and filtering
 - ✅ Progress charts and analytics
 - ✅ Notification system (email and web push)
 - ✅ Mobile responsiveness testing
 - ✅ Cross-browser compatibility
+- ✅ Production deployment on Vercel
+- ✅ Automatic CI/CD pipeline
 
 ### Future Testing Enhancements
 - Unit tests for JavaScript functions
