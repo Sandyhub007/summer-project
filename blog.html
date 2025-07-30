@@ -2873,6 +2873,7 @@
       const loginBtns = document.querySelectorAll('.auth-login-btn');
       const signupBtns = document.querySelectorAll('.auth-signup-btn');
       const logoutBtn = document.getElementById('logoutBtn');
+      const signOutBtn = document.getElementById('signOutBtn');
       const userWelcome = document.getElementById('user-welcome');
       
       console.log(`🔄 [Blog] Toggling auth state: loggedIn=${loggedIn}`);
@@ -2880,6 +2881,7 @@
         loginBtns: loginBtns.length,
         signupBtns: signupBtns.length,
         logoutBtn: !!logoutBtn,
+        signOutBtn: !!signOutBtn,
         userWelcome: !!userWelcome
       });
       
@@ -2897,12 +2899,16 @@
           logoutBtn.style.display = 'inline-block';
           logoutBtn.classList.remove('d-none');
         }
+        if (signOutBtn) {
+          signOutBtn.style.display = 'inline-block';
+          signOutBtn.classList.remove('d-none');
+        }
         if (userWelcome) {
           userWelcome.style.display = 'inline-block';
           userWelcome.classList.remove('d-none');
         }
         
-        console.log('✅ [Blog] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Logout SHOWN');
+        console.log('✅ [Blog] AUTH STATE: LOGGED IN - Login/Signup HIDDEN, Sign Out SHOWN');
       } else {
         // User is logged out - FORCE SHOW login/signup, FORCE HIDE logout and welcome  
         loginBtns.forEach(btn => {
@@ -2917,17 +2923,22 @@
           logoutBtn.style.display = 'none';
           logoutBtn.classList.add('d-none');
         }
+        if (signOutBtn) {
+          signOutBtn.style.display = 'none';
+          signOutBtn.classList.add('d-none');
+        }
         if (userWelcome) {
           userWelcome.style.display = 'none';
           userWelcome.classList.add('d-none');
         }
         
-        console.log('✅ [Blog] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Logout HIDDEN');
+        console.log('✅ [Blog] AUTH STATE: LOGGED OUT - Login/Signup SHOWN, Sign Out HIDDEN');
       }
       setTimeout(() => {
         const currentLoginVisible = Array.from(loginBtns).some(btn => !btn.classList.contains('d-none'));
         const currentSignupVisible = Array.from(signupBtns).some(btn => !btn.classList.contains('d-none'));
         const currentLogoutVisible = logoutBtn && !logoutBtn.classList.contains('d-none');
+        const currentSignOutVisible = signOutBtn && !signOutBtn.classList.contains('d-none');
       }, 100);
       document.body.classList.toggle('logged-in', loggedIn);
     }
