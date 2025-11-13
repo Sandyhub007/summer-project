@@ -2515,7 +2515,14 @@
         progressTab.addEventListener('click', async () => {
           console.log('📊 Progress tab clicked, refreshing data...');
           await loadWorkoutHistory();
+          
+          // Sync photos from storage to database
+          await syncStoragePhotosToDatabase();
+          
           await updateProgressStats();
+          
+          // Update progress photos display
+          updateProgressPhotos();
           
           // Initialize charts and display achievements
           setTimeout(() => {
