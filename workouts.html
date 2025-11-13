@@ -3834,16 +3834,20 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
                 .eq('user_id', userId)
                 .order('date', { ascending: false });
 
-              if (!photosError && photos) {
+              if (photosError) {
+                console.warn('⚠️ Error loading progress photos:', photosError);
+              } else if (photos) {
+                console.log('📸 Loaded progress photos from database:', photos.length);
                 // Merge database photos with local photos (database takes precedence)
                 const dbPhotoIds = new Set(photos.map(p => p.id));
                 const localOnlyPhotos = progressPhotos.filter(p => !dbPhotoIds.has(p.id));
                 
                 progressPhotos = [...photos, ...localOnlyPhotos];
                 localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+                console.log('📸 Total photos after merge:', progressPhotos.length);
               }
             } catch (e) {
-              console.warn('Could not load progress photos from database');
+              console.error('❌ Could not load progress photos from database:', e);
             }
 
             // Load achievements
@@ -4500,6 +4504,10 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         // Update the photos display
         updateProgressPhotos();
         
+        // Reload progress data to ensure sync
+        await loadProgressData();
+        updateProgressPhotos();
+        
         // Show success message
         const message = databaseSaved ? 
           'Progress photo saved successfully! 📸' : 
@@ -4507,6 +4515,7 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         showToast(message, 'success');
 
         console.log('✅ Photo upload completed successfully');
+        console.log('📸 Current photos count:', progressPhotos.length);
 
       } catch (error) {
         console.error('❌ Error saving progress photo:', error);
