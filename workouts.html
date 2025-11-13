@@ -986,7 +986,8 @@
                     </div>
                   </div>
                   <div class="col-12">
-                    <h6 class="text-light-enhanced mb-3">🚀 Progress Over Time (12 Weeks)</h6>
+                    <h6 class="text-light-enhanced mb-3">📊 Body Measurements Over Time</h6>
+                    <p class="text-muted small mb-3">Track your weight, body fat percentage, and muscle mass changes</p>
                     <div style="position: relative; height: 300px;">
                       <canvas id="progressChart"></canvas>
                     </div>
@@ -4054,18 +4055,37 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       const ctx2 = document.getElementById('bodyMeasurementsChart');
       if (ctx2) {
         const measurementData = getBodyMeasurementChartData();
+        
+        // Calculate proper Y-axis ranges based on actual data
+        const weightValues = measurementData.weight.filter(v => v !== null && v !== 0);
+        const bodyFatValues = measurementData.bodyFat.filter(v => v !== null && v !== 0);
+        const muscleValues = measurementData.muscle.filter(v => v !== null && v !== 0);
+        
+        // Calculate min/max for weight axis (with padding)
+        const allWeightValues = [...weightValues, ...muscleValues];
+        const minWeight = allWeightValues.length > 0 ? Math.floor(Math.min(...allWeightValues) * 0.95) : 0;
+        const maxWeight = allWeightValues.length > 0 ? Math.ceil(Math.max(...allWeightValues) * 1.05) : 200;
+        
+        // Calculate min/max for body fat axis
+        const minBodyFat = bodyFatValues.length > 0 ? Math.floor(Math.min(...bodyFatValues) * 0.8) : 0;
+        const maxBodyFat = bodyFatValues.length > 0 ? Math.ceil(Math.max(...bodyFatValues) * 1.2) : 50;
+        
         bodyMeasurementsChart = new Chart(ctx2, {
           type: 'line',
           data: {
             labels: measurementData.labels,
             datasets: [
               {
-                label: 'Weight (lbs)',
+                label: 'Body Weight (lbs)',
                 data: measurementData.weight,
                 borderColor: '#28a745',
                 backgroundColor: 'rgba(40, 167, 69, 0.1)',
                 tension: 0.4,
-                yAxisID: 'y'
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                yAxisID: 'y',
+                spanGaps: true
               },
               {
                 label: 'Body Fat %',
@@ -4073,7 +4093,11 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
                 borderColor: '#ffc107',
                 backgroundColor: 'rgba(255, 193, 7, 0.1)',
                 tension: 0.4,
-                yAxisID: 'y1'
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                yAxisID: 'y1',
+                spanGaps: true
               },
               {
                 label: 'Muscle Mass (lbs)',
@@ -4081,16 +4105,46 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
                 borderColor: '#dc3545',
                 backgroundColor: 'rgba(220, 53, 69, 0.1)',
                 tension: 0.4,
-                yAxisID: 'y'
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                yAxisID: 'y',
+                spanGaps: true
               }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
             plugins: {
               legend: { 
-                labels: { color: 'rgba(255, 255, 255, 0.8)' }
+                labels: { 
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  font: { size: 12 },
+                  padding: 15
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      if (context.dataset.label === 'Body Fat %') {
+                        label += context.parsed.y.toFixed(1) + '%';
+                      } else {
+                        label += context.parsed.y.toFixed(1) + ' lbs';
+                      }
+                    }
+                    return label;
+                  }
+                }
               }
             },
             scales: {
@@ -4098,37 +4152,57 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
                 type: 'linear',
                 display: true,
                 position: 'left',
-                beginAtZero: false,
+                min: minWeight,
+                max: maxWeight,
                 grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+                ticks: { 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  callback: function(value) {
+                    return value.toFixed(0) + ' lbs';
+                  }
+                },
                 title: {
                   display: true,
                   text: 'Weight (lbs)',
-                  color: 'rgba(255, 255, 255, 0.8)'
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  font: { size: 13, weight: 'bold' }
                 }
               },
               y1: {
                 type: 'linear',
                 display: true,
                 position: 'right',
-                beginAtZero: true,
-                max: 50,
+                min: minBodyFat,
+                max: maxBodyFat,
                 grid: { drawOnChartArea: false },
-                ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+                ticks: { 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  callback: function(value) {
+                    return value.toFixed(0) + '%';
+                  }
+                },
                 title: {
                   display: true,
                   text: 'Body Fat %',
-                  color: 'rgba(255, 255, 255, 0.8)'
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  font: { size: 13, weight: 'bold' }
                 }
               },
               x: {
                 grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                ticks: { color: 'rgba(255, 255, 255, 0.7)' }
+                ticks: { 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  maxRotation: 45,
+                  minRotation: 45,
+                  font: { size: 11 }
+                }
               }
             }
           }
         });
         console.log('✅ Body measurements chart initialized with real data');
+        console.log('📊 Weight range:', minWeight, '-', maxWeight, 'lbs');
+        console.log('📊 Body fat range:', minBodyFat, '-', maxBodyFat, '%');
       }
 
       // Strength Progress Chart - Top PRs
@@ -6910,7 +6984,7 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       console.log('🍕 Exercise category chart created');
     }
 
-    // Create progress over time chart
+    // Create progress over time chart using REAL body measurements data
     function createProgressChart() {
       const ctx = document.getElementById('progressChart');
       if (!ctx) return;
@@ -6920,71 +6994,110 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
         analyticsCharts.progressChart.destroy();
       }
 
-      // Generate progress data over time
-      const progressData = [];
-      const weightData = [];
-      const labels = [];
-
-      // Get last 12 weeks of data
-      for (let i = 11; i >= 0; i--) {
-        const date = new Date();
-        date.getDate(date.getDate() - (i * 7));
-        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-
-        // Count workouts in this week
-        const weekStart = new Date(date);
-        weekStart.setDate(weekStart.getDate() - 7);
-        const weekWorkouts = workoutHistory.filter(session => {
-          const sessionDate = new Date(session.start_time);
-          return sessionDate >= weekStart && sessionDate <= date;
-        }).length;
-
-        progressData.push(weekWorkouts);
-
-        // Simulate weight progression (if available)
-        const baseWeight = 150 + (Math.random() - 0.5) * 10;
-        weightData.push(baseWeight);
-      }
+      // Use the same data as the body measurements chart (real user data)
+      const measurementData = getBodyMeasurementChartData();
+      
+      // Calculate proper Y-axis ranges based on actual data
+      const weightValues = measurementData.weight.filter(v => v !== null && v !== 0);
+      const bodyFatValues = measurementData.bodyFat.filter(v => v !== null && v !== 0);
+      const muscleValues = measurementData.muscle.filter(v => v !== null && v !== 0);
+      
+      // Calculate min/max for weight axis (with padding)
+      const allWeightValues = [...weightValues, ...muscleValues];
+      const minWeight = allWeightValues.length > 0 ? Math.floor(Math.min(...allWeightValues) * 0.95) : 100;
+      const maxWeight = allWeightValues.length > 0 ? Math.ceil(Math.max(...allWeightValues) * 1.05) : 200;
+      
+      // Calculate min/max for body fat axis
+      const minBodyFat = bodyFatValues.length > 0 ? Math.floor(Math.min(...bodyFatValues) * 0.8) : 0;
+      const maxBodyFat = bodyFatValues.length > 0 ? Math.ceil(Math.max(...bodyFatValues) * 1.2) : 50;
 
       analyticsCharts.progressChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: labels,
+          labels: measurementData.labels,
           datasets: [
             {
-              label: 'Weekly Workouts',
-              data: progressData,
-              borderColor: '#007bff',
-              backgroundColor: 'rgba(0, 123, 255, 0.1)',
-              yAxisID: 'y',
-              tension: 0.3
-            },
-            {
               label: 'Body Weight (lbs)',
-              data: bodyMeasurements.length > 0 ? 
-                bodyMeasurements.slice(-12).map(m => m.weight_lbs) : 
-                weightData,
+              data: measurementData.weight,
               borderColor: '#28a745',
               backgroundColor: 'rgba(40, 167, 69, 0.1)',
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              yAxisID: 'y',
+              tension: 0.4,
+              spanGaps: true,
+              fill: true
+            },
+            {
+              label: 'Body Fat %',
+              data: measurementData.bodyFat,
+              borderColor: '#ffc107',
+              backgroundColor: 'rgba(255, 193, 7, 0.1)',
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
               yAxisID: 'y1',
-              tension: 0.3
+              tension: 0.4,
+              spanGaps: true,
+              fill: true
+            },
+            {
+              label: 'Muscle Mass (lbs)',
+              data: measurementData.muscle,
+              borderColor: '#dc3545',
+              backgroundColor: 'rgba(220, 53, 69, 0.1)',
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              yAxisID: 'y',
+              tension: 0.4,
+              spanGaps: true,
+              fill: true
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
           plugins: {
             legend: {
               labels: {
-                color: '#fff'
+                color: 'rgba(255, 255, 255, 0.8)',
+                font: { size: 12 },
+                padding: 15
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    if (context.dataset.label === 'Body Fat %') {
+                      label += context.parsed.y.toFixed(1) + '%';
+                    } else {
+                      label += context.parsed.y.toFixed(1) + ' lbs';
+                    }
+                  }
+                  return label;
+                }
               }
             }
           },
           scales: {
             x: {
               ticks: {
-                color: '#fff'
+                color: 'rgba(255, 255, 255, 0.7)',
+                maxRotation: 45,
+                minRotation: 45,
+                font: { size: 11 }
               },
               grid: {
                 color: 'rgba(255, 255, 255, 0.1)'
@@ -6994,39 +7107,54 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
               type: 'linear',
               display: true,
               position: 'left',
+              min: minWeight,
+              max: maxWeight,
               ticks: {
-                color: '#fff'
+                color: 'rgba(255, 255, 255, 0.7)',
+                callback: function(value) {
+                  return value.toFixed(0) + ' lbs';
+                }
               },
               grid: {
                 color: 'rgba(255, 255, 255, 0.1)'
               },
               title: {
                 display: true,
-                text: 'Weekly Workouts',
-                color: '#007bff'
+                text: 'Weight (lbs)',
+                color: 'rgba(255, 255, 255, 0.8)',
+                font: { size: 13, weight: 'bold' }
               }
             },
             y1: {
               type: 'linear',
               display: true,
               position: 'right',
+              min: minBodyFat,
+              max: maxBodyFat,
               ticks: {
-                color: '#fff'
+                color: 'rgba(255, 255, 255, 0.7)',
+                callback: function(value) {
+                  return value.toFixed(0) + '%';
+                }
               },
               grid: {
                 drawOnChartArea: false,
               },
               title: {
                 display: true,
-                text: 'Weight (lbs)',
-                color: '#28a745'
+                text: 'Body Fat %',
+                color: 'rgba(255, 255, 255, 0.8)',
+                font: { size: 13, weight: 'bold' }
               }
             }
           }
         }
       });
 
-      console.log('📊 Progress chart created');
+      console.log('✅ Progress chart created with real user data');
+      console.log('📊 Data points:', measurementData.labels.length);
+      console.log('📊 Weight range:', minWeight, '-', maxWeight, 'lbs');
+      console.log('📊 Body fat range:', minBodyFat, '-', maxBodyFat, '%');
     }
 
     // Refresh all analytics charts with latest data
