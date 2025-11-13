@@ -3692,6 +3692,9 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       // Load progress data from database
       await loadProgressData();
       
+      // Sync any orphaned photos from storage to database
+      await syncStoragePhotosToDatabase();
+      
       // Initialize charts with delay to ensure DOM is ready
       setTimeout(() => {
         initializeCharts();
@@ -3707,6 +3710,104 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       updateProgressPhotos();
       
       console.log('✅ Progress tracking initialized');
+    }
+
+    // Sync photos from storage to database (for orphaned photos)
+    async function syncStoragePhotosToDatabase() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || !session.user) {
+          console.log('⏭️ Skipping photo sync - not authenticated');
+          return;
+        }
+
+        const userId = session.user.id;
+        console.log('🔄 Checking for orphaned photos in storage...');
+
+        // List all files in storage for this user
+        const { data: files, error: listError } = await supabase.storage
+          .from('progress-photos')
+          .list(userId);
+
+        if (listError || !files || files.length === 0) {
+          console.log('📸 No photos in storage to sync');
+          return;
+        }
+
+        console.log(`📁 Found ${files.length} photos in storage`);
+        let syncedCount = 0;
+
+        // Check each file and add to database if missing
+        for (const file of files) {
+          const storagePath = `${userId}/${file.name}`;
+
+          // Check if already in database
+          const { data: existing } = await supabase
+            .from('progress_photos')
+            .select('id')
+            .eq('storage_path', storagePath)
+            .maybeSingle();
+
+          if (existing) {
+            console.log(`✓ Photo already in database: ${file.name}`);
+            continue;
+          }
+
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('progress-photos')
+            .getPublicUrl(storagePath);
+
+          // Extract metadata from filename (timestamp_category.ext)
+          const parts = file.name.split('_');
+          const timestamp = parts[0];
+          const categoryWithExt = parts[1] || 'front.jpg';
+          const category = categoryWithExt.split('.')[0];
+
+          // Validate category
+          const validCategory = ['front', 'side', 'back', 'pose'].includes(category) ? category : 'front';
+
+          // Create database entry
+          const photoData = {
+            user_id: userId,
+            image_url: publicUrl,
+            storage_path: storagePath,
+            date: new Date(parseInt(timestamp)).toISOString().split('T')[0],
+            category: validCategory,
+            notes: null,
+            file_name: file.name,
+            file_size: file.metadata?.size || null
+          };
+
+          const { data, error } = await supabase
+            .from('progress_photos')
+            .insert(photoData)
+            .select()
+            .single();
+
+          if (error) {
+            console.error(`❌ Failed to sync photo ${file.name}:`, error.message);
+          } else {
+            console.log(`✅ Synced photo to database: ${file.name}`);
+            syncedCount++;
+            
+            // Add to local array
+            progressPhotos.push(data);
+          }
+        }
+
+        if (syncedCount > 0) {
+          // Update localStorage with synced photos
+          localStorage.setItem('progressPhotos', JSON.stringify(progressPhotos));
+          console.log(`🎉 Synced ${syncedCount} orphaned photos to database`);
+          
+          // Update display
+          updateProgressPhotos();
+        }
+
+      } catch (error) {
+        console.error('❌ Error during photo sync:', error);
+      }
     }
 
     // Test database connectivity for progress photos
