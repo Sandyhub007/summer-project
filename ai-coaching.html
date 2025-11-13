@@ -803,10 +803,11 @@
     async function initializeAIAuth() {
       console.log('🚀 [AI Coaching] Initializing authentication...');
       const user = await checkAuthStateAI();
-      if (user) {
-        setupLogoutButton();
-        console.log('✅ [AI Coaching] Authentication initialization complete');
-      }
+      
+      // Always setup logout button (even if not logged in, for when user logs in)
+      setupLogoutButton();
+      
+      console.log('✅ [AI Coaching] Authentication initialization complete');
     }
 
     // Run auth check immediately when script loads

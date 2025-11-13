@@ -1077,10 +1077,11 @@
     async function initializeNutritionAuth() {
       console.log('🚀 [Nutrition] Initializing authentication...');
       const user = await checkAuthStateNutrition();
-      if (user) {
-        setupLogoutButton();
-        console.log('✅ [Nutrition] Authentication initialization complete');
-      }
+      
+      // Always setup logout button (even if not logged in, for when user logs in)
+      setupLogoutButton();
+      
+      console.log('✅ [Nutrition] Authentication initialization complete');
     }
 
     // Run auth check immediately when script loads
