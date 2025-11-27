@@ -747,7 +747,7 @@
         }
         if (heroSection) {
           console.log('🏠 Hiding hero section');
-          heroSection.classList.add('d-none');
+        heroSection.classList.add('d-none');
         }
         if (dashboard) {
           console.log('📊 Showing dashboard');
@@ -769,7 +769,7 @@
         });
         if (logoutBtn) {
           console.log('🔒 Hiding logout button');
-          logoutBtn.classList.add('d-none');
+        logoutBtn.classList.add('d-none');
           logoutBtn.style.display = 'none';
         }
         if (userWelcome) {
@@ -782,8 +782,8 @@
         }
         if (heroSection) {
           console.log('🏠 Showing hero section');
-          heroSection.classList.remove('d-none');
-        }
+        heroSection.classList.remove('d-none');
+      }
         if (dashboard) {
           console.log('📊 Hiding dashboard');
           dashboard.classList.add('d-none');
@@ -1302,39 +1302,39 @@
      }
      
                 
-         // Add click listener to logout button with multiple methods
-   function setupLogoutButton() {
-     const logoutBtn = document.getElementById('logoutBtn');
-     if (logoutBtn) {
-       console.log('🔧 Setting up logout button event listeners');
-       
-       // Remove existing listeners and add new ones
-       logoutBtn.replaceWith(logoutBtn.cloneNode(true));
-       const newLogoutBtn = document.getElementById('logoutBtn');
-       
-       newLogoutBtn.addEventListener('click', async (e) => {
-         e.preventDefault();
-         e.stopPropagation();
-         console.log('🔓 Logout button clicked via event listener');
-         
-         // Show loading state
-         newLogoutBtn.textContent = 'Logging out...';
-         newLogoutBtn.disabled = true;
-         
-         await manualLogout();
-       });
-       
-       // Also add onclick attribute as backup
-       newLogoutBtn.onclick = async () => {
-         console.log('🔓 Logout button clicked via onclick');
-         await manualLogout();
-       };
-       
-       console.log('✅ Logout button event listeners set up');
-     } else {
-       console.error('❌ Logout button not found!');
-     }
-   }
+     // Add click listener to logout button with multiple methods
+    function setupLogoutButton() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        console.log('🔧 Setting up logout button event listeners');
+        
+        // Remove existing listeners and add new ones
+        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+        const newLogoutBtn = document.getElementById('logoutBtn');
+        
+        newLogoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔓 Logout button clicked via event listener');
+          
+          // Show loading state
+          newLogoutBtn.textContent = 'Logging out...';
+          newLogoutBtn.disabled = true;
+          
+          await manualLogout();
+        });
+        
+        // Also add onclick attribute as backup
+        newLogoutBtn.onclick = async () => {
+          console.log('🔓 Logout button clicked via onclick');
+          await manualLogout();
+        };
+        
+        console.log('✅ Logout button event listeners set up');
+      } else {
+        console.error('❌ Logout button not found!');
+      }
+    }
 
    // Add click listener to dashboard sign out button
    function setupSignOutButton() {
