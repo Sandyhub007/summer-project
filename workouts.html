@@ -760,7 +760,7 @@
         <!-- Template Level Filter -->
         <div class="row mb-4">
           <div class="col-12">
-            <h5 class="mb-3">Choose Your Level:</h5>
+            <h2 class="mb-3">Choose Your Level:</h2>
             <div class="d-flex flex-wrap gap-3" id="templateLevelFilter">
               <span class="category-badge active" data-level="all">All Levels</span>
               <span class="category-badge" data-level="beginner">🟢 Beginner</span>
@@ -784,7 +784,7 @@
         <!-- Category Filter -->
         <div class="row mb-4">
           <div class="col-12">
-            <h5 class="mb-3">Filter by Category:</h5>
+            <h2 class="mb-3">Filter by Category:</h2>
             <div class="d-flex flex-wrap gap-2" id="categoryFilter">
               <span class="category-badge active" data-category="all">All</span>
               <span class="category-badge" data-category="chest">Chest</span>
@@ -821,7 +821,7 @@
         <!-- Profile Setup Section -->
         <div id="profileSetupSection" class="card mb-4" style="display: none;">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">👤 Complete Your Profile</h5>
+            <h2 class="mb-0">👤 Complete Your Profile</h2>
             <button class="btn btn-sm btn-outline-secondary" onclick="hideProfileSetup()">
               <i class="fas fa-times"></i> Skip for now
             </button>
@@ -834,32 +834,32 @@
             <form id="profileSetupForm" class="row g-3">
               <!-- Personal Information -->
               <div class="col-md-6">
-                <label class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="profileName" placeholder="Your name">
+                <label for="profileName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="profileName" placeholder="Your name" aria-label="Full Name">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Phone Number (Optional)</label>
-                <input type="tel" class="form-control" id="profilePhone" placeholder="+1 (555) 123-4567">
+                <label for="profilePhone" class="form-label">Phone Number (Optional)</label>
+                <input type="tel" class="form-control" id="profilePhone" placeholder="+1 (555) 123-4567" aria-label="Phone Number">
               </div>
               
               <!-- Physical Information -->
               <div class="col-md-4">
-                <label class="form-label">Height (cm)</label>
-                <input type="number" class="form-control" id="profileHeight" placeholder="170" min="100" max="250">
+                <label for="profileHeight" class="form-label">Height (cm)</label>
+                <input type="number" class="form-control" id="profileHeight" placeholder="170" min="100" max="250" aria-label="Height in centimeters">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Current Weight (kg)</label>
-                <input type="number" class="form-control" id="profileCurrentWeight" placeholder="70" min="30" max="300" step="0.1">
+                <label for="profileCurrentWeight" class="form-label">Current Weight (kg)</label>
+                <input type="number" class="form-control" id="profileCurrentWeight" placeholder="70" min="30" max="300" step="0.1" aria-label="Current Weight in kilograms">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Goal Weight (kg)</label>
-                <input type="number" class="form-control" id="profileGoalWeight" placeholder="65" min="30" max="300" step="0.1">
+                <label for="profileGoalWeight" class="form-label">Goal Weight (kg)</label>
+                <input type="number" class="form-control" id="profileGoalWeight" placeholder="65" min="30" max="300" step="0.1" aria-label="Goal Weight in kilograms">
               </div>
               
               <!-- Goals and Preferences -->
               <div class="col-md-6">
-                <label class="form-label">Timeline (months)</label>
-                <select class="form-control" id="profileTimeline">
+                <label for="profileTimeline" class="form-label">Timeline (months)</label>
+                <select class="form-control" id="profileTimeline" aria-label="Timeline in months">
                   <option value="">Select timeline</option>
                   <option value="1">1 month</option>
                   <option value="2">2 months</option>
@@ -872,8 +872,8 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Daily Calorie Goal</label>
-                <input type="number" class="form-control" id="profileCalories" placeholder="2000" min="1000" max="5000">
+                <label for="profileCalories" class="form-label">Daily Calorie Goal</label>
+                <input type="number" class="form-control" id="profileCalories" placeholder="2000" min="1000" max="5000" aria-label="Daily Calorie Goal">
               </div>
               
               <!-- SMS Preferences -->
@@ -1402,30 +1402,30 @@
           <form id="bodyMeasurementForm">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Weight (lbs)</label>
-                <input type="number" step="0.1" class="form-control" id="bodyWeight" placeholder="e.g., 150.5">
+                <label for="bodyWeight" class="form-label">Weight (lbs)</label>
+                <input type="number" step="0.1" class="form-control" id="bodyWeight" placeholder="e.g., 150.5" aria-label="Weight in pounds">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Body Fat %</label>
-                <input type="number" step="0.1" class="form-control" id="bodyFat" placeholder="e.g., 15.2">
+                <label for="bodyFat" class="form-label">Body Fat %</label>
+                <input type="number" step="0.1" class="form-control" id="bodyFat" placeholder="e.g., 15.2" aria-label="Body Fat Percentage">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Muscle Mass (lbs)</label>
-                <input type="number" step="0.1" class="form-control" id="muscleMass" placeholder="e.g., 130.0">
+                <label for="muscleMass" class="form-label">Muscle Mass (lbs)</label>
+                <input type="number" step="0.1" class="form-control" id="muscleMass" placeholder="e.g., 130.0" aria-label="Muscle Mass in pounds">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Date</label>
-                <input type="date" class="form-control" id="measurementDate" required>
+                <label for="measurementDate" class="form-label">Date</label>
+                <input type="date" class="form-control" id="measurementDate" required aria-label="Measurement Date" aria-required="true">
               </div>
             </div>
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Chest (inches)</label>
-                <input type="number" step="0.1" class="form-control" id="chestMeasurement" placeholder="e.g., 40.0">
+                <label for="chestMeasurement" class="form-label">Chest (inches)</label>
+                <input type="number" step="0.1" class="form-control" id="chestMeasurement" placeholder="e.g., 40.0" aria-label="Chest measurement in inches">
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Waist (inches)</label>
-                <input type="number" step="0.1" class="form-control" id="waistMeasurement" placeholder="e.g., 32.0">
+                <label for="waistMeasurement" class="form-label">Waist (inches)</label>
+                <input type="number" step="0.1" class="form-control" id="waistMeasurement" placeholder="e.g., 32.0" aria-label="Waist measurement in inches">
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Arms (inches)</label>
@@ -1461,21 +1461,21 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Weight (lbs)</label>
-                <input type="number" step="0.5" class="form-control" id="prWeight" placeholder="e.g., 225" required>
+                <label for="prWeight" class="form-label">Weight (lbs)</label>
+                <input type="number" step="0.5" class="form-control" id="prWeight" placeholder="e.g., 225" required aria-required="true" aria-label="Weight in pounds">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Reps</label>
-                <input type="number" class="form-control" id="prReps" placeholder="e.g., 5" required>
+                <label for="prReps" class="form-label">Reps</label>
+                <input type="number" class="form-control" id="prReps" placeholder="e.g., 5" required aria-required="true" aria-label="Number of repetitions">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Date</label>
-                <input type="date" class="form-control" id="prDate" required>
+                <label for="prDate" class="form-label">Date</label>
+                <input type="date" class="form-control" id="prDate" required aria-required="true" aria-label="Personal Record Date">
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes (Optional)</label>
-              <textarea class="form-control" id="prNotes" rows="2" placeholder="Any notes about this PR..."></textarea>
+              <label for="prNotes" class="form-label">Notes (Optional)</label>
+              <textarea class="form-control" id="prNotes" rows="2" placeholder="Any notes about this PR..." aria-label="Personal Record Notes"></textarea>
             </div>
           </form>
         </div>
@@ -3120,16 +3120,16 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
               <div class="col-md-8">
                 <div class="row">
                   <div class="col-4">
-                    <label class="form-label small">Sets</label>
-                    <input type="number" class="form-control form-control-sm" value="${exercise.sets || 3}" id="sets-${index}">
+                    <label for="sets-${index}" class="form-label small">Sets</label>
+                    <input type="number" class="form-control form-control-sm" value="${exercise.sets || 3}" id="sets-${index}" aria-label="Number of sets">
                   </div>
                   <div class="col-4">
-                    <label class="form-label small">Reps</label>
-                    <input type="text" class="form-control form-control-sm" value="${exercise.reps || '10'}" id="reps-${index}">
+                    <label for="reps-${index}" class="form-label small">Reps</label>
+                    <input type="text" class="form-control form-control-sm" value="${exercise.reps || '10'}" id="reps-${index}" aria-label="Number of repetitions">
                   </div>
                   <div class="col-4">
-                    <label class="form-label small">Weight (kg)</label>
-                    <input type="number" class="form-control form-control-sm" step="0.5" value="${exercise.weight_kg || ''}" id="weight-${index}">
+                    <label for="weight-${index}" class="form-label small">Weight (kg)</label>
+                    <input type="number" class="form-control form-control-sm" step="0.5" value="${exercise.weight_kg || ''}" id="weight-${index}" aria-label="Weight in kilograms">
                   </div>
                 </div>
                 <div class="mt-2">

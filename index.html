@@ -325,12 +325,12 @@
           <!-- Progress Tracking Section -->
           <div class="card bg-dark text-white border-light mb-4">
             <div class="card-body">
-              <h4 class="card-title mb-4 text-center">📊 Progress Tracking</h4>
+              <h3 class="card-title mb-4 text-center">📊 Progress Tracking</h3>
               
               <!-- Weight Goal Progress -->
               <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h6 class="mb-0">Weight Goal Progress</h6>
+                  <h4 class="mb-0">Weight Goal Progress</h4>
                   <span id="progress-percentage" class="badge bg-primary fs-6">0%</span>
                 </div>
                 <div class="progress mb-2" style="height: 12px;">
@@ -365,30 +365,30 @@
           <!-- Stats Overview -->
           <div class="card bg-dark text-white border-light">
             <div class="card-body">
-              <h4 class="card-title mb-4 text-center">📈 Your Stats</h4>
+              <h3 class="card-title mb-4 text-center">📈 Your Stats</h3>
               <div class="row g-3 text-center">
                 <div class="col-6 col-md-4">
-                  <h6>Current Weight</h6>
+                  <h4>Current Weight</h4>
                   <p id="current-weight" class="fs-5 fw-semibold text-primary"></p>
                 </div>
                 <div class="col-6 col-md-4">
-                  <h6>Goal Weight</h6>
+                  <h4>Goal Weight</h4>
                   <p id="goal-weight" class="fs-5 fw-semibold text-success"></p>
                 </div>
                 <div class="col-6 col-md-4">
-                  <h6>Timeline</h6>
+                  <h4>Timeline</h4>
                   <p id="timeline" class="fs-5 fw-semibold text-warning"></p>
                 </div>
                 <div class="col-6 col-md-4">
-                  <h6>Height</h6>
+                  <h4>Height</h4>
                   <p id="height" class="fs-5 fw-semibold"></p>
                 </div>
                 <div class="col-6 col-md-4">
-                  <h6>BMI</h6>
+                  <h4>BMI</h4>
                   <p id="bmi" class="fs-5 fw-semibold"></p>
                 </div>
                 <div class="col-6 col-md-4">
-                  <h6>Daily Calories</h6>
+                  <h4>Daily Calories</h4>
                   <p id="calories" class="fs-5 fw-semibold text-info"></p>
                 </div>
               </div>
@@ -411,12 +411,12 @@
         <div class="modal-body">
           <form id="loginForm" class="vstack gap-4">
             <div>
-              <label class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
-              <input type="email" class="form-control" placeholder="Enter your email" required id="loginEmail">
+              <label for="loginEmail" class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
+              <input type="email" class="form-control" placeholder="Enter your email" required id="loginEmail" aria-required="true">
             </div>
             <div>
-              <label class="form-label small text-uppercase fw-semibold mb-2">Password</label>
-              <input type="password" class="form-control" placeholder="Enter your password" required id="loginPassword">
+              <label for="loginPassword" class="form-label small text-uppercase fw-semibold mb-2">Password</label>
+              <input type="password" class="form-control" placeholder="Enter your password" required id="loginPassword" aria-required="true">
             </div>
             <button type="submit" class="btn btn-cta btn-lg mt-3">Sign In</button>
             <p class="text-danger small mt-2 d-none text-center" id="loginError">Invalid email or password</p>
@@ -444,14 +444,14 @@
             <!-- Simplified Account Information -->
             <div class="row">
               <div class="col-12">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Email Address</label>
-                <input type="email" class="form-control" placeholder="Enter your email" required id="signupEmail">
+                <label for="signupEmail" class="form-label small text-uppercase fw-semibold mb-1">Email Address</label>
+                <input type="email" class="form-control" placeholder="Enter your email" required id="signupEmail" aria-required="true">
               </div>
             </div>
             <div class="row">
               <div class="col-12">
-                <label class="form-label small text-uppercase fw-semibold mb-1">Password</label>
-                <input type="password" class="form-control" placeholder="Create a password" required id="signupPassword">
+                <label for="signupPassword" class="form-label small text-uppercase fw-semibold mb-1">Password</label>
+                <input type="password" class="form-control" placeholder="Create a password" required id="signupPassword" aria-required="true">
               </div>
             </div>
 
@@ -479,9 +479,9 @@
         <div class="modal-body">
           <form id="resetPasswordForm" class="vstack gap-4">
             <div>
-              <label class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
-              <input type="email" class="form-control" placeholder="Enter your email" required id="resetEmail">
-              <small class="text-muted mt-1">We'll send a secure reset link to your email</small>
+              <label for="resetEmail" class="form-label small text-uppercase fw-semibold mb-2">Email Address</label>
+              <input type="email" class="form-control" placeholder="Enter your email" required id="resetEmail" aria-required="true" aria-describedby="resetEmailHelp">
+              <small id="resetEmailHelp" class="text-muted mt-1">We'll send a secure reset link to your email</small>
             </div>
             <button type="submit" class="btn btn-cta btn-lg mt-3">Send Reset Link</button>
             <p class="text-danger small mt-2 d-none text-center" id="resetError">Please enter a valid email address</p>

@@ -238,28 +238,28 @@
       <div class="col-lg-3 col-md-6 mb-4">
         <a href="#faqs" class="quick-action">
           <span class="quick-action-icon">❓</span>
-          <h6>FAQs</h6>
+          <h2>FAQs</h2>
           <small>Quick answers to common questions</small>
         </a>
       </div>
       <div class="col-lg-3 col-md-6 mb-4">
         <a href="#contact" class="quick-action">
           <span class="quick-action-icon">📧</span>
-          <h6>Contact Us</h6>
+          <h2>Contact Us</h2>
           <small>Send us a message directly</small>
         </a>
       </div>
       <div class="col-lg-3 col-md-6 mb-4">
         <a href="#troubleshooting" class="quick-action">
           <span class="quick-action-icon">🔧</span>
-          <h6>Troubleshooting</h6>
+          <h2>Troubleshooting</h2>
           <small>Fix common issues quickly</small>
         </a>
       </div>
       <div class="col-lg-3 col-md-6 mb-4">
         <a href="#connect" class="quick-action">
           <span class="quick-action-icon">🤝</span>
-          <h6>Connect</h6>
+          <h2>Connect</h2>
           <small>Follow us on social media</small>
         </a>
       </div>
@@ -270,7 +270,7 @@
       <div class="col-12">
         <div class="card border-warning">
           <div class="card-header bg-warning text-dark">
-            <h6 class="mb-0">⚙️ EmailJS Setup (Admin Only)</h6>
+            <h2 class="mb-0">⚙️ EmailJS Setup (Admin Only)</h2>
           </div>
           <div class="card-body">
             <p class="small mb-3">Configure your EmailJS credentials to enable direct email sending:</p>
@@ -354,14 +354,14 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <h6 class="text-warning">🔐 Login Issues</h6>
+                  <h4 class="text-warning">🔐 Login Issues</h4>
                   <ul class="small">
                     <li>Check email and password spelling</li>
                     <li>Use "Forgot Password" if needed</li>
                     <li>Check spam folder for verification emails</li>
                   </ul>
                   
-                  <h6 class="text-info mt-3">💾 Data Issues</h6>
+                  <h4 class="text-info mt-3">💾 Data Issues</h4>
                   <ul class="small">
                     <li>Ensure stable internet connection</li>
                     <li>Refresh page or re-login if data not syncing</li>
@@ -369,14 +369,14 @@
                   </ul>
                 </div>
                 <div class="col-md-6">
-                  <h6 class="text-success">🖥️ Technical Issues</h6>
+                  <h4 class="text-success">🖥️ Technical Issues</h4>
                   <ul class="small">
                     <li>Clear browser cache and cookies</li>
                     <li>Try different browser or incognito mode</li>
                     <li>Disable browser extensions temporarily</li>
                   </ul>
                   
-                  <h6 class="text-primary mt-3">📱 Mobile Issues</h6>
+                  <h4 class="text-primary mt-3">📱 Mobile Issues</h4>
                   <ul class="small">
                     <li>Use latest browser version</li>
                     <li>Try landscape mode for better view</li>
@@ -401,16 +401,16 @@
             <div class="card-body">
               <form id="contactForm">
                 <div class="mb-3">
-                  <label class="form-label">Name</label>
-                  <input type="text" class="form-control" id="contactName" required>
+                  <label for="contactName" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="contactName" required aria-required="true" aria-label="Your Name">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Email</label>
-                  <input type="email" class="form-control" id="contactEmail" required>
+                  <label for="contactEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="contactEmail" required aria-required="true" aria-label="Your Email Address">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Subject</label>
-                  <select class="form-select" id="contactSubject" required>
+                  <label for="contactSubject" class="form-label">Subject</label>
+                  <select class="form-select" id="contactSubject" required aria-required="true" aria-label="Message Subject">
                     <option value="">Select topic</option>
                     <option value="technical">Technical Support</option>
                     <option value="feature">Feature Request</option>
@@ -420,8 +420,8 @@
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Message</label>
-                  <textarea class="form-control" id="contactMessage" rows="4" required></textarea>
+                  <label for="contactMessage" class="form-label">Message</label>
+                  <textarea class="form-control" id="contactMessage" rows="4" required aria-required="true" aria-label="Your Message"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Send Message</button>
               </form>
