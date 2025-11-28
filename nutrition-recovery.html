@@ -353,8 +353,37 @@
     const SUPABASE_URL = 'https://stojhqobywrvkjaabcvq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0b2pocW9ieXdydmtqYWFiY3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyMDcwMDEsImV4cCI6MjA2NTc4MzAwMX0.JQeFsT3nUFMpQ1Tz9uYBnZ3IuE_gBK9P9Du0Igo7Hsg';
     
-    // Initialize Supabase client
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Initialize Supabase client - ensure window.supabase is available
+    let supabase;
+    function initializeSupabase() {
+      try {
+        if (window.supabase && window.supabase.createClient) {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          console.log('✅ Supabase client initialized');
+          return true;
+        } else {
+          console.warn('⚠️ Supabase library not loaded yet, will retry...');
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Error initializing Supabase:', error);
+        return false;
+      }
+    }
+    
+    // Try to initialize immediately
+    if (!initializeSupabase()) {
+      // If not available, wait for DOM and try again
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          if (!supabase) initializeSupabase();
+        });
+      }
+      // Also try after a short delay
+      setTimeout(function() {
+        if (!supabase) initializeSupabase();
+      }, 100);
+    }
     
     // Global variables for daily totals
     let dailyWaterIntake = 0; // ml
@@ -395,11 +424,21 @@
     async function checkAuthenticationStatus() {
       console.log('🔍 Checking authentication status...');
       try {
+        // Check if Supabase client is available
+        if (!supabase || !supabase.auth) {
+          console.error('❌ Supabase client not initialized');
+          showToast('Authentication system error. Please refresh the page.', 'error');
+          return null;
+        }
+        
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('❌ Auth check failed:', error);
-          showToast('Authentication error. Please try logging in again.', 'error');
+          // Don't show error toast for network errors, just log it
+          if (error.message && !error.message.includes('network')) {
+            showToast('Authentication error. Please try logging in again.', 'error');
+          }
           return null;
         }
         
@@ -413,12 +452,18 @@
         }
         
         console.log('✅ User authenticated:', session.user.email);
-        document.getElementById('user-name').textContent = session.user.email.split('@')[0];
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+          userNameEl.textContent = session.user.email.split('@')[0];
+        }
         return session.user;
         
       } catch (error) {
         console.error('❌ Authentication error:', error);
-        showToast('Authentication system error. Please try again.', 'error');
+        // Only show error if it's not a network/connection issue
+        if (error.message && !error.message.includes('network') && !error.message.includes('fetch')) {
+          showToast('Authentication system error. Please try again.', 'error');
+        }
         return null;
       }
     }
@@ -1007,6 +1052,15 @@
     async function checkAuthStateNutrition() {
       try {
         console.log('🔄 [Nutrition] Checking authentication state...');
+        
+        // Check if Supabase client is available
+        if (!supabase || !supabase.auth) {
+          console.error('❌ [Nutrition] Supabase client not initialized');
+          // Wait a bit and try again
+          setTimeout(checkAuthStateNutrition, 500);
+          return null;
+        }
+        
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session && session.user) {
