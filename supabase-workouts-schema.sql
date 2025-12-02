@@ -205,7 +205,7 @@ ON CONFLICT (name) DO NOTHING; -- Avoid duplicates if running multiple times
 -- =====================================================
 
 -- View for complete workout details with exercises
-CREATE OR REPLACE VIEW workout_details AS
+CREATE OR REPLACE VIEW workout_details WITH (security_invoker = true) AS
 SELECT 
     w.id,
     w.user_id,
@@ -233,7 +233,7 @@ LEFT JOIN exercises e ON we.exercise_id = e.id
 GROUP BY w.id, w.user_id, w.name, w.category, w.description, w.is_active, w.created_at, w.updated_at;
 
 -- View for workout session history
-CREATE OR REPLACE VIEW workout_history AS
+CREATE OR REPLACE VIEW workout_history WITH (security_invoker = true) AS
 SELECT 
     ws.id,
     ws.user_id,

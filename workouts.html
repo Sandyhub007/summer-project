@@ -4495,6 +4495,7 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
 
         // Update local data
         personalRecords.unshift(data);
+        localStorage.setItem('personalRecords', JSON.stringify(personalRecords));
         
         updateProgressStats();
         updateStrengthProgressChart();
@@ -6926,42 +6927,59 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
       // Count exercises by category from workout history
       const categoryCount = {};
       
-      workoutHistory.forEach(session => {
-        if (session.exercises_completed) {
-          // For now, we'll simulate category distribution
-          // In a real app, you'd track which exercises were completed
-          const categories = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core', 'cardio'];
-          const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-          categoryCount[randomCategory] = (categoryCount[randomCategory] || 0) + session.exercises_completed;
-        }
-      });
-
-      // If no data, show sample data
-      if (Object.keys(categoryCount).length === 0) {
-        categoryCount.chest = 15;
-        categoryCount.back = 12;
-        categoryCount.legs = 20;
-        categoryCount.shoulders = 8;
-        categoryCount.arms = 10;
-        categoryCount.core = 14;
-        categoryCount.cardio = 6;
+      if (workoutHistory && workoutHistory.length > 0) {
+        workoutHistory.forEach(session => {
+          if (session.exercises_completed) {
+            // Try to find the category from the user's workouts
+            // We match by name since the history view doesn't include the workout ID
+            let category = null;
+            
+            if (typeof userWorkouts !== 'undefined' && Array.isArray(userWorkouts)) {
+              const workout = userWorkouts.find(w => w.name === session.workout_name);
+              if (workout && workout.category) {
+                category = workout.category.toLowerCase();
+              }
+            }
+            
+            // Fallback to random if category not found (to maintain current behavior for existing data)
+            // In a future update, we should ensure category is saved in history
+            if (!category) {
+               const categories = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core', 'cardio'];
+               // Use a deterministic hash of the name so it doesn't change on refresh
+               const nameSum = (session.workout_name || '').split('').reduce((a,b) => a + b.charCodeAt(0), 0);
+               category = categories[nameSum % categories.length];
+            }
+            
+            categoryCount[category] = (categoryCount[category] || 0) + session.exercises_completed;
+          }
+        });
       }
 
-      const labels = Object.keys(categoryCount);
-      const data = Object.values(categoryCount);
-      const colors = [
+      let labels = Object.keys(categoryCount);
+      let data = Object.values(categoryCount);
+      let colors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', 
         '#6f42c1', '#fd7e14', '#20c997', '#6c757d'
       ];
 
+      // If no data, show "No Data" placeholder instead of fake data
+      if (labels.length === 0) {
+        labels = ['No Workouts Yet'];
+        data = [1]; // Dummy value for rendering
+        colors = ['rgba(255, 255, 255, 0.1)']; // Grey placeholder
+      } else {
+        // Format labels
+        labels = labels.map(label => label.charAt(0).toUpperCase() + label.slice(1));
+      }
+
       analyticsCharts.exerciseCategory = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: labels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+          labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: colors.slice(0, labels.length),
-            borderWidth: 2,
+            backgroundColor: colors.slice(0, Math.max(1, labels.length)),
+            borderWidth: 1,
             borderColor: '#000'
           }]
         },
@@ -6975,6 +6993,20 @@ ${altVideoId ? `🔗 Alt YouTube URL: https://www.youtube.com/watch?v=${altVideo
                 color: '#fff',
                 padding: 10,
                 usePointStyle: true
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  if (context.label === 'No Workouts Yet') {
+                    return 'Complete a workout to see stats';
+                  }
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100) + '%';
+                  return `${label}: ${value} exercises (${percentage})`;
+                }
               }
             }
           }

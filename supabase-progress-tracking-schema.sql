@@ -81,48 +81,62 @@ ALTER TABLE personal_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY;
 
 -- Progress Photos Policies
+DROP POLICY IF EXISTS "Users can view their own progress photos" ON progress_photos;
 CREATE POLICY "Users can view their own progress photos" ON progress_photos
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own progress photos" ON progress_photos;
 CREATE POLICY "Users can insert their own progress photos" ON progress_photos
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own progress photos" ON progress_photos;
 CREATE POLICY "Users can update their own progress photos" ON progress_photos
   FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own progress photos" ON progress_photos;
 CREATE POLICY "Users can delete their own progress photos" ON progress_photos
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Body Measurements Policies
+DROP POLICY IF EXISTS "Users can view their own body measurements" ON body_measurements;
 CREATE POLICY "Users can view their own body measurements" ON body_measurements
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own body measurements" ON body_measurements;
 CREATE POLICY "Users can insert their own body measurements" ON body_measurements
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own body measurements" ON body_measurements;
 CREATE POLICY "Users can update their own body measurements" ON body_measurements
   FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own body measurements" ON body_measurements;
 CREATE POLICY "Users can delete their own body measurements" ON body_measurements
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Personal Records Policies
+DROP POLICY IF EXISTS "Users can view their own personal records" ON personal_records;
 CREATE POLICY "Users can view their own personal records" ON personal_records
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own personal records" ON personal_records;
 CREATE POLICY "Users can insert their own personal records" ON personal_records
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own personal records" ON personal_records;
 CREATE POLICY "Users can update their own personal records" ON personal_records
   FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own personal records" ON personal_records;
 CREATE POLICY "Users can delete their own personal records" ON personal_records
   FOR DELETE USING (auth.uid() = user_id);
 
 -- User Achievements Policies
+DROP POLICY IF EXISTS "Users can view their own achievements" ON user_achievements;
 CREATE POLICY "Users can view their own achievements" ON user_achievements
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own achievements" ON user_achievements;
 CREATE POLICY "Users can insert their own achievements" ON user_achievements
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
@@ -140,12 +154,15 @@ END;
 $$ language 'plpgsql';
 
 -- Triggers for updated_at
+DROP TRIGGER IF EXISTS update_progress_photos_updated_at ON progress_photos;
 CREATE TRIGGER update_progress_photos_updated_at BEFORE UPDATE ON progress_photos
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_body_measurements_updated_at ON body_measurements;
 CREATE TRIGGER update_body_measurements_updated_at BEFORE UPDATE ON body_measurements
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_personal_records_updated_at ON personal_records;
 CREATE TRIGGER update_personal_records_updated_at BEFORE UPDATE ON personal_records
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -165,6 +182,7 @@ END;
 $$ language 'plpgsql';
 
 -- Trigger for personal records management
+DROP TRIGGER IF EXISTS manage_personal_records_trigger ON personal_records;
 CREATE TRIGGER manage_personal_records_trigger 
     AFTER INSERT ON personal_records
     FOR EACH ROW EXECUTE FUNCTION manage_personal_records();
@@ -179,18 +197,21 @@ VALUES ('progress-photos', 'progress-photos', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for progress photos
+DROP POLICY IF EXISTS "Users can upload their own progress photos" ON storage.objects;
 CREATE POLICY "Users can upload their own progress photos" ON storage.objects
   FOR INSERT WITH CHECK (
     bucket_id = 'progress-photos' AND
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can view their own progress photos" ON storage.objects;
 CREATE POLICY "Users can view their own progress photos" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'progress-photos' AND
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can delete their own progress photos" ON storage.objects;
 CREATE POLICY "Users can delete their own progress photos" ON storage.objects
   FOR DELETE USING (
     bucket_id = 'progress-photos' AND
@@ -207,4 +228,4 @@ CREATE POLICY "Users can delete their own progress photos" ON storage.objects
 COMMENT ON TABLE progress_photos IS 'Stores user progress photos with cloud storage references';
 COMMENT ON TABLE body_measurements IS 'Tracks user body measurements over time';
 COMMENT ON TABLE personal_records IS 'Records personal bests for exercises';
-COMMENT ON TABLE user_achievements IS 'Tracks unlocked achievements for gamification'; 
+COMMENT ON TABLE user_achievements IS 'Tracks unlocked achievements for gamification';

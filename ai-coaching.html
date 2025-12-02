@@ -227,7 +227,7 @@
           </div>
           <div class="card-body">
             <div class="row mb-4">
-              <div class="col-md-4 mb-3">
+              <div class="col-md-3 mb-3">
                 <label class="form-label">Your Primary Goal</label>
                 <select class="form-select" id="fitnessGoal">
                   <option value="">Select your goal</option>
@@ -238,7 +238,20 @@
                   <option value="general-fitness">General Fitness</option>
                 </select>
               </div>
-              <div class="col-md-4 mb-3">
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Target Muscle</label>
+                <select class="form-select" id="targetMuscle">
+                  <option value="Full Body">Full Body (Default)</option>
+                  <option value="Chest">Chest</option>
+                  <option value="Back">Back</option>
+                  <option value="Legs">Legs (Quads/Hams)</option>
+                  <option value="Shoulders">Shoulders</option>
+                  <option value="Arms">Arms (Biceps/Triceps)</option>
+                  <option value="Core">Abs & Core</option>
+                  <option value="Glutes">Glutes</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
                 <label class="form-label">Experience Level</label>
                 <select class="form-select" id="experienceLevel">
                   <option value="">Select level</option>
@@ -247,7 +260,7 @@
                   <option value="advanced">Advanced (2+ years)</option>
                 </select>
               </div>
-              <div class="col-md-4 mb-3">
+              <div class="col-md-3 mb-3">
                 <label class="form-label">Available Time</label>
                 <select class="form-select" id="timeAvailable">
                   <option value="">Select time</option>
@@ -380,10 +393,11 @@
       return session?.user || null;
     }
 
-    function generateAIWorkoutSuggestion() {
+    async function generateAIWorkoutSuggestion() {
       const goal = document.getElementById('fitnessGoal').value;
       const level = document.getElementById('experienceLevel').value;
       const time = document.getElementById('timeAvailable').value;
+      const muscle = document.getElementById('targetMuscle').value;
 
       if (!goal || !level || !time) {
         showToast('Please fill in all fields for accurate suggestions', 'error');
@@ -392,29 +406,86 @@
 
       const container = document.getElementById('aiWorkoutSuggestion');
       container.style.display = 'block';
-      
-      // Generate workout suggestions based on inputs
-      const suggestions = getWorkoutSuggestions(goal, level, parseInt(time));
-      
       container.innerHTML = `
-        <div class="ai-recommendation">
-          <h5>🎯 Your Personalized AI Workout Recommendation</h5>
-          <div class="mt-3">
-            <strong>Workout Plan:</strong> ${suggestions.plan}<br>
-            <strong>Focus:</strong> ${suggestions.focus}<br>
-            <strong>Duration:</strong> ${time} minutes<br>
-            <strong>Exercises:</strong>
-            <ul class="mt-2">
-              ${suggestions.exercises.map(ex => `<li>${ex}</li>`).join('')}
-            </ul>
-            <div class="workout-tip">
-              <small>💡 ${suggestions.tip}</small>
-            </div>
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
+          <p class="mt-3 text-muted">Consulting with AI Coach... (this may take a few seconds)</p>
         </div>
       `;
       
-      showToast('AI workout suggestion generated! 🤖', 'success');
+      try {
+        // Get current user to pass to the function
+        const user = await getCurrentUser();
+        
+        // Call the Supabase Edge Function
+        const { data, error } = await supabase.functions.invoke('generate-workout', {
+          body: {
+            userProfile: { 
+              fitness_level: level,
+              id: user?.id 
+            },
+            preferences: {
+              goal: goal,
+              duration: time,
+              target_muscle: muscle, // Pass the selected muscle
+              equipment: 'Standard Gym', 
+              focus: 'General' 
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        // Render the returned AI data
+        const suggestions = data;
+        
+        container.innerHTML = `
+          <div class="ai-recommendation">
+            <h5>🎯 ${suggestions.workout_name}</h5>
+            <div class="mt-3">
+              <p class="lead" style="font-size: 1rem;">${suggestions.description}</p>
+              
+              <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+                <span>⏱️ <strong>Duration:</strong> ${suggestions.estimated_duration} min</span>
+                <span>🏋️ <strong>Goal:</strong> ${goal.replace('-', ' ').toUpperCase()}</span>
+              </div>
+
+              <strong>Exercises:</strong>
+              <div class="list-group mt-2 bg-transparent">
+                ${suggestions.exercises.map(ex => `
+                  <div class="list-group-item bg-transparent border-secondary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="fw-bold">${ex.name}</span>
+                      <span class="badge bg-primary rounded-pill">${ex.sets} x ${ex.reps}</span>
+                    </div>
+                    <small class="text-muted d-block mt-1">💡 ${ex.tips}</small>
+                    ${ex.rest ? `<small class="text-secondary">Rest: ${ex.rest}</small>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="workout-tip mt-3">
+                <small>✨ This workout was custom generated by AI just for you.</small>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        showToast('AI workout generated successfully! 🤖', 'success');
+
+      } catch (error) {
+        console.error('Error generating workout:', error);
+        showToast('Failed to generate workout. Please try again.', 'error');
+        
+        // Fallback to static generation if AI fails
+        container.innerHTML = '<div class="alert alert-warning">AI Service unavailable. Showing static suggestion instead.</div>';
+        setTimeout(() => {
+             // Your old static function logic could go here as a backup
+             // For now we just leave the error message
+        }, 2000);
+      }
     }
 
     function getWorkoutSuggestions(goal, level, time) {

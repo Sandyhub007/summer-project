@@ -421,52 +421,9 @@
     }
 
     // Check authentication status
-    async function checkAuthenticationStatus() {
-      console.log('🔍 Checking authentication status...');
-      try {
-        // Check if Supabase client is available
-        if (!supabase || !supabase.auth) {
-          console.error('❌ Supabase client not initialized');
-          showToast('Authentication system error. Please refresh the page.', 'error');
-          return null;
-        }
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ Auth check failed:', error);
-          // Don't show error toast for network errors, just log it
-          if (error.message && !error.message.includes('network')) {
-            showToast('Authentication error. Please try logging in again.', 'error');
-          }
-          return null;
-        }
-        
-        if (!session || !session.user) {
-          console.warn('⚠️ No active session found');
-          showToast('Please log in to use nutrition and recovery tracking.', 'error');
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 3000);
-          return null;
-        }
-        
-        console.log('✅ User authenticated:', session.user.email);
-        const userNameEl = document.getElementById('user-name');
-        if (userNameEl) {
-          userNameEl.textContent = session.user.email.split('@')[0];
-        }
-        return session.user;
-        
-      } catch (error) {
-        console.error('❌ Authentication error:', error);
-        // Only show error if it's not a network/connection issue
-        if (error.message && !error.message.includes('network') && !error.message.includes('fetch')) {
-          showToast('Authentication system error. Please try again.', 'error');
-        }
-        return null;
-      }
-    }
+    // Replaced redundant function with the main checkAuthStateNutrition function
+    // to avoid race conditions and duplicate logic
+
 
     // Toast notification function
     function showToast(message, type = 'info') {
@@ -911,7 +868,7 @@
       }
       
       // Check authentication
-      const user = await checkAuthenticationStatus();
+      const user = await checkAuthStateNutrition();
       if (!user) {
         console.error('❌ Authentication failed - redirecting to home');
         return;
@@ -1071,7 +1028,8 @@
           document.body.classList.remove('logged-out');
           
           // Update user name in welcome message
-          const userName = session.user.user_metadata?.name || session.user.email.split('@')[0] || 'User';
+          // Use optional chaining for safety
+          const userName = session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
           const userNameSpan = document.getElementById('user-name');
           if (userNameSpan) {
             userNameSpan.textContent = userName;
