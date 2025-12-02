@@ -286,8 +286,8 @@
         </button>
 
         <!-- Centered Nav Links (HIDDEN until logged in) -->
-        <div class="collapse navbar-collapse justify-content-center d-none" id="navbarNav">
-          <ul class="navbar-nav mb-2 mb-lg-0">
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+          <ul class="navbar-nav mb-2 mb-lg-0 d-none" id="navLinksList">
             <li class="nav-item"><a class="nav-link active" aria-current="page" href="/workouts.html">Workouts</a></li>
             <li class="nav-item"><a class="nav-link" href="/ai-coaching.html">AI Coaching</a></li>
             <li class="nav-item"><a class="nav-link" href="/nutrition-recovery.html">Nutrition & Recovery</a></li>
@@ -732,7 +732,7 @@
       const authContainer = document.getElementById('auth-buttons-container');
       const logoutBtn = document.getElementById('logoutBtn');
       const userWelcome = document.getElementById('user-welcome');
-      const navbarNav = document.getElementById('navbarNav');
+      const navLinksList = document.getElementById('navLinksList');
       const heroSection = document.getElementById('hero-section');
       const dashboard = document.getElementById('user-dashboard');
       
@@ -755,7 +755,7 @@
         }
         
         if (userWelcome) userWelcome.classList.remove('d-none');
-        if (navbarNav) navbarNav.classList.remove('d-none');
+        if (navLinksList) navLinksList.classList.remove('d-none');
         if (heroSection) heroSection.classList.add('d-none');
         if (dashboard) dashboard.classList.remove('d-none');
         
@@ -781,7 +781,7 @@
         }
         
         if (userWelcome) userWelcome.classList.add('d-none');
-        if (navbarNav) navbarNav.classList.add('d-none');
+        if (navLinksList) navLinksList.classList.add('d-none');
         if (heroSection) heroSection.classList.remove('d-none');
         if (dashboard) dashboard.classList.add('d-none');
         
