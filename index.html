@@ -39,6 +39,12 @@
       min-height: 100vh;
     }
 
+    /* When logged in, remove background image and use plain black */
+    body.logged-in .bg-cover {
+      background-image: none;
+      background-color: #000;
+    }
+
     /* Remove overlay gradient */
     .bg-cover::before {
       content: none;
