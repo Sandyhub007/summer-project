@@ -435,7 +435,7 @@
               <label for="loginPassword" class="form-label small text-uppercase fw-semibold mb-2">Password</label>
               <input type="password" class="form-control" placeholder="Enter your password" required id="loginPassword" aria-required="true">
             </div>
-            <button type="submit" class="btn btn-cta btn-lg mt-3">Sign In</button>
+            <button type="submit" class="btn btn-cta btn-lg mt-3" id="loginSubmitBtn">Sign In</button>
             <p class="text-danger small mt-2 d-none text-center" id="loginError">Invalid email or password</p>
             <div class="text-center mt-3">
               <button type="button" class="btn btn-link text-light small" id="forgotPasswordBtn">
@@ -824,6 +824,17 @@
     window.addEventListener('DOMContentLoaded', async () => {
       console.log('🔄 Page loaded - checking authentication state...');
       
+      // Add modal cleanup handlers to reset button states
+      const loginModal = document.getElementById('loginModal');
+      loginModal.addEventListener('hidden.bs.modal', () => {
+        const submitBtn = document.getElementById('loginSubmitBtn');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
+        }
+        hideError('loginError');
+      });
+      
       // Check if user came here to login/signup from another page
       const urlParams = new URLSearchParams(window.location.search);
       const action = urlParams.get('action');
@@ -922,6 +933,16 @@
       e.preventDefault();
       hideError('loginError');
       
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      const originalText = submitBtn.textContent;
+      
+      // Prevent multiple submissions
+      if (submitBtn.disabled) return;
+      
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing In...';
+      
       const email = document.getElementById('loginEmail').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
 
@@ -931,17 +952,23 @@
         // Success - close modal and reset form
         console.log('✅ Login successful, closing modal and forcing auth state');
         const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-        modal.hide();
+        if (modal) modal.hide();
         document.getElementById('loginForm').reset();
+        
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
         
         // Force immediate UI update
         setTimeout(() => {
           console.log('🔧 Forcing logged-in state after login success');
           toggleAuthButtons(true);
-        }, 500);
+        }, 300);
       } else {
-        // Show error
+        // Show error and re-enable button
         showError('loginError', result.error);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
       }
     });
 
@@ -1126,59 +1153,6 @@
       } catch (error) {
         console.error('Sign up error:', error);
         return { success: false, error: 'Failed to create account' };
-      }
-    }
-
-    // Sign in existing user
-    async function signInUser(email, password) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
-        
-        if (error) {
-          return { success: false, error: error.message };
-        }
-        
-        return { success: true, data: data };
-      } catch (error) {
-        console.error('Sign in error:', error);
-        return { success: false, error: 'Failed to sign in' };
-      }
-    }
-
-    // Sign out user
-    async function signOutUser() {
-      try {
-        const { error } = await supabase.auth.signOut();
-        
-        if (error) {
-          return { success: false, error: error.message };
-        }
-        
-        return { success: true };
-      } catch (error) {
-        console.error('Sign out error:', error);
-        return { success: false, error: 'Failed to sign out' };
-      }
-    }
-
-    // Reset password
-    async function resetPassword(email) {
-      try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password.html`
-        });
-        
-        if (error) {
-          return { success: false, error: error.message };
-        }
-        
-        return { success: true };
-      } catch (error) {
-        console.error('Reset password error:', error);
-        return { success: false, error: 'Failed to send reset email' };
       }
     }
 
