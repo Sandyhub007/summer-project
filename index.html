@@ -307,11 +307,6 @@
           <button class="btn btn-outline-light me-2 auth-login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
           <button class="btn btn-cta auth-signup-btn" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</button>
         </div>
-
-        <!-- Logout button - show only when logged in -->
-        <div class="d-flex d-none" id="logoutSection">
-          <button class="btn btn-outline-light" id="logoutBtn">Logout</button>
-        </div>
       </div>
     </nav>
 
@@ -736,7 +731,6 @@
       const loginBtns = document.querySelectorAll('.auth-login-btn');
       const signupBtns = document.querySelectorAll('.auth-signup-btn');
       const authContainer = document.getElementById('auth-buttons-container');
-      const logoutBtn = document.getElementById('logoutBtn');
       const userWelcome = document.getElementById('user-welcome');
       const navLinksList = document.getElementById('navLinksList');
       const heroSection = document.getElementById('hero-section');
@@ -745,20 +739,11 @@
       console.log(`🔄 Toggling auth state: loggedIn=${loggedIn}`);
       
       if (loggedIn) {
-        // User is logged in - hide login/signup container, show logout/nav/dashboard, hide hero
+        // User is logged in - hide login/signup container, show nav/dashboard, hide hero
         if (authContainer) authContainer.classList.add('d-none');
         
         loginBtns.forEach(btn => btn.classList.add('d-none'));
         signupBtns.forEach(btn => btn.classList.add('d-none'));
-
-        if (logoutBtn) {
-          // Show logout button ONLY when logged in
-          logoutBtn.classList.remove('d-none');
-          logoutBtn.style.display = 'inline-block';
-          // Ensure parent container is visible
-          const logoutSection = document.getElementById('logoutSection');
-          if (logoutSection) logoutSection.classList.remove('d-none');
-        }
         
         if (userWelcome) userWelcome.classList.remove('d-none');
         if (navLinksList) navLinksList.classList.remove('d-none');
@@ -767,7 +752,7 @@
         
         console.log('✅ AUTH STATE: LOGGED IN - Navigation visible, Dashboard shown');
       } else {
-        // User is logged out - show login/signup, hide logout/nav/dashboard
+        // User is logged out - show login/signup, hide nav/dashboard
         if (authContainer) authContainer.classList.remove('d-none');
         
         loginBtns.forEach(btn => {
@@ -778,13 +763,6 @@
           btn.classList.remove('d-none');
           btn.style.display = 'inline-block';
         });
-
-        if (logoutBtn) {
-          logoutBtn.classList.add('d-none');
-          logoutBtn.style.display = 'none';
-          const logoutSection = document.getElementById('logoutSection');
-          if (logoutSection) logoutSection.classList.add('d-none');
-        }
         
         if (userWelcome) userWelcome.classList.add('d-none');
         if (navLinksList) navLinksList.classList.add('d-none');

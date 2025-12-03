@@ -1,7 +1,6 @@
 -- Fix for "Security Definer View" vulnerability
 -- This ensures views execute with the permissions of the querying user (invoker)
 -- rather than the view owner, respecting Row Level Security (RLS) policies on underlying tables.
-
 -- Fix workout_details view
 CREATE OR REPLACE VIEW workout_details WITH (security_invoker = true) AS
 SELECT 
