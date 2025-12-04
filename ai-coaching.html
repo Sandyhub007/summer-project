@@ -393,6 +393,69 @@
       return session?.user || null;
     }
 
+    // Direct Gemini API Key for fallback (Client-side)
+    // Note: In production, this should ideally be proxy-only, but user requested direct fallback.
+    const DIRECT_GEMINI_KEY = 'AIzaSyCjyzrSpfdw3Kh0pfUum6oHkUV-1oJCdIY';
+
+    async function callGeminiDirectly(preferences, level) {
+      console.log('⚠️ Attempting direct Gemini API call as fallback...');
+      
+      const prompt = `
+      You are an elite fitness coach. Create a workout session based on the user's details.
+      
+      User Profile:
+      - Goal: ${preferences.goal}
+      - Target Muscle/Focus: ${preferences.target_muscle || 'Full Body'}
+      - Level: ${level || 'Intermediate'}
+      - Equipment: ${preferences.equipment || 'Full Gym'}
+      - Duration: ${preferences.duration} minutes
+      - Injuries/Concerns: ${preferences.focus || 'None'}
+
+      RULES:
+      1. Return ONLY valid JSON. No markdown, no backticks.
+      2. The structure must match this interface:
+      {
+        "workout_name": "Creative Name String",
+        "description": "Brief strategy description",
+        "estimated_duration": "number (minutes)",
+        "exercises": [
+          {
+            "name": "Exercise Name",
+            "sets": number,
+            "reps": "string",
+            "rest": "string",
+            "tips": "Brief form tip"
+          }
+        ]
+      }
+      3. Focus heavily on the '${preferences.target_muscle || 'Full Body'}' muscle group.
+      4. Provide ${Math.floor(parseInt(preferences.duration || '60') / 10)} to ${Math.floor(parseInt(preferences.duration || '60') / 7)} exercises.
+      `;
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${DIRECT_GEMINI_KEY}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json"
+          }
+        })
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+      
+      let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('No content from Gemini');
+      
+      // Cleanup
+      text = text.replace(/```json\n?/, '').replace(/```/, '').trim();
+      return JSON.parse(text);
+    }
+
     async function generateAIWorkoutSuggestion() {
       const goal = document.getElementById('fitnessGoal').value;
       const level = document.getElementById('experienceLevel').value;
@@ -415,41 +478,89 @@
         </div>
       `;
       
+      let suggestions = null;
+      let source = 'Backend Edge Function';
+
       try {
-        // Get current user to pass to the function
+        // 1. Try Supabase Edge Function (Backend)
         const user = await getCurrentUser();
         
-        // Call the Supabase Edge Function
         const { data, error } = await supabase.functions.invoke('generate-workout', {
           body: {
-            userProfile: { 
-              fitness_level: level,
-              id: user?.id 
-            },
+            userProfile: { fitness_level: level, id: user?.id },
             preferences: {
-              goal: goal,
-              duration: time,
-              target_muscle: muscle, // Pass the selected muscle
-              equipment: 'Standard Gym', 
-              focus: 'General' 
+              goal: goal, duration: time, target_muscle: muscle, 
+              equipment: 'Standard Gym', focus: 'General' 
             }
           }
         });
 
         if (error) throw error;
+        suggestions = data;
 
-        // Render the returned AI data
-        const suggestions = data;
+      } catch (backendError) {
+        console.warn('⚠️ Backend AI failed, trying direct client fallback:', backendError);
         
-        container.innerHTML = `
+        try {
+          // 2. Try Direct Gemini Call (Client-Side Fallback)
+          suggestions = await callGeminiDirectly({
+             goal, duration: time, target_muscle: muscle, equipment: 'Standard Gym', focus: 'General'
+          }, level);
+          source = 'Direct Client API';
+          
+        } catch (clientError) {
+          console.error('❌ Both Backend and Client AI failed:', clientError);
+          
+          // 3. Final Fallback: Static Template
+          showToast(`AI Unavailable (${clientError.message}). Using expert template.`, 'warning');
+          
+          // Render Static Fallback
+          container.innerHTML = `
+          <div class="alert alert-warning d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div>
+              <strong>AI Service unavailable.</strong> Generated a static plan based on expert templates instead.
+              <br><small class="text-muted">${backendError.message}</small>
+            </div>
+          </div>
+        `;
+        
+        const staticPlan = getWorkoutSuggestions(goal, level, parseInt(time));
+        const displayPlan = {
+          workout_name: staticPlan.plan,
+          description: staticPlan.focus,
+          estimated_duration: time,
+          exercises: staticPlan.exercises.map(exString => {
+            const match = exString.match(/(.*?)\s*\((\d+)[xX](.*?)\)/);
+            if (match) {
+              return { name: match[1].trim(), sets: match[2], reps: match[3], tips: "Focus on controlled movement", rest: "60s" };
+            }
+            return { name: exString, sets: 3, reps: "10-12", tips: "Keep core tight", rest: "60s" };
+          })
+        };
+        renderWorkoutPlan(displayPlan, container, true);
+        return; // Exit
+        }
+      }
+
+      // If we got suggestions (either from backend or client fallback)
+      if (suggestions) {
+        renderWorkoutPlan(suggestions, container, false);
+        showToast('AI workout generated successfully! 🤖', 'success');
+      }
+    }
+
+    // Helper to render the plan
+    function renderWorkoutPlan(suggestions, container, isTemplate) {
+      container.innerHTML += `
           <div class="ai-recommendation">
-            <h5>🎯 ${suggestions.workout_name}</h5>
+            <h5>🎯 ${suggestions.workout_name} ${isTemplate ? '<span class="badge bg-secondary ms-2" style="font-size: 0.7em">TEMPLATE</span>' : ''}</h5>
             <div class="mt-3">
               <p class="lead" style="font-size: 1rem;">${suggestions.description}</p>
               
               <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
                 <span>⏱️ <strong>Duration:</strong> ${suggestions.estimated_duration} min</span>
-                <span>🏋️ <strong>Goal:</strong> ${goal.replace('-', ' ').toUpperCase()}</span>
+                <span>🏋️ <strong>Goal:</strong> ${suggestions.workout_name.includes('Loss') ? 'WEIGHT LOSS' : 'FITNESS'}</span>
               </div>
 
               <strong>Exercises:</strong>
@@ -472,89 +583,6 @@
             </div>
           </div>
         `;
-        
-        showToast('AI workout generated successfully! 🤖', 'success');
-
-      } catch (error) {
-        console.error('Error generating workout:', error);
-        showToast(`AI Service Error: ${error.message || 'Unknown error'}`, 'error');
-        
-        // Fallback to static generation
-        container.innerHTML = `
-          <div class="alert alert-warning d-flex align-items-center">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <div>
-              <strong>AI Service unavailable.</strong> Generated a static plan based on expert templates instead.
-              <br><small class="text-muted">${error.message || ''}</small>
-            </div>
-          </div>
-        `;
-        
-        // Get static suggestion
-        const staticPlan = getWorkoutSuggestions(goal, level, parseInt(time));
-        
-        // Convert static plan to display format
-        const displayPlan = {
-          workout_name: staticPlan.plan,
-          description: staticPlan.focus,
-          estimated_duration: time,
-          exercises: staticPlan.exercises.map(exString => {
-            // Parse "Name (SetsxReps)" string
-            const match = exString.match(/(.*?)\s*\((\d+)[xX](.*?)\)/);
-            if (match) {
-              return {
-                name: match[1].trim(),
-                sets: match[2],
-                reps: match[3],
-                tips: "Focus on controlled movement",
-                rest: "60s"
-              };
-            }
-            return {
-              name: exString,
-              sets: 3,
-              reps: "10-12",
-              tips: "Keep core tight",
-              rest: "60s"
-            };
-          })
-        };
-
-        // Render the static plan
-        setTimeout(() => {
-            container.innerHTML += `
-              <div class="ai-recommendation">
-                <h5>🎯 ${displayPlan.workout_name} <span class="badge bg-secondary ms-2" style="font-size: 0.7em">TEMPLATE</span></h5>
-                <div class="mt-3">
-                  <p class="lead" style="font-size: 1rem;">${displayPlan.description}</p>
-                  
-                  <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
-                    <span>⏱️ <strong>Duration:</strong> ${displayPlan.estimated_duration} min</span>
-                    <span>🏋️ <strong>Goal:</strong> ${goal.replace('-', ' ').toUpperCase()}</span>
-                  </div>
-
-                  <strong>Exercises:</strong>
-                  <div class="list-group mt-2 bg-transparent">
-                    ${displayPlan.exercises.map(ex => `
-                      <div class="list-group-item bg-transparent border-secondary text-white">
-                        <div class="d-flex justify-content-between align-items-center">
-                          <span class="fw-bold">${ex.name}</span>
-                          <span class="badge bg-primary rounded-pill">${ex.sets} x ${ex.reps}</span>
-                        </div>
-                        <small class="text-muted d-block mt-1">💡 ${ex.tips}</small>
-                        ${ex.rest ? `<small class="text-secondary">Rest: ${ex.rest}</small>` : ''}
-                      </div>
-                    `).join('')}
-                  </div>
-
-                  <div class="workout-tip mt-3">
-                    <small>✨ ${staticPlan.tip}</small>
-                  </div>
-                </div>
-              </div>
-            `;
-        }, 500);
-      }
     }
 
     function getWorkoutSuggestions(goal, level, time) {
