@@ -524,36 +524,6 @@
 
     /* ===== SUPABASE HELPER FUNCTIONS ===== */
     
-    // Sign up new user with personalized data
-    async function signUpUser(email, password, userData = {}) {
-      try {
-        // Sign up with user metadata
-        const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              name: userData.name,
-              phone_number: userData.phone_number,
-              sms_reminders_enabled: userData.sms_reminders_enabled,
-              height_cm: userData.height_cm,
-              current_weight_kg: userData.current_weight_kg,
-              goal_weight_kg: userData.goal_weight_kg,
-              start_weight_kg: userData.start_weight_kg,
-              months_to_goal: userData.months_to_goal,
-              daily_calories: userData.daily_calories
-            }
-          }
-        });
-        
-        if (error) throw error;
-        return { success: true, user: data.user };
-      } catch (error) {
-        console.error('Sign up error:', error);
-        return { success: false, error: error.message };
-      }
-    }
-
     // Sign in user
     async function signInUser(email, password) {
       try {
@@ -1247,12 +1217,11 @@
             // User is on a different page, allow normal navigation to homepage
             console.log('🏠 Brand clicked - Navigating to homepage');
           }
-                 });
-       }
-     }
+        });
+      }
+    }
      
-                
-     // Add click listener to logout button with multiple methods
+    // Add click listener to logout button with multiple methods
     function setupLogoutButton() {
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
