@@ -477,14 +477,83 @@
 
       } catch (error) {
         console.error('Error generating workout:', error);
-        showToast('Failed to generate workout. Please try again.', 'error');
+        showToast(`AI Service Error: ${error.message || 'Unknown error'}`, 'error');
         
-        // Fallback to static generation if AI fails
-        container.innerHTML = '<div class="alert alert-warning">AI Service unavailable. Showing static suggestion instead.</div>';
+        // Fallback to static generation
+        container.innerHTML = `
+          <div class="alert alert-warning d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div>
+              <strong>AI Service unavailable.</strong> Generated a static plan based on expert templates instead.
+              <br><small class="text-muted">${error.message || ''}</small>
+            </div>
+          </div>
+        `;
+        
+        // Get static suggestion
+        const staticPlan = getWorkoutSuggestions(goal, level, parseInt(time));
+        
+        // Convert static plan to display format
+        const displayPlan = {
+          workout_name: staticPlan.plan,
+          description: staticPlan.focus,
+          estimated_duration: time,
+          exercises: staticPlan.exercises.map(exString => {
+            // Parse "Name (SetsxReps)" string
+            const match = exString.match(/(.*?)\s*\((\d+)[xX](.*?)\)/);
+            if (match) {
+              return {
+                name: match[1].trim(),
+                sets: match[2],
+                reps: match[3],
+                tips: "Focus on controlled movement",
+                rest: "60s"
+              };
+            }
+            return {
+              name: exString,
+              sets: 3,
+              reps: "10-12",
+              tips: "Keep core tight",
+              rest: "60s"
+            };
+          })
+        };
+
+        // Render the static plan
         setTimeout(() => {
-             // Your old static function logic could go here as a backup
-             // For now we just leave the error message
-        }, 2000);
+            container.innerHTML += `
+              <div class="ai-recommendation">
+                <h5>🎯 ${displayPlan.workout_name} <span class="badge bg-secondary ms-2" style="font-size: 0.7em">TEMPLATE</span></h5>
+                <div class="mt-3">
+                  <p class="lead" style="font-size: 1rem;">${displayPlan.description}</p>
+                  
+                  <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+                    <span>⏱️ <strong>Duration:</strong> ${displayPlan.estimated_duration} min</span>
+                    <span>🏋️ <strong>Goal:</strong> ${goal.replace('-', ' ').toUpperCase()}</span>
+                  </div>
+
+                  <strong>Exercises:</strong>
+                  <div class="list-group mt-2 bg-transparent">
+                    ${displayPlan.exercises.map(ex => `
+                      <div class="list-group-item bg-transparent border-secondary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <span class="fw-bold">${ex.name}</span>
+                          <span class="badge bg-primary rounded-pill">${ex.sets} x ${ex.reps}</span>
+                        </div>
+                        <small class="text-muted d-block mt-1">💡 ${ex.tips}</small>
+                        ${ex.rest ? `<small class="text-secondary">Rest: ${ex.rest}</small>` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <div class="workout-tip mt-3">
+                    <small>✨ ${staticPlan.tip}</small>
+                  </div>
+                </div>
+              </div>
+            `;
+        }, 500);
       }
     }
 
