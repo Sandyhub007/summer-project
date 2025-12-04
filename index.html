@@ -522,6 +522,27 @@
     // Initialize Supabase client
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // ===== EMERGENCY CACHE CLEANUP =====
+    // Force unregister any Service Workers that might be caching old code
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          console.log('🚨 Unregistering Service Worker to force update:', registration);
+          registration.unregister();
+        }
+      });
+    }
+    
+    // Clear legacy session data if it looks corrupted (failsafe)
+    try {
+      const key = 'sb-' + new URL(SUPABASE_URL).hostname.split('.')[0] + '-auth-token';
+      const session = localStorage.getItem(key);
+      if (session && session === 'undefined') {
+         console.warn('🗑️ Found corrupted session data, clearing...');
+         localStorage.removeItem(key);
+      }
+    } catch (e) { console.error('Cleanup error', e); }
+
     /* ===== SUPABASE HELPER FUNCTIONS ===== */
     
     // Sign in user
