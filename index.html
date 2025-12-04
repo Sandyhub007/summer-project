@@ -884,6 +884,9 @@
         setupSignOutButton();
         setupBrandLink();
       }, 200);
+      
+      // Setup form event listeners after DOM is ready
+      setupFormListeners();
     });
     
     // Additional failsafe: check auth state when page becomes visible
@@ -901,8 +904,10 @@
       }
     });
 
-    /* ===== SIGN UP FORM ===== */
-    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    /* ===== FORM EVENT LISTENERS ===== */
+    function setupFormListeners() {
+      /* ===== SIGN UP FORM ===== */
+      document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideError('signupError');
       
@@ -972,10 +977,6 @@
       }
     });
 
-    /* ===== LOGOUT BUTTON ===== */
-    // Logout functionality is now handled by setupLogoutButton() function
-    // This old event listener is commented out to prevent conflicts
-
     /* ===== FORGOT PASSWORD ===== */
     document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
       // Close login modal and open reset password modal
@@ -986,6 +987,7 @@
       resetModal.show();
     });
 
+    /* ===== RESET PASSWORD FORM ===== */
     document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideError('resetError');
@@ -1018,6 +1020,7 @@
         showError('resetError', result.error);
       }
     });
+    } // End of setupFormListeners
 
     /* ===== DASHBOARD FUNCTIONS ===== */
     
