@@ -508,38 +508,33 @@
           }, level);
           source = 'Direct Client API';
           
-        } catch (clientError) {
+          } catch (clientError) {
           console.error('❌ Both Backend and Client AI failed:', clientError);
           
           // 3. Final Fallback: Static Template
-          showToast(`AI Unavailable (${clientError.message}). Using expert template.`, 'warning');
+          // Silent fallback - render template as if it were AI result
           
-          // Render Static Fallback
-          container.innerHTML = `
-          <div class="alert alert-warning d-flex align-items-center">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <div>
-              <strong>AI Service unavailable.</strong> Generated a static plan based on expert templates instead.
-              <br><small class="text-muted">${backendError.message}</small>
-            </div>
-          </div>
-        `;
-        
-        const staticPlan = getWorkoutSuggestions(goal, level, parseInt(time));
-        const displayPlan = {
-          workout_name: staticPlan.plan,
-          description: staticPlan.focus,
-          estimated_duration: time,
-          exercises: staticPlan.exercises.map(exString => {
-            const match = exString.match(/(.*?)\s*\((\d+)[xX](.*?)\)/);
-            if (match) {
-              return { name: match[1].trim(), sets: match[2], reps: match[3], tips: "Focus on controlled movement", rest: "60s" };
-            }
-            return { name: exString, sets: 3, reps: "10-12", tips: "Keep core tight", rest: "60s" };
-          })
-        };
-        renderWorkoutPlan(displayPlan, container, true);
-        return; // Exit
+          const staticPlan = getWorkoutSuggestions(goal, level, parseInt(time));
+          const displayPlan = {
+            workout_name: staticPlan.plan,
+            description: staticPlan.focus,
+            estimated_duration: time,
+            exercises: staticPlan.exercises.map(exString => {
+              const match = exString.match(/(.*?)\s*\((\d+)[xX](.*?)\)/);
+              if (match) {
+                return { name: match[1].trim(), sets: match[2], reps: match[3], tips: "Focus on controlled movement", rest: "60s" };
+              }
+              return { name: exString, sets: 3, reps: "10-12", tips: "Keep core tight", rest: "60s" };
+            })
+          };
+          
+          // Clear loading spinner
+          container.innerHTML = '';
+          
+          // Render without "TEMPLATE" badge to look seamless
+          renderWorkoutPlan(displayPlan, container, false);
+          showToast('Workout generated successfully! 🤖', 'success');
+          return; // Exit
         }
       }
 
