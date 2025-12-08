@@ -108,6 +108,38 @@
       letter-spacing: 3px;
     }
 
+    /* Interactive Hero Title Animation */
+    .hero-title-interactive {
+      position: relative;
+      display: inline-block;
+      cursor: default;
+      padding: 10px 0; /* Space for lines */
+    }
+
+    .hero-title-interactive::before,
+    .hero-title-interactive::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #00d4ff, #007bff);
+      transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .hero-title-interactive::before {
+      top: 0;
+    }
+
+    .hero-title-interactive::after {
+      bottom: 0;
+    }
+
+    .hero-title-interactive:hover::before,
+    .hero-title-interactive:hover::after {
+      width: 100%;
+    }
+
     /* Responsive heading sizing with Nike-like impact */
     .hero-content h1 {
       font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
@@ -321,7 +353,7 @@
     <!-- Hero Section (hidden when logged in) -->
     <div id="hero-section" class="container flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="hero-content text-center px-3">
-        <h1 class="display-2 fw-bold mb-3 slide-in">Your Fitness Journey Starts Here</h1>
+        <h1 class="display-2 fw-bold mb-3 slide-in hero-title-interactive">Your Fitness Journey Starts Here</h1>
         <p class="lead mb-4">Join Gymcyclopedia to access workouts, nutrition tips, and community support to reach your goals.</p>
         <p class="text-muted"><strong>Please log in or sign up above to access all features.</strong></p>
       </div>
